@@ -1,8 +1,8 @@
 import {
   IsEmail,
   IsString,
-  MinLength,
   MaxLength,
+  Length,
   IsNotEmpty,
   Matches,
 } from 'class-validator';
@@ -15,7 +15,7 @@ export class RegisterDto {
   )
   @IsString()
   @IsNotEmpty()
-  @MaxLength(20)
+  @Length(3, 15)
   username!: string;
 
   @Transform(({ value }: { value: unknown }) =>
@@ -29,8 +29,7 @@ export class RegisterDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(32)
+  @Length(10, 20)
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
     message: 'password must contain uppercase, lowercase and a number',
   })

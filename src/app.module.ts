@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { validate } from './config/env.validation';
 
 @Module({
-  imports: [AuthModule], // other modules this module depends on
-  controllers: [AppController], // handle incoming requests
-  providers: [AppService], // services, repositories, helpers (injectable things)
+    imports: [
+        ConfigModule.forRoot({
+            envFilePath: '.env', // not necessary .env is already the default
+            isGlobal: true, // no need to imports: [ConfigModule] in other modules
+            validate, // nestjs calls it with process.env
+        }),
+        AuthModule,
+    ], // other modules this module depends on
 })
 export class AppModule {}

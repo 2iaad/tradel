@@ -5,18 +5,18 @@ import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  @HttpCode(201)
-  // create account
-  register(@Body() body: RegisterDto) {
-    return this.authService.register(body);
-  }
+    @Post('register')
+    @HttpCode(201)
+    // create account
+    register(@Body() body: RegisterDto) {
+        return this.authService.register(body);
+    }
 
-  @Post('login')
-  // generate jwt
-  login(@Body() body: LoginDto) {
-    return this.authService.login(body);
-  }
+    @Post('login')
+    // generate jwt
+    login(@Body() body: LoginDto) {
+        return this.authService.login(body);
+    }
 }

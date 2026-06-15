@@ -6,7 +6,6 @@ import { Env } from 'src/config/env.validation';
 
 @Injectable()
 export class AuthService {
-
     private readonly logger = new Logger(AuthService.name); // checked only at compile-time
     constructor(private readonly config: ConfigService<Env>) {} // <Env> so infer knows the type
 

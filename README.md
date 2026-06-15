@@ -1,98 +1,170 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Tradel
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS backend for the Tradel application. Currently implements the authentication foundation (routing, validation, config) — persistence and JWT issuance are the next steps.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Layer      | Technology                         |
+| ---------- | ---------------------------------- |
+| Runtime    | Node.js                            |
+| Framework  | NestJS 11 (on top of Express)      |
+| Language   | TypeScript 5.7                     |
+| Database   | PostgreSQL 16                      |
+| ORM        | Prisma _(planned)_                 |
+| Validation | class-validator + Zod              |
+| Auth       | JWT (access + refresh) _(planned)_ |
 
-## Project setup
+---
 
-```bash
-$ npm install
-```
+## Prerequisites
 
-## Compile and run the project
+- Node.js ≥ 20
+- npm ≥ 10
+- PostgreSQL 16 (or Docker to run the provided image)
+
+---
+
+## Getting Started
+
+**1. Clone and install dependencies**
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone <repo-url>
+cd tradel
+npm install
 ```
 
-## Run tests
+**2. Set up environment variables**
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cp .env.example .env
 ```
 
-## Deployment
+Edit `.env` with your values — see [Environment Variables](#environment-variables) below.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+**3. Start the database**
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+The `database/` directory contains a Dockerfile and `init.sh` that create a PostgreSQL 16 instance with a superuser and database. You can run it directly or use any Postgres instance.
+
+**4. Run the app**
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The server starts on `http://localhost:<PORT>` (default 3000). All routes are prefixed with `/api`.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Environment Variables
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Defined and validated in [src/config/env.validation.ts](src/config/env.validation.ts) using Zod. The app exits with a clear error message if any required variable is missing or invalid.
 
-## Support
+| Variable             | Required | Default       | Description                                      |
+| -------------------- | -------- | ------------- | ------------------------------------------------ |
+| `NODE_ENV`           | no       | `development` | `development` \| `production` \| `test`          |
+| `PORT`               | no       | `3000`        | Port the HTTP server listens on                  |
+| `DB_HOST`            | yes      | —             | PostgreSQL host                                  |
+| `DB_PORT`            | no       | `5432`        | PostgreSQL port                                  |
+| `DB_USER`            | yes      | —             | PostgreSQL user                                  |
+| `DB_PASSWORD`        | yes      | —             | PostgreSQL password                              |
+| `DB_NAME`            | yes      | —             | PostgreSQL database name                         |
+| `JWT_ACCESS_SECRET`  | yes      | —             | Secret for signing access tokens (min 32 chars)  |
+| `JWT_REFRESH_SECRET` | yes      | —             | Secret for signing refresh tokens (min 32 chars) |
+| `JWT_ACCESS_TTL`     | no       | `900s`        | Access token lifetime                            |
+| `JWT_REFRESH_TTL`    | no       | `7d`          | Refresh token lifetime                           |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## Project Structure
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```
+src/
+├── main.ts                   # Bootstrap: global prefix, ValidationPipe, listen
+├── app.module.ts             # Root module — wires ConfigModule + feature modules
+├── config/
+│   └── env.validation.ts     # Zod schema + validate() called by ConfigModule
+└── auth/
+    ├── auth.module.ts        # Auth feature module
+    ├── auth.controller.ts    # Route handlers for /api/auth/*
+    ├── auth.service.ts       # Business logic (stubs — see TODOs)
+    └── dto/
+        ├── register.dto.ts   # Validated shape for POST /auth/register
+        └── login.dto.ts      # Extends RegisterDto (picks email + password)
 
-## License
+database/
+├── Dockerfile                # PostgreSQL 16 Alpine image
+└── init.sh                   # Creates superuser, database, and pg_hba config
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+docs/
+├── 00-init.md               # NestJS CLI reference
+├── 01-overview.md           # NestJS concepts (controllers, modules, etc.)
+├── 02-env-variables.md      # Notes on ConfigModule and ConfigService
+├── 03-m-c-p.tldr            # Module/Controller/Provider diagram (tldraw)
+└── 04-db.tldr               # Database schema diagram (tldraw)
+```
+
+---
+
+## API
+
+Base URL: `http://localhost:<PORT>/api`
+
+All request bodies are JSON. Validation is handled globally via NestJS `ValidationPipe` — invalid requests return `400` with field-level error messages automatically.
+
+### Auth
+
+#### `POST /api/auth/register`
+
+**Body**
+
+| Field      | Type   | Rules                                                       |
+| ---------- | ------ | ----------------------------------------------------------- |
+| `username` | string | 3–15 chars, trimmed                                         |
+| `email`    | string | valid email, max 50 chars, trimmed                          |
+| `password` | string | 10–20 chars, must include uppercase, lowercase, and a digit |
+
+**Response** — currently echoes the body back. Will return JWT tokens once the service TODOs are completed.
+
+---
+
+#### `POST /api/auth/login`
+
+**Body**
+
+| Field      | Type   | Rules       |
+| ---------- | ------ | ----------- |
+| `email`    | string | valid email |
+| `password` | string | 10–20 chars |
+
+**Response** — currently echoes the body back. Will return JWT tokens once the service TODOs are completed.
+
+---
+
+## Scripts
+
+```bash
+npm run start:dev     # Development server with watch mode (recommended)
+npm run start:prod    # Run compiled output from dist/
+npm run build         # Compile TypeScript → dist/
+npm run lint          # ESLint with auto-fix
+npm run format        # Prettier across src/ and test/
+npm run test          # Unit tests (Jest)
+npm run test:cov      # Unit tests with coverage report
+npm run test:e2e      # End-to-end tests
+```
+
+---
+
+## What's Not Done Yet
+
+The authentication routes exist and validate input, but the following is still pending in [src/auth/auth.service.ts](src/auth/auth.service.ts):
+
+- Check if a user with the given email already exists
+- Hash the password with a salt (e.g. bcrypt)
+- Persist the new user in the database
+- Issue a signed JWT access + refresh token pair on register
+- Verify credentials and issue tokens on login
+- Wire in Prisma (`app.module.ts` has the TODO)

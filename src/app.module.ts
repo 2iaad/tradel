@@ -11,7 +11,7 @@ import { validate } from './config/env.validation';
             validate, // nestjs calls it with process.env
         }),
         AuthModule,
-        // TODO: add prisma module 
+        // TODO: add prisma module
     ], // other modules this module depends on
 })
 export class AppModule {}

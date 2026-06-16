@@ -66,7 +66,6 @@ Defined and validated in [src/config/env.validation.ts](src/config/env.validatio
 | -------------------- | -------- | ------------- | ------------------------------------------------ |
 | `NODE_ENV`           | no       | `development` | `development` \| `production` \| `test`          |
 | `PORT`               | no       | `3000`        | Port the HTTP server listens on                  |
-| `DB_HOST`            | yes      | —             | PostgreSQL host                                  |
 | `DB_PORT`            | no       | `5432`        | PostgreSQL port                                  |
 | `DB_USER`            | yes      | —             | PostgreSQL user                                  |
 | `DB_PASSWORD`        | yes      | —             | PostgreSQL password                              |

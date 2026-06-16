@@ -8,7 +8,6 @@ const envSchema = z.object({
     PORT: z.coerce.number().int().positive().default(3000), // coerce -> convert from string to number
 
     // db
-    DB_HOST: z.string().min(1),
     DB_PORT: z.coerce.number().int().positive().default(5432), // coerce -> convert from string to number
     DB_USER: z.string().min(1),
     DB_PASSWORD: z.string().min(1),

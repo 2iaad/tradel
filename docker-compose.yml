@@ -1,0 +1,26 @@
+services:
+    postgres:
+        build: ./database
+        image: my-postgres-image
+        container_name: my-postgres-container
+        env_file:
+            - .env
+        ports:
+            - '${DB_PORT}:5432'
+        networks:
+            - tradel
+        volumes:
+            - postgresdb:/var/lib/postgresql/data
+
+volumes:
+    postgresdb:
+        name: my-postgres-volume
+        driver: local
+        driver_opts:
+            device: /home/ziyad/Desktop/tradel/volumes
+            o: bind
+            type: none
+
+networks:
+    tradel:
+        name: my-tradel-network

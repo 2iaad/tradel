@@ -9,11 +9,6 @@ RUN mkdir -p /var/lib/postgresql/data /run/postgresql \
 COPY init.sh /usr/local/bin/init.sh
 RUN chmod +x /usr/local/bin/init.sh
 
-ENV PGDATA=/var/lib/postgresql/data
-ENV POSTGRES_USER=admin
-ENV POSTGRES_PASSWORD=changeme
-ENV POSTGRES_DB=mydb
-
 EXPOSE 5432
 
 USER postgres

@@ -2,6 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 
+// TODO 2: connect to the db from the server
+// TODO 3: use ORM (Prisma)
+// TODO 4: define user model
+
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         // logger: false,

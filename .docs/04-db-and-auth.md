@@ -453,3 +453,21 @@ curl -X POST http://localhost:3001/api/auth/login \
 - `bcrypt.hash(password, 12)` — cost factor 12 is a good balance of security vs speed (~300ms on modern hardware)
 - The access token secret and refresh token secret **must be different** — you're already set up for this with `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`
 - The migration script is a one-time manual step — for a real project you'd want a proper migration tool like `node-pg-migrate` or `sql-migrate`
+
+
+
+
+----
+----
+----
+----
+----
+----
+----
+
+### a. generate the module + service for the /database
+
+1. init the database.service.ts with the pool that contains the db configuration, using onModuleInit() + onModuleDestroy.
+- in this step i got introduced to events lifecycle; which means lifecycle of a provider.
+> not connection with db at this point (you can add it to test reachability)
+2. add DatabaseService to providers + exports 

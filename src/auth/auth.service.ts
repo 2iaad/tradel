@@ -8,6 +8,7 @@ import { Env } from 'src/config/env.validation';
 import * as bcrypt from 'bcrypt';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { createHash } from 'crypto';
+import ms, { StringValue } from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -81,10 +82,8 @@ export class AuthService {
     private async issueTokens(userId: string, email: string) {
         const accessToken = this.jwt.sign({ sub: userId, email }); // module defaults = access secret + TTL
 
-        const REFRESH_TTL_MS: string | undefined = this.config.get('JWT_REFRESH_TTL', {
-            infer: true,
-        });
-        const expiresAt = new Date(Date.now() + REFRESH_TTL_MS!);
+        const refreshTtl = this.config.get('JWT_REFRESH_TTL', { infer: true }) as StringValue;
+        const expiresAt = new Date(Date.now() + ms(refreshTtl));
         const jti = await this.refreshTokens.create(userId, 'pending', expiresAt);
 
         const refreshToken = this.jwt.sign(

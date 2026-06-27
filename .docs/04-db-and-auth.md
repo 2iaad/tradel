@@ -9,19 +9,20 @@ The full path from an empty Postgres container to a working register/login API �
 | Framework | NestJS 11 |
 | DB driver | `pg` (node-postgres) — raw SQL via `pg.Pool` |
 | Migrations | `node-pg-migrate` (not an ORM — manages *when* SQL runs) |
-| Password hashing | `bcrypt` |
-| Tokens | `@nestjs/jwt` (access + refresh) |
+| Password hashing | `bcrypt` (cost 12) — not argon2; bcrypt is fine for a single backend |
+| Tokens | `@nestjs/jwt` — short **access** (kept in client memory) + long **refresh** (httpOnly cookie) |
+| Refresh storage | `refresh_tokens` table — hashed, **rotated** on use, **reuse-detected** (this is what makes the refresh token actually revocable) |
 
 ---
 
 ## 1. Install
 
 ```bash
-npm install bcrypt @nestjs/jwt
-npm install -D @types/bcrypt node-pg-migrate
+npm install bcrypt @nestjs/jwt cookie-parser
+npm install -D @types/bcrypt @types/cookie-parser node-pg-migrate
 ```
 
-`pg` / `@types/pg` are already installed. You don't need Passport — `@nestjs/jwt` + a custom guard is enough for basic JWT.
+`pg` / `@types/pg` are already installed. You don't need Passport — `@nestjs/jwt` + a custom guard is enough. `cookie-parser` lets the server read the httpOnly refresh cookie the browser sends back.
 
 ---
 
@@ -29,7 +30,8 @@ npm install -D @types/bcrypt node-pg-migrate
 
 ```
 migrations/                         ← node-pg-migrate owns this
-└── <timestamp>_users-table.sql
+├── <timestamp>_users-table.sql
+└── <timestamp>_refresh-tokens.sql
 src/
 ├── config/env.validation.ts        ← already exists (Zod, validates all env)
 ├── database/
@@ -41,6 +43,7 @@ src/
 │   ├── auth.module.ts
 │   ├── auth.service.ts
 │   ├── auth.controller.ts
+│   ├── refresh-token.repository.ts ← raw SQL for the refresh_tokens table
 │   ├── dto/{register,login}.dto.ts
 │   └── guards/jwt.guard.ts
 └── app.module.ts
@@ -272,46 +275,174 @@ export class UsersRepository {
 
 ---
 
-## 7. Auth module — JWT + bcrypt
+## Why two tokens (read this before step 7)
 
-### `src/auth/auth.module.ts`
+A signed JWT is **stateless** — the server can verify it without a DB lookup, which is great, but it also means you **cannot revoke it before it expires**. If that token is long-lived and gets stolen, it's valid for the whole window and you can do nothing.
+
+The fix is to split the job in two:
+
+- **Access token** — short-lived (10–15 min), a plain signed JWT. Carries `sub` (user id). Sent on every request in `Authorization: Bearer …`. The client keeps it **in memory** (never `localStorage` — XSS can read that). When it expires, you get a new one from the refresh endpoint.
+- **Refresh token** — long-lived (7 d), used **only** to mint new access tokens. Lives in an **httpOnly, Secure, SameSite cookie** so client JS can't touch it. And — the key part — every refresh token has a **row in the DB** (`refresh_tokens`), so the server actually controls it: it can revoke, expire, and rotate.
+
+> Without the DB table, "two tokens" is cosmetic — your refresh token is just another un-revocable JWT. Steps 7–8 build the table and its repo; that's the part that makes this real.
+
+We **stay on `bcrypt`** (not argon2): argon2 is marginally stronger but bcrypt at cost 12 is fine for a single backend, and it's already installed. Laziness that's actually correct.
+
+---
+
+## 7. The `refresh_tokens` migration
+
+```bash
+npm run migrate:create refresh_tokens
+# → migrations/<timestamp>_refresh-tokens.sql
+```
+
+```sql
+-- Up Migration
+CREATE TABLE refresh_tokens (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash  TEXT         NOT NULL,
+    expires_at  TIMESTAMPTZ  NOT NULL,
+    revoked_at  TIMESTAMPTZ,            -- NULL = still valid
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens (user_id);
+
+-- Down Migration
+DROP TABLE refresh_tokens;
+```
+
+Apply it: `npm run migrate:up`.
+
+Why each column:
+- **`token_hash`, never the raw token** — same rule as passwords. If the DB leaks, the hashes can't be replayed. (We hash with SHA-256, not bcrypt — a refresh token is long and random already, so it doesn't need bcrypt's slow salted hashing the way a low-entropy human password does.)
+- **`revoked_at`** — a soft kill switch. Logout sets it; rotation sets it on the old token; reuse-detection sets it on *all* of a user's tokens.
+- **`expires_at`** — lets you expire server-side independently of the JWT's own `exp`.
+- **`ON DELETE CASCADE`** — delete a user, their refresh tokens go with them. No orphans.
+- **index on `user_id`** — "revoke all tokens for this user" and lookups stay fast.
+
+> **Conclusion.** You now have server-side state for refresh tokens. This single table is the whole reason the two-token scheme is more secure than one long JWT: it turns the refresh token from *un-revocable* into *fully controlled* — revoke, expire, rotate, detect theft.
+
+---
+
+## 8. The refresh-token repository
 
 ```ts
+// src/auth/refresh-token.repository.ts
+import { Injectable } from '@nestjs/common';
+import { DatabaseService } from 'src/database/database.service';
+
+export interface RefreshToken {
+    id: string;
+    user_id: string;
+    token_hash: string;
+    expires_at: Date;
+    revoked_at: Date | null;
+    created_at: Date;
+}
+
+@Injectable()
+export class RefreshTokenRepository {
+    constructor(private readonly db: DatabaseService) {}
+
+    async create(userId: string, tokenHash: string, expiresAt: Date): Promise<string> {
+        const { rows } = await this.db.query<{ id: string }>(
+            `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+             VALUES ($1, $2, $3)
+             RETURNING id`,
+            [userId, tokenHash, expiresAt],
+        );
+        return rows[0].id; // this id becomes the token's "jti"
+    }
+
+    async updateHash(id: string, tokenHash: string): Promise<void> {
+        await this.db.query(`UPDATE refresh_tokens SET token_hash = $1 WHERE id = $2`, [tokenHash, id]);
+    }
+
+    async findById(id: string): Promise<RefreshToken | null> {
+        const { rows } = await this.db.query<RefreshToken>(
+            `SELECT * FROM refresh_tokens WHERE id = $1`,
+            [id],
+        );
+        return rows[0] ?? null;
+    }
+
+    async revoke(id: string): Promise<void> {
+        await this.db.query(
+            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1 AND revoked_at IS NULL`,
+            [id],
+        );
+    }
+
+    async revokeAllForUser(userId: string): Promise<void> {
+        await this.db.query(
+            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL`,
+            [userId],
+        );
+    }
+}
+```
+
+> Same trust-boundary rule as the users repo: **always `$1, $2, …`, never string-concat**.
+
+> **Conclusion.** Small raw-SQL methods — `create` (returns the row id, which we'll embed in the JWT as its `jti`/identity), `updateHash` (store the signed token's hash after signing), `findById` (look it up on refresh), `revoke` (kill one), `revokeAllForUser` (kill all on detected theft). This is the entire server-side surface the auth service needs.
+
+---
+
+## 9. Auth module — wire in JWT + both repos
+
+```ts
+// src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersRepository } from 'src/users/users.repository';
+import { RefreshTokenRepository } from './refresh-token.repository';
 
 @Module({
     imports: [
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService<Env>) => ({
+                // default secret/TTL = the ACCESS token; refresh signs with its own secret explicitly
                 secret: config.get('JWT_ACCESS_SECRET', { infer: true }),
                 signOptions: { expiresIn: config.get('JWT_ACCESS_TTL', { infer: true }) },
             }),
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, UsersRepository],
+    providers: [AuthService, UsersRepository, RefreshTokenRepository],
 })
 export class AuthModule {}
 ```
 
-### `src/auth/auth.service.ts`
+> `registerAsync` is used because the secret comes from `ConfigService` at runtime — `useFactory` lets Nest inject it. The `JwtModule`'s default config is the **access** token; whenever we sign or verify a **refresh** token we pass its own secret explicitly (step 10).
+
+> **Conclusion.** The module now provides both repositories and a `JwtService` pre-configured for access tokens. Nothing in here knows about cookies or rotation — that logic lives in the service, which is where it belongs.
+
+---
+
+## 10. Auth service — the token logic (this is the meat)
 
 ```ts
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+// src/auth/auth.service.ts
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { createHash } from 'node:crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UsersRepository } from 'src/users/users.repository';
+import { RefreshTokenRepository } from './refresh-token.repository';
 import { Env } from 'src/config/env.validation';
+
+const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // keep in sync with JWT_REFRESH_TTL (7d)
 
 @Injectable()
 export class AuthService {
@@ -319,6 +450,7 @@ export class AuthService {
 
     constructor(
         private readonly users: UsersRepository,
+        private readonly refreshTokens: RefreshTokenRepository,
         private readonly jwt: JwtService,
         private readonly config: ConfigService<Env>,
     ) {}
@@ -327,60 +459,185 @@ export class AuthService {
         const passwordHash = await bcrypt.hash(body.password, 12);
         const user = await this.users.create(body.username, body.email, passwordHash); // throws 409 on dupe
         this.logger.log(`Registered user: ${user.email}`);
-        return this.signTokens(user.id, user.email);
+        return this.issueTokens(user.id, user.email);
     }
 
     async login(body: LoginDto) {
         const user = await this.users.findByEmail(body.email);
+        // NOTE the `!` on bcrypt.compare — fail when it does NOT match.
         // same error for "no user" and "wrong password" → no account enumeration
         if (!user || !(await bcrypt.compare(body.password, user.password_hash))) {
             throw new UnauthorizedException('Invalid credentials');
         }
-        return this.signTokens(user.id, user.email);
+        return this.issueTokens(user.id, user.email);
     }
 
-    private signTokens(userId: string, email: string) {
-        const payload = { sub: userId, email };
-        return {
-            accessToken: this.jwt.sign(payload),
-            refreshToken: this.jwt.sign(payload, {
+    /** Verify an incoming refresh token, then ROTATE it. */
+    async refresh(rawRefreshToken: string) {
+        let payload: { sub: string; email: string; jti: string };
+        try {
+            payload = this.jwt.verify(rawRefreshToken, {
+                secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
+            }); // checks signature + exp
+        } catch {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+
+        const stored = await this.refreshTokens.findById(payload.jti);
+        if (!stored) throw new UnauthorizedException('Invalid refresh token');
+
+        // REUSE DETECTION: a token we already rotated/revoked is being presented again
+        // → treat as theft and kill every session for this user.
+        if (stored.revoked_at) {
+            await this.refreshTokens.revokeAllForUser(stored.user_id);
+            this.logger.warn(`Refresh token reuse detected for user ${stored.user_id} — all sessions revoked`);
+            throw new UnauthorizedException('Refresh token reuse detected');
+        }
+
+        if (this.hash(rawRefreshToken) !== stored.token_hash) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+
+        await this.refreshTokens.revoke(stored.id);                 // old one is now dead
+        return this.issueTokens(stored.user_id, payload.email);     // mint a fresh pair
+    }
+
+    async logout(rawRefreshToken: string | undefined) {
+        if (!rawRefreshToken) return;
+        try {
+            const { jti } = this.jwt.verify<{ jti: string }>(rawRefreshToken, {
+                secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
+            });
+            await this.refreshTokens.revoke(jti);
+        } catch {
+            // already invalid/expired — nothing to revoke
+        }
+    }
+
+    // --- helpers ---
+
+    /** Mint an access token + a NEW refresh token, persisting the refresh token's hash. */
+    private async issueTokens(userId: string, email: string) {
+        const accessToken = this.jwt.sign({ sub: userId, email }); // access secret + TTL (module defaults)
+
+        const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+        // 1. insert the row first → its id is the token's unique identity (jti)
+        const jti = await this.refreshTokens.create(userId, 'pending', expiresAt);
+        // 2. sign the refresh JWT carrying that jti
+        const refreshToken = this.jwt.sign(
+            { sub: userId, email, jti },
+            {
                 secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
                 expiresIn: this.config.get('JWT_REFRESH_TTL', { infer: true }),
-            }),
-        };
+            },
+        );
+        // 3. store the hash of the signed token so we can verify it on refresh
+        await this.refreshTokens.updateHash(jti, this.hash(refreshToken));
+
+        return { accessToken, refreshToken };
+    }
+
+    private hash(token: string): string {
+        return createHash('sha256').update(token).digest('hex');
     }
 }
 ```
 
-### `src/auth/auth.controller.ts`
+`issueTokens` uses the `updateHash` method you already added in step 8.
+
+> Why insert-then-hash in two steps: the refresh JWT must contain its own row id (`jti`), but the id only exists after the INSERT. So: insert (placeholder hash) → get id → sign token with id → store the real hash. The alternative (generate the UUID in app code) also works; this keeps the DB as the id source.
+
+> **Conclusion.** This file is the security core. `register`/`login` mint a pair. `refresh` does the three things that make it trustworthy: (1) verify signature+expiry, (2) **detect reuse** — a revoked token presented again means it was stolen, so nuke all the user's sessions, (3) **rotate** — every refresh burns the old token and issues a new one, so a token works exactly once. `logout` revokes server-side, not just client-side. Note the fixed `!bcrypt.compare` in `login` — the earlier version threw on the *correct* password.
+
+---
+
+## 11. Controller — set the cookie, expose refresh & logout
 
 ```ts
-import { Controller, Post, Body } from '@nestjs/common';
+// src/auth/auth.controller.ts
+import { Controller, Post, Body, Res, Req, HttpCode } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
+
+const REFRESH_COOKIE = 'refresh_token';
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly auth: AuthService) {}
 
     @Post('register')
-    register(@Body() body: RegisterDto) {
-        return this.auth.register(body);
+    async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
+        const { accessToken, refreshToken } = await this.auth.register(body);
+        this.setRefreshCookie(res, refreshToken);
+        return { accessToken };
     }
 
     @Post('login')
-    login(@Body() body: LoginDto) {
-        return this.auth.login(body);
+    @HttpCode(200)
+    async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
+        const { accessToken, refreshToken } = await this.auth.login(body);
+        this.setRefreshCookie(res, refreshToken);
+        return { accessToken };
+    }
+
+    @Post('refresh')
+    @HttpCode(200)
+    async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        const token = req.cookies?.[REFRESH_COOKIE] as string | undefined;
+        if (!token) return { accessToken: null };
+        const { accessToken, refreshToken } = await this.auth.refresh(token);
+        this.setRefreshCookie(res, refreshToken); // rotation → new cookie every time
+        return { accessToken };
+    }
+
+    @Post('logout')
+    @HttpCode(204)
+    async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        await this.auth.logout(req.cookies?.[REFRESH_COOKIE] as string | undefined);
+        res.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
+    }
+
+    private setRefreshCookie(res: Response, token: string) {
+        res.cookie(REFRESH_COOKIE, token, {
+            httpOnly: true,                                   // JS can't read it → XSS-safe
+            secure: process.env.NODE_ENV === 'production',    // HTTPS only in prod; off for localhost http
+            sameSite: 'strict',                               // not sent on cross-site requests → CSRF-safe
+            path: '/api/auth',                                // only sent to the auth routes that need it
+            maxAge: 7 * 24 * 60 * 60 * 1000,                  // 7d, matches the refresh token's life
+        });
     }
 }
 ```
 
-> DTOs use `class-validator` (already installed). Match the DB limits: `@MaxLength(15)` username, `@IsEmail()` email. Enable validation globally in `main.ts` with `app.useGlobalPipes(new ValidationPipe({ whitelist: true }))`.
+> `@Res({ passthrough: true })` lets you set the cookie **and** still `return` a body the normal Nest way. Without `passthrough` you'd have to call `res.json()` yourself and lose interceptors/serialization.
+
+> **Conclusion.** The access token goes to the client in the JSON body (it lives in memory there); the refresh token only ever travels as an httpOnly cookie scoped to `/api/auth`. `refresh` reads that cookie and resets it on every call (rotation). `logout` clears it client-side *and* revokes it server-side. The browser does the cookie plumbing for free — no token-shuttling code on the frontend.
 
 ---
 
-## 8. JWT guard (protect routes)
+## 12. `main.ts` — cookie-parser + CORS for the SPA
+
+```ts
+import cookieParser from 'cookie-parser';
+// ...
+app.setGlobalPrefix('api');
+app.useGlobalPipes(new ValidationPipe({ whitelist: true })); // whitelist strips unknown fields
+app.use(cookieParser());                                      // populates req.cookies
+app.enableCors({
+    origin: 'http://localhost:5173',   // your SPA's origin (Vite default); read from env later
+    credentials: true,                 // REQUIRED for the browser to send/receive the cookie
+});
+```
+
+On the SPA side, every `fetch`/`axios` call must send `credentials: 'include'` / `withCredentials: true`, or the cookie never leaves the browser.
+
+> **Conclusion.** `cookieParser()` is what makes `req.cookies` exist (the controller reads it). CORS with `credentials: true` + a specific `origin` (you cannot use `*` with credentials) is the contract that lets a browser on a different port hold the httpOnly cookie. This is the one piece that's easy to forget and produces a "login works but refresh is always empty" bug.
+
+---
+
+## 13. JWT guard (protect routes)
 
 ```ts
 // src/auth/guards/jwt.guard.ts
@@ -424,27 +681,42 @@ profile(@Req() req: Request) {
 }
 ```
 
+> **Conclusion.** The guard verifies only the **access** token (the short-lived one), straight from the `Authorization` header — no DB hit, which is the whole point of keeping access tokens stateless. Refresh tokens never reach protected routes; they only touch `/api/auth/refresh`.
+
 ---
 
-## 9. Run & test
+## 14. Run & test
 
 ```bash
 docker compose up -d        # 1. start Postgres
-npm run migrate:up          # 2. apply pending migrations
+npm run migrate:up          # 2. apply pending migrations (users + refresh_tokens)
 npm run start:dev           # 3. start the API
 ```
 
+`-c cookies.txt -b cookies.txt` makes curl behave like a browser cookie jar so you can test refresh:
+
 ```bash
-# register
-curl -X POST http://localhost:3000/auth/register \
+# register (stores the refresh cookie in cookies.txt)
+curl -c cookies.txt -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"ziyad","email":"test@example.com","password":"Password1"}'
+  -d '{"username":"ziyad","email":"test@example.com","password":"Password1A"}'
 
 # login
-curl -X POST http://localhost:3000/auth/login \
+curl -c cookies.txt -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Password1"}'
+  -d '{"email":"test@example.com","password":"Password1A"}'
+
+# refresh (sends the cookie back) → new accessToken, new cookie
+curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/refresh
+
+# reuse detection: replay an OLD refresh token after rotating → should 401 + revoke all
+# (grab a token value from an earlier cookies.txt copy and send it manually)
+
+# logout → 204, cookie cleared, server-side revoked
+curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/logout
 ```
+
+> **Conclusion.** End to end: register/login set the cookie, refresh rotates it, logout kills it. The reuse test is the one worth doing by hand — replaying a rotated token should 401 *and* invalidate every other session for that user. If that fires, your security core works.
 
 ---
 
@@ -454,6 +726,10 @@ curl -X POST http://localhost:3000/auth/login \
 - The `pgmigrations` ledger is what makes any database catch up to the right state, in order, once each. `migrate:up` is always safe to re-run.
 - Migrations are **immutable once applied** — fix forward with a new file, never edit an old one. Timestamps fix ordering; never rename.
 - Pool lives in `onModuleInit`, closed in `onModuleDestroy` — never the constructor.
-- Store `password_hash`, never the password. `bcrypt.hash(pw, 12)` is a good cost/speed balance.
+- Store `password_hash`, never the password. `bcrypt.hash(pw, 12)` is a good cost/speed balance. Refresh tokens are hashed with **SHA-256** (already high-entropy, no need for bcrypt's slow hashing).
 - Login returns one **`Invalid credentials`** for both unknown-user and wrong-password — no enumeration. Let the DB's `UNIQUE` constraint (error `23505`) reject duplicates instead of a racy pre-check.
+- **Access = stateless & short** (verified with no DB hit), **refresh = stateful & long** (a DB row you can revoke). That split is the entire security argument.
+- **Rotation + reuse detection**: every refresh burns the old token; a replayed old token means theft → revoke all the user's sessions.
+- Refresh token lives in an **httpOnly + Secure + SameSite cookie** — XSS can't read it, CSRF can't ride it. The access token lives in **client memory**, never `localStorage`.
 - Access and refresh secrets **must differ** — already separated as `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`.
+- CORS needs `credentials: true` + an explicit `origin` (not `*`), and the SPA must send `credentials: 'include'`, or the cookie never moves.

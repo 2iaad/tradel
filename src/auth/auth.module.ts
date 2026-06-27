@@ -13,7 +13,6 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 @Module({
     imports: [
         JwtModule.registerAsync({
-            // TODO: understand more this part
             inject: [ConfigService],
             useFactory: (config: ConfigService<Env>) => ({
                 secret: config.get('JWT_ACCESS_SECRET', { infer: true }),

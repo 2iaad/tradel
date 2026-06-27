@@ -13,7 +13,6 @@ import { DatabaseModule } from './database/database.module';
         }),
         AuthModule,
         DatabaseModule,
-        // TODO: add prisma module
     ], // other modules this module depends on
 })
 export class AppModule {}

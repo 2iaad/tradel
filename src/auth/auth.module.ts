@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller'; // controllers
 
 import { AuthService } from './auth.service'; // providers
 import { UsersRepository } from 'src/users/users.repository'; // providers
+import { RefreshTokenRepository } from './refresh-token.repository';
 
 @Module({
     imports: [
@@ -24,6 +25,6 @@ import { UsersRepository } from 'src/users/users.repository'; // providers
     ],
 
     controllers: [AuthController], // handles GET /users, POST /users, etc.
-    providers: [AuthService, UsersRepository], // business logic
+    providers: [AuthService, UsersRepository, RefreshTokenRepository], // business logic
 })
 export class AuthModule {}

@@ -14,18 +14,11 @@ export class UsersRepository {
     constructor(private readonly db: DatabaseService) {}
 
     async findByEmail(email: string): Promise<User | null> {
-        const { rows } = await this.db.query<User>(
-            `SELECT * FROM users WHERE email = $1`,
-            [email],
-        );
+        const { rows } = await this.db.query<User>(`SELECT * FROM users WHERE email = $1`, [email]);
         return rows[0] ?? null; // or obj.rows[0];
     }
 
-    async create(
-        username: string,
-        email: string,
-        password_hash: string,
-    ): Promise<User> {
+    async create(username: string, email: string, password_hash: string): Promise<User> {
         try {
             const { rows } = await this.db.query<User>( // sending 3 recieving 5
                 `INSERT INTO users (username, email, password_hash)

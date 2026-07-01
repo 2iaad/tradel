@@ -14,35 +14,30 @@ export interface RefreshToken {
 export class RefreshTokenRepository {
     constructor(private readonly db: DatabaseService) {}
 
-    async create(userId: string, tokenHash: string, expiresAt: Date): Promise<string> {
-        const { rows } = await this.db.query<{ id: string }>(
+    async create(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
+        await this.db.query(
             `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-             VALUES ($1, $2, $3)
-             RETURNING id`,
+             VALUES ($1, $2, $3)`,
             [userId, tokenHash, expiresAt],
         );
-        return rows[0].id; // this id becomes the token's "jti"
     }
 
-    async updateHash(id: string, tokenHash: string): Promise<void> {
-        await this.db.query(`UPDATE refresh_tokens SET token_hash = $1 WHERE id = $2`, [
-            tokenHash,
-            id,
-        ]);
-    }
-
-    async findById(id: string): Promise<RefreshToken | null> {
-        const { rows } = await this.db.query<RefreshToken>(
-            `SELECT * FROM refresh_tokens WHERE id = $1`,
-            [id],
+    /** Look up by the token's sha256 hash, joining the user's email for the new access token. */
+    async findByHash(tokenHash: string): Promise<(RefreshToken & { email: string }) | null> {
+        const { rows } = await this.db.query<RefreshToken & { email: string }>(
+            `SELECT rt.*, u.email
+             FROM refresh_tokens rt
+             JOIN users u ON u.id = rt.user_id
+             WHERE rt.token_hash = $1`,
+            [tokenHash],
         );
         return rows[0] ?? null;
     }
 
-    async revoke(id: string): Promise<void> {
+    async revokeByHash(tokenHash: string): Promise<void> {
         await this.db.query(
-            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1 AND revoked_at IS NULL`,
-            [id],
+            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1 AND revoked_at IS NULL`,
+            [tokenHash],
         );
     }
 

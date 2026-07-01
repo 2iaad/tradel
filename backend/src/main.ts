@@ -10,8 +10,8 @@ async function bootstrap() {
     const logger = new Logger(AppModule.name);
 
     app.setGlobalPrefix('api'); // global convention for backend
-    app.use(cookieParser()); // what makes req.cookies
-    app.useGlobalPipes(new ValidationPipe()); // enable validation, bridge between the raw request and your DTO | Without it, NestJS ignores your DTO decorators completely.
+    app.use(cookieParser()); // set the req.cookies
+    app.useGlobalPipes(new ValidationPipe()); // enable dto validation one request body
     app.enableCors({
         origin: 'http://localhost:5173',
         credentials: true, // necessary for the browser to send/receive cookies

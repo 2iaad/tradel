@@ -10,7 +10,7 @@ The full path from an empty Postgres container to a working register/login API �
 | DB driver | `pg` (node-postgres) — raw SQL via `pg.Pool` |
 | Migrations | `node-pg-migrate` (not an ORM — manages *when* SQL runs) |
 | Password hashing | `bcrypt` (cost 12) — not argon2; bcrypt is fine for a single backend |
-| Tokens | `@nestjs/jwt` — short **access** (kept in client memory) + long **refresh** (httpOnly cookie) |
+| Tokens | short **access** = signed JWT (`@nestjs/jwt`, client memory) + long **refresh** = opaque random string (httpOnly cookie) |
 | Refresh storage | `refresh_tokens` table — hashed, **static** (same token reused until expiry or logout), **revocable** via `revoked_at` column |
 
 ---
@@ -349,32 +349,30 @@ export interface RefreshToken {
 export class RefreshTokenRepository {
     constructor(private readonly db: DatabaseService) {}
 
-    async create(userId: string, tokenHash: string, expiresAt: Date): Promise<string> {
-        const { rows } = await this.db.query<{ id: string }>(
+    async create(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
+        await this.db.query(
             `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-             VALUES ($1, $2, $3)
-             RETURNING id`,
+             VALUES ($1, $2, $3)`,
             [userId, tokenHash, expiresAt],
         );
-        return rows[0].id; // this id becomes the token's "jti"
     }
 
-    async updateHash(id: string, tokenHash: string): Promise<void> {
-        await this.db.query(`UPDATE refresh_tokens SET token_hash = $1 WHERE id = $2`, [tokenHash, id]);
-    }
-
-    async findById(id: string): Promise<RefreshToken | null> {
-        const { rows } = await this.db.query<RefreshToken>(
-            `SELECT * FROM refresh_tokens WHERE id = $1`,
-            [id],
+    // look up by the token's sha256 hash; JOIN users to get the email for the new access token
+    async findByHash(tokenHash: string): Promise<(RefreshToken & { email: string }) | null> {
+        const { rows } = await this.db.query<RefreshToken & { email: string }>(
+            `SELECT rt.*, u.email
+             FROM refresh_tokens rt
+             JOIN users u ON u.id = rt.user_id
+             WHERE rt.token_hash = $1`,
+            [tokenHash],
         );
         return rows[0] ?? null;
     }
 
-    async revoke(id: string): Promise<void> {
+    async revokeByHash(tokenHash: string): Promise<void> {
         await this.db.query(
-            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1 AND revoked_at IS NULL`,
-            [id],
+            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1 AND revoked_at IS NULL`,
+            [tokenHash],
         );
     }
 
@@ -389,7 +387,7 @@ export class RefreshTokenRepository {
 
 > Same trust-boundary rule as the users repo: **always `$1, $2, …`, never string-concat**.
 
-> **Conclusion.** Small raw-SQL methods — `create` (returns the row id, which we'll embed in the JWT as its `jti`/identity), `updateHash` (store the signed token's hash after signing), `findById` (look it up on refresh), `revoke` (kill one), `revokeAllForUser` (kill all on detected theft). This is the entire server-side surface the auth service needs.
+> **Conclusion.** Small raw-SQL methods — `create` (insert one row storing only the token's hash), `findByHash` (look it up on refresh, joining the user's email), `revokeByHash` (kill one on logout), `revokeAllForUser` (kill all on detected theft). This is the entire server-side surface the auth service needs.
 
 ---
 
@@ -462,7 +460,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UsersRepository } from 'src/users/users.repository';
@@ -499,57 +497,33 @@ export class AuthService {
         return this.issueTokens(user.id, user.email);
     }
 
-    /** Verify the refresh token and issue a new access token. The refresh token itself is NOT replaced. */
+    /** Validate the refresh token and issue a new access token. The refresh token itself is NOT replaced. */
     async refresh(rawRefreshToken: string) {
-        let payload: { sub: string; email: string; jti: string };
-        try {
-            payload = this.jwt.verify(rawRefreshToken, {
-                secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
-            }); // checks signature + exp
-        } catch {
-            throw new UnauthorizedException('Invalid refresh token');
-        }
-
-        // reject if missing, revoked, or the stored hash doesn't match
-        const stored = await this.refreshTokens.findById(payload.jti);
-        if (!stored || stored.revoked_at || this.hash(rawRefreshToken) !== stored.token_hash) {
+        // opaque token: look it up by hash, reject if missing / revoked / expired
+        const stored = await this.refreshTokens.findByHash(this.hash(rawRefreshToken));
+        if (!stored || stored.revoked_at || stored.expires_at.getTime() < Date.now()) {
             throw new UnauthorizedException('Invalid refresh token');
         }
 
         // static refresh token: issue a new access token only, refresh token stays the same
-        return { accessToken: this.jwt.sign({ sub: stored.user_id, email: payload.email }) };
+        return { accessToken: this.jwt.sign({ sub: stored.user_id, email: stored.email }) };
     }
 
     async logout(rawRefreshToken: string | undefined) {
         if (!rawRefreshToken) return;
-        try {
-            const { jti } = this.jwt.verify<{ jti: string }>(rawRefreshToken, {
-                secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
-            });
-            await this.refreshTokens.revoke(jti);
-        } catch {
-            // already invalid/expired — nothing to revoke
-        }
+        await this.refreshTokens.revokeByHash(this.hash(rawRefreshToken));
     }
 
     // --- helpers ---
 
-    /** Mint an access token + a NEW refresh token, persisting the refresh token's hash. */
+    /** Mint an access token (JWT) + an opaque refresh token, persisting only the refresh token's hash. */
     private async issueTokens(userId: string, email: string) {
         const accessToken = this.jwt.sign({ sub: userId, email }); // module defaults = access secret + TTL
 
-        // insert the row first so its id can be embedded in the refresh JWT as the jti
+        const refreshToken = randomBytes(32).toString('hex'); // opaque random string, not a JWT
         const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
-        const jti = await this.refreshTokens.create(userId, 'pending', expiresAt);
+        await this.refreshTokens.create(userId, this.hash(refreshToken), expiresAt); // store only the hash
 
-        const refreshToken = this.jwt.sign(
-            { sub: userId, email, jti },
-            {
-                secret: this.config.get('JWT_REFRESH_SECRET', { infer: true }),
-                expiresIn: this.config.get('JWT_REFRESH_TTL', { infer: true }),
-            },
-        );
-        await this.refreshTokens.updateHash(jti, this.hash(refreshToken)); // store hash to verify on refresh
         return { accessToken, refreshToken };
     }
 
@@ -559,11 +533,11 @@ export class AuthService {
 }
 ```
 
-`issueTokens` uses the `updateHash` method you already added in step 8.
+`issueTokens` stores only the token's hash with a single `create` — one INSERT, no second write.
 
-> Why insert-then-hash in two steps: the refresh JWT must contain its own row id (`jti`), but the id only exists after the INSERT. So: insert (placeholder hash) → get id → sign token with id → store the real hash. The alternative (generate the UUID in app code) also works; this keeps the DB as the id source.
+> Why opaque (not a JWT): the refresh token is only ever validated by a DB lookup on its hash, so a signature would add nothing — you'd verify it *and* still hit the DB. A random string means one INSERT (no id round-trip), instant revocation via `revoked_at`, and nothing sensitive at rest (only the sha256 hash). This is the pattern Auth0/WorkOS/OWASP recommend for refresh tokens.
 
-> **Conclusion.** This file is the security core. `register`/`login` mint a pair via `issueTokens`. `refresh` does two things: (1) verify signature+expiry, (2) check the DB row is not revoked — then issues a new access token only; the refresh token is untouched. `logout` revokes the refresh token row server-side so it cannot be used again even within its 7-day window.
+> **Conclusion.** This file is the security core. `register`/`login` mint a pair via `issueTokens`. `refresh` looks the token up by its hash and, if the row isn't revoked or expired, issues a new access token only; the refresh token is untouched. `logout` revokes the refresh token row server-side so it cannot be used again even within its 7-day window.
 
 ---
 
@@ -746,5 +720,5 @@ curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/logout
 - **Access = stateless & short** (verified with no DB hit), **refresh = stateful & long** (a DB row you can revoke). That split is the entire security argument.
 - **Static refresh tokens**: the same refresh token is reused on every `/auth/refresh` until it expires (7 d) or is revoked. Only the access token is replaced on each refresh. This is the default behaviour of Google OAuth, AWS Cognito, and most providers.
 - Refresh token lives in an **httpOnly + Secure + SameSite cookie** — XSS can't read it, CSRF can't ride it. The access token lives in **client memory**, never `localStorage`.
-- Access and refresh secrets **must differ** — already separated as `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`.
+- The **access token is a signed JWT** (`JWT_ACCESS_SECRET`); the **refresh token is opaque** (a random string, no signature), so `JWT_REFRESH_SECRET` is now unused and can be dropped from the env schema.
 - CORS needs `credentials: true` + an explicit `origin` (not `*`), and the SPA must send `credentials: 'include'`, or the cookie never moves.

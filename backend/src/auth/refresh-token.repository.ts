@@ -42,6 +42,7 @@ export class RefreshTokenRepository {
     }
 
     async revokeAllForUser(userId: string): Promise<void> {
+        // log the user out from all devices
         await this.db.query(
             `UPDATE refresh_tokens SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL`,
             [userId],

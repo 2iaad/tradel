@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { logout } from '@/lib/api';
-import { useSession } from './session';
+import { useSession, useSessionStore } from '@/stores/session';
 
 const NAV = [
     ['01', 'Dashboard', '/dashboard'],
@@ -137,9 +136,10 @@ function UserBadge({
 // Sign-out button (signed in) or sign-in link (guest).
 function AuthAction({ signedIn }: { signedIn: boolean }) {
     const router = useRouter();
+    const signOutStore = useSessionStore((s) => s.signOut);
     const signOut = async () => {
-        await logout();
-        router.push('/');
+        await signOutStore();
+        router.push('/login');
     };
 
     return signedIn ? (
@@ -152,7 +152,7 @@ function AuthAction({ signedIn }: { signedIn: boolean }) {
         </button>
     ) : (
         <Link
-            href="/"
+            href="/login"
             className="block text-center font-mono text-[11px] font-medium tracking-[0.12em] text-[#2fd57f] no-underline p-[9px] border border-[rgba(47,213,127,0.3)] rounded-lg transition-colors hover:bg-[rgba(47,213,127,0.08)] hover:border-[#2fd57f]"
         >
             SIGN IN

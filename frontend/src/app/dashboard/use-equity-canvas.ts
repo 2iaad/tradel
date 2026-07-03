@@ -28,6 +28,7 @@ export function useEquityCanvas(range: RangeKey, ghost: boolean) {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let raf = 0;
         let played = false;
+        let onScreen = false;
         let hover: { x: number; y: number } | null = null;
         const curves: Partial<Record<RangeKey, number[]>> = {};
 
@@ -43,19 +44,22 @@ export function useEquityCanvas(range: RangeKey, ghost: boolean) {
             });
             raf = requestAnimationFrame(tick);
         };
+        // Only run the loop when the chart is both on-screen and the tab is
+        // visible — no point burning frames on a pulsing dot no one can see.
         const start = () => {
-            if (!raf) raf = requestAnimationFrame(tick);
+            if (!raf && onScreen && !document.hidden) raf = requestAnimationFrame(tick);
         };
         const stop = () => {
             cancelAnimationFrame(raf);
             raf = 0;
         };
 
-        // Trigger the reveal when the chart scrolls into view; re-arm
-        // after it fully leaves the viewport.
+        // Gates the loop on visibility; arms the reveal when the chart scrolls
+        // into view and re-arms after it fully leaves the viewport.
         const io = new IntersectionObserver(
             (entries) => {
                 const en = entries[0];
+                onScreen = en.isIntersecting;
                 if (en.intersectionRatio >= 0.35 && !played) {
                     played = true;
                     revealT0.current = performance.now();
@@ -63,6 +67,8 @@ export function useEquityCanvas(range: RangeKey, ghost: boolean) {
                     played = false;
                     revealT0.current = null;
                 }
+                if (onScreen) start();
+                else stop();
             },
             { threshold: [0, 0.35] },
         );
@@ -81,7 +87,6 @@ export function useEquityCanvas(range: RangeKey, ghost: boolean) {
         }
         const onVis = () => (document.hidden ? stop() : start());
         document.addEventListener('visibilitychange', onVis);
-        start();
 
         return () => {
             stop();

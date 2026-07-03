@@ -4,7 +4,7 @@ import { ctaCls } from '@/lib/ui';
 import { EquityCard } from './equity-card';
 import { NotesList } from './notes-list';
 import { PageHeader } from './page-header';
-import { useSession } from './session';
+import { useSession } from '@/stores/session';
 import { StatCards } from './stat-cards';
 import { TradesTable } from './trades-table';
 

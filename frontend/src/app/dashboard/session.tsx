@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { createContext, useContext } from "react";
+import { createContext, useContext } from 'react';
 
 export type Session =
-    | { status: "checking"; email: null }
-    | { status: "guest"; email: null }
-    | { status: "user"; email: string };
+    | { status: 'checking'; email: null }
+    | { status: 'guest'; email: null }
+    | { status: 'user'; email: string };
 
 export const SessionContext = createContext<Session>({
-    status: "checking",
+    status: 'checking',
     email: null,
 });
 

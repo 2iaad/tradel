@@ -21,8 +21,7 @@ async function post(path: string, body?: Record<string, string>) {
     }
 }
 
-export const login = (email: string, password: string) =>
-    post('/auth/login', { email, password });
+export const login = (email: string, password: string) => post('/auth/login', { email, password });
 
 export const register = (username: string, email: string, password: string) =>
     post('/auth/register', { username, email, password });

@@ -427,9 +427,9 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 431.2365578861638,
-			"y": -463.1681781995543,
-			"z": 1.4400753877538166,
+			"x": 882.05463047068,
+			"y": -179.2743815267255,
+			"z": 1.261502405656166,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
@@ -653,12 +653,12 @@
 			"typeName": "shape"
 		},
 		{
-			"editingShapeId": "shape:gZC1vtkVSsrDHNkedDaZX",
+			"editingShapeId": null,
 			"croppingShapeId": null,
 			"selectedShapeIds": [
-				"shape:gZC1vtkVSsrDHNkedDaZX"
+				"shape:u8TnCz1tqdJcaAHUKnVCn"
 			],
-			"hoveredShapeId": "shape:gZC1vtkVSsrDHNkedDaZX",
+			"hoveredShapeId": null,
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
@@ -928,6 +928,122 @@
 			},
 			"parentId": "page:page",
 			"index": "aIeoz",
+			"typeName": "shape"
+		},
+		{
+			"x": -358.5540991238403,
+			"y": 428.50300525763026,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:u8TnCz1tqdJcaAHUKnVCn",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 1150.1695529189515,
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": false,
+				"scale": 0.31093656404723136,
+				"richText": {
+					"type": "doc",
+					"attrs": {
+						"dir": "auto"
+					},
+					"content": [
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"marks": [
+										{
+											"type": "bold"
+										},
+										{
+											"type": "code"
+										}
+									],
+									"text": "Controller   → reads the HTTP request, calls the service, returns HTTP response "
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"marks": [
+										{
+											"type": "bold"
+										},
+										{
+											"type": "code"
+										}
+									],
+									"text": "Service      → the business logic (\"what should happen\") "
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"marks": [
+										{
+											"type": "bold"
+										},
+										{
+											"type": "code"
+										}
+									],
+									"text": "Repository   → the only thing allowed to talk to Postgres "
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							},
+							"content": [
+								{
+									"type": "text",
+									"marks": [
+										{
+											"type": "bold"
+										},
+										{
+											"type": "code"
+										}
+									],
+									"text": "Module       → wires the 3 above together so Nest knows they exist"
+								}
+							]
+						},
+						{
+							"type": "paragraph",
+							"attrs": {
+								"dir": "auto"
+							}
+						}
+					]
+				}
+			},
+			"parentId": "page:page",
+			"index": "aRpz9",
 			"typeName": "shape"
 		},
 		{
@@ -1231,7 +1347,7 @@
 			"brush": null,
 			"scribbles": [],
 			"cursor": {
-				"type": "default",
+				"type": "move",
 				"rotation": 0
 			},
 			"isFocusMode": false,
@@ -1241,8 +1357,8 @@
 			"screenBounds": {
 				"x": 0,
 				"y": 0,
-				"w": 759.5,
-				"h": 657
+				"w": 1233.5,
+				"h": 689.5
 			},
 			"insets": [
 				false,

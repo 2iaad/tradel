@@ -1,8 +1,9 @@
 'use client';
 
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-import { login } from '@/lib/api';
+import { api } from '@/lib/api';
 import { btnCls, errorCls, linkCls } from '@/lib/ui';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { Mode, formCls } from './common';
@@ -29,10 +30,17 @@ function RememberRow({ onReset }: { onReset: () => void }) {
 // Sign-in form; owns its own submit/pending/error state.
 export function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
-    const { pending, error, onSubmit } = useAuthSubmit(
-        (f) => login(f.get('email') as string, f.get('password') as string),
-        () => router.push('/dashboard'),
-    );
+    const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
+        const email = f.get('email') as string;
+        const password = f.get('password') as string;
+        try {
+            const { data } = await api.post('/auth/login', { email, password });
+            return data;
+        } catch (err) {
+            const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
+            throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
+        }
+    }, () => router.push('/dashboard'));
 
     return (
         <form onSubmit={onSubmit} className={formCls}>

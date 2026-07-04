@@ -1,8 +1,9 @@
 'use client';
 
+import axios from 'axios';
 import Link from 'next/link';
 
-import { register } from '@/lib/api';
+import { api } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { EmailField } from '@/components/auth/email-field';
@@ -33,15 +34,18 @@ function ModalHeader({ onClose }: { onClose: () => void }) {
 // Signup form; reloads on success to flip the layout to the signed-in
 // dashboard (the refresh cookie is set by then).
 function SignupForm() {
-    const { pending, error, onSubmit } = useAuthSubmit(
-        (f) =>
-            register(
-                f.get('username') as string,
-                f.get('email') as string,
-                f.get('password') as string,
-            ),
-        () => location.reload(),
-    );
+    const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
+        const username = f.get('username') as string;
+        const email = f.get('email') as string;
+        const password = f.get('password') as string;
+        try {
+            const { data } = await api.post('/auth/register', { username, email, password });
+            return data;
+        } catch (err) {
+            const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
+            throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
+        }
+    }, () => location.reload());
 
     return (
         <form onSubmit={onSubmit} className="flex flex-col gap-4">

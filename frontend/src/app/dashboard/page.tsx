@@ -2,9 +2,9 @@
 
 import { FullDashboard } from './full';
 import { GuestDashboard } from './guest';
-import { useSession } from './session';
+import { useSessionStore } from '@/stores/session';
 
 export default function DashboardPage() {
-    const session = useSession();
+    const session = useSessionStore((s) => s.session);
     return session.status === 'user' ? <FullDashboard /> : <GuestDashboard />;
 }

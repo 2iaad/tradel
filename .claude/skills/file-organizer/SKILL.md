@@ -10,13 +10,13 @@ description: Clean-code and file-organization standards for the frontend ONLY (f
 ## Hard rules
 
 1. **Component size — max 28 lines.** No component function body may exceed 28 lines. When over, extract:
-   - subcomponents (new file, or a small private component in the same route folder),
-   - custom hooks (`useXxx`) for stateful/effectful logic,
-   - pure helpers into `src/lib/`.
+    - subcomponents (new file, or a small private component in the same route folder),
+    - custom hooks (`useXxx`) for stateful/effectful logic,
+    - pure helpers into `src/lib/`.
 
 2. **No prop drilling.** Props may pass **one** level (parent → child). Anything needed two or more levels deep goes through:
-   - React context (pattern: `src/app/dashboard/session.tsx` → `useSession()`), or
-   - composition (`children` / slot props).
+    - React context (pattern: `src/app/dashboard/session.tsx` → `useSessionStore((s) => s.session)`), or
+    - composition (`children` / slot props).
 
 3. **One exported component per file.** File name is kebab-case matching the component: `stat-cards.tsx` → `StatCards`. Small private (non-exported) subcomponents may share the file if everything stays within limits.
 

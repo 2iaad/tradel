@@ -10,6 +10,17 @@ const MODES: Mode[] = ['login', 'register', 'reset'];
 export function useAuthMode(): [Mode, (m: Mode) => void] {
     const router = useRouter();
     const pathname = usePathname();
-    const mode = MODES.find((m) => pathname === `/${m}`) ?? 'login';
-    return [mode, (m: Mode) => router.push(`/${m}`)];
+
+    let mode: Mode = 'login';
+    for (let i = 0; i < MODES.length; i++) {
+        if (pathname === '/' + MODES[i]) {
+            mode = MODES[i];
+        }
+    }
+
+    function setMode(m: Mode) {
+        router.push('/' + m);
+    }
+
+    return [mode, setMode];
 }

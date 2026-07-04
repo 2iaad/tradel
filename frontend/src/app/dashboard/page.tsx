@@ -6,5 +6,8 @@ import { useSessionStore } from '@/stores/session';
 
 export default function DashboardPage() {
     const session = useSessionStore((s) => s.session);
-    return session.status === 'user' ? <FullDashboard /> : <GuestDashboard />;
+
+    if (session.status === 'user')
+        return <FullDashboard />;
+    return <GuestDashboard />;
 }

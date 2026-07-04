@@ -30,6 +30,7 @@ function RememberRow({ onReset }: { onReset: () => void }) {
 // Sign-in form; owns its own submit/pending/error state.
 export function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
+    
     const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
         const email = f.get('email') as string;
         const password = f.get('password') as string;

@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 
-interface Account {
+export interface Account {
     id: string;
     user_id: string;
     name: string;
@@ -14,7 +14,7 @@ interface Account {
 export class AccountsRepository {
     constructor(private readonly db: DatabaseService) {}
 
-    async createAccount(user_id: string, name: string, currency: string): Promise<Account> {
+    async create(user_id: string, name: string, currency: string): Promise<Account> {
         try {
             const { rows } = await this.db.query<Account>(
                 `INSERT INTO accounts (user_id, name, currency)

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { Env } from 'src/config/env.validation';
+import { JwtUser } from './jwt-user.types';
 
 @Injectable()
 export class JwtGuard implements CanActivate {
@@ -29,10 +30,10 @@ export class JwtGuard implements CanActivate {
 
         try {
             const secret = this.config.get('JWT_ACCESS_SECRET', { infer: true });
-            const payload = this.jwt.verify<{ sub: string; email: string }>(token, {
+            const payload = this.jwt.verify<JwtUser>(token, {
                 secret: secret,
             });
-            req['user'] = payload; // now the request has the sub and email of authenticated user
+            req.user = payload; // now the request has the sub and email of authenticated user
         } catch {
             throw new UnauthorizedException('Invalid or expired token');
         }

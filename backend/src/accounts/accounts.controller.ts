@@ -12,12 +12,12 @@ export class AccountsController {
 
     @Post()
     create(@Body() createAccountDto: CreateAccountDto, @Req() req: Request) {
-        return this.accountsService.create(createAccountDto);
+        return this.accountsService.create(req.user.sub, createAccountDto);
     }
 
     @Get()
     findAll(@Req() req: Request) {
-        return this.accountsService.findAll();
+        return this.accountsService.findAll(req.user.sub);
     }
 
     @Get(':id')

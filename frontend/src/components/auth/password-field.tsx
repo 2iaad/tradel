@@ -1,7 +1,10 @@
+import { useState } from 'react';
+
 import { Field } from '@/components/ui/field';
 
 // Password input; strong mode adds the signup complexity constraints.
 export function PasswordField({ strong = false }: { strong?: boolean }) {
+    const [visible, setVisible] = useState(false);
     const rules = strong
         ? {
               minLength: 10,
@@ -11,5 +14,22 @@ export function PasswordField({ strong = false }: { strong?: boolean }) {
               placeholder: '10+ characters',
           }
         : { placeholder: '••••••••' };
-    return <Field label="Password" type="password" name="password" required {...rules} />;
+    return (
+        <div className="relative">
+            <Field
+                label="Password"
+                type={visible ? 'text' : 'password'}
+                name="password"
+                required
+                {...rules}
+            />
+            <button
+                type="button"
+                onClick={() => setVisible((v) => !v)}
+                className="absolute right-5 top-[40px] bg-transparent border-none p-0 text-[10.5px] font-mono tracking-[0.1em] text-[#5f6b70] cursor-pointer hover:text-[#93a09d]"
+            >
+                {visible ? 'HIDE' : 'SHOW'}
+            </button>
+        </div>
+    );
 }

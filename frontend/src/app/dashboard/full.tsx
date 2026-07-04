@@ -4,7 +4,7 @@ import { ctaCls } from '@/lib/ui';
 import { EquityCard } from './equity-card';
 import { NotesList } from './notes-list';
 import { PageHeader } from './page-header';
-import { useSession } from '@/stores/session';
+import { useSessionStore } from '@/stores/session';
 import { StatCards } from './stat-cards';
 import { TradesTable } from './trades-table';
 
@@ -16,7 +16,7 @@ function greeting() {
 
 // Signed-in dashboard: stats, equity curve, recent trades, and notes.
 export function FullDashboard() {
-    const session = useSession();
+    const session = useSessionStore((s) => s.session);
     const name = session.status === 'user' ? session.email.split('@')[0] : 'trader';
 
     return (
@@ -27,7 +27,7 @@ export function FullDashboard() {
                 </button>
             </PageHeader>
             <StatCards />
-            <EquityCard />
+            {/* <EquityCard /> */}
             <div className="grid grid-cols-[1.9fr_1fr] gap-4 items-start">
                 <TradesTable />
                 <NotesList />

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { useSession, useSessionStore } from '@/stores/session';
+import { useSessionStore } from '@/stores/session';
 
 const NAV = [
     ['01', 'Dashboard', '/dashboard'],
@@ -162,7 +162,7 @@ function AuthAction({ signedIn }: { signedIn: boolean }) {
 
 // Dashboard sidebar: logo, section nav, and the session footer.
 export function Sidebar() {
-    const session = useSession();
+    const session = useSessionStore((s) => s.session);
     const user = session.status === 'user';
 
     return (

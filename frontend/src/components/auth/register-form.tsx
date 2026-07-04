@@ -1,8 +1,9 @@
 'use client';
 
+import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-import { register } from '@/lib/api';
+import { api } from '@/lib/api';
 import { btnCls, errorCls } from '@/lib/ui';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { Mode, formCls } from './common';
@@ -12,8 +13,18 @@ import { PasswordField } from './password-field';
 import { SwitchLine } from './switch-line';
 import { UsernameField } from './username-field';
 
-const registerAction = (f: FormData) =>
-    register(f.get('username') as string, f.get('email') as string, f.get('password') as string);
+async function registerAction(f: FormData) {
+    const username = f.get('username') as string;
+    const email = f.get('email') as string;
+    const password = f.get('password') as string;
+    try {
+        const { data } = await api.post('/auth/register', { username, email, password });
+        return data;
+    } catch (err) {
+        const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
+        throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
+    }
+}
 
 // Account-creation form; owns its own submit/pending/error state.
 export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {

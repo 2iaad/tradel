@@ -3,6 +3,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
+import { AccountsModule } from './accounts/accounts.module';
 
 @Module({
     imports: [
@@ -13,6 +14,7 @@ import { DatabaseModule } from './database/database.module';
         }),
         AuthModule,
         DatabaseModule,
+        AccountsModule,
     ], // other modules this module depends on
 })
 export class AppModule {}

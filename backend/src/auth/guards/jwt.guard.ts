@@ -13,16 +13,30 @@ export class JwtGuard implements CanActivate {
 
     canActivate(ctx: ExecutionContext): boolean {
         const req = ctx.switchToHttp().getRequest<Request>();
-        const [type, token] = req.headers.authorization?.split(' ') ?? [];
-        if (type !== 'Bearer' || !token) throw new UnauthorizedException('Missing token');
+
+        const authHeader = req.headers.authorization;
+        let type = '';
+        let token = '';
+        if (authHeader) {
+            const parts = authHeader.split(' ');
+            type = parts[0];
+            token = parts[1];
+        }
+
+        if (type !== 'Bearer' || !token) {
+            throw new UnauthorizedException('Missing token');
+        }
 
         try {
-            req['user'] = this.jwt.verify<{ sub: string; email: string }>(token, {
-                secret: this.config.get('JWT_ACCESS_SECRET', { infer: true }),
+            const secret = this.config.get('JWT_ACCESS_SECRET', { infer: true });
+            const payload = this.jwt.verify<{ sub: string; email: string }>(token, {
+                secret: secret,
             });
+            req['user'] = payload; // now the request has the sub and email of authenticated user
         } catch {
             throw new UnauthorizedException('Invalid or expired token');
         }
+
         return true;
     }
 }

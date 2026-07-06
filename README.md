@@ -1,18 +1,16 @@
-# 📈 Tradel
+# Tradel
 
-**The trading journal built in 🇲🇦 for traders who take their edge seriously.**
+#### **The trading journal built in 🇲🇦 for traders who take their edge seriously.**
 
-Tradel is a one-of-a-kind & first trading journal born in Morocco, made for traders everywhere. Most traders lose not because of bad strategies, but because they never *study their own trading*. Tradel fixes that: log every trade, organize your accounts, and turn raw execution history into insight, so you stop repeating the mistakes that drain your account.
+**Tradel** is a one-of-a-kind & first trading journal born in Morocco, home of the **Bourse de Casablanca** made for traders everywhere. Most traders lose not because of bad strategies, but because they never *study their own trading*. Tradel fixes that: log every trade, organize your accounts, and turn raw execution history into insight, so you stop repeating the mistakes that drain your account.
 
-## Under the hood
+### Under the hood
 
 Here is the database structure powering Tradel; users, sessions, and trading accounts, and how they relate to each other (designed with [dbdiagram](https://dbdiagram.io)):
 
 <p align="center">
   <img src="assets/tradel.svg" alt="Tradel database structure" width="700" />
 </p>
-
----
 
 ## Why Tradel?
 

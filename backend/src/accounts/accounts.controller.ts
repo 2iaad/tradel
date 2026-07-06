@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    UseGuards,
+    Req,
+    HttpCode,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { AccountsService } from './accounts.service';
@@ -21,17 +32,22 @@ export class AccountsController {
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.accountsService.findOne(+id);
+    findOne(@Param('id') id: string, @Req() req: Request) {
+        return this.accountsService.findOne(id, req.user.sub);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-        return this.accountsService.update(+id, updateAccountDto);
+    update(
+        @Param('id') id: string,
+        @Body() updateAccountDto: UpdateAccountDto,
+        @Req() req: Request,
+    ) {
+        return this.accountsService.update(id, req.user.sub, updateAccountDto);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.accountsService.remove(+id);
+    @HttpCode(204)
+    remove(@Param('id') id: string, @Req() req: Request) {
+        return this.accountsService.remove(id, req.user.sub);
     }
 }

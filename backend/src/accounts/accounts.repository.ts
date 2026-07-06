@@ -55,24 +55,33 @@ export class AccountsRepository {
         user_id: string,
         fields: { name?: string; broker?: string | null; currency?: string },
     ): Promise<Account | null> {
-        const brokerProvided = fields.broker !== undefined;
+        // Build the SET clause only from the fields that were actually passed,
+        // so PATCH with a partial body doesn't overwrite columns with undefined.
+        const columns: string[] = [];
+        const values: unknown[] = [];
+        let i = 1;
+
+        for (const key of ['name', 'broker', 'currency'] as const) {
+            if (fields[key] !== undefined) {
+                columns.push(`${key} = $${i}`);
+                values.push(fields[key]);
+                i++;
+            }
+        }
+
+        // Nothing to update: just return the current row (still owner-scoped).
+        if (columns.length === 0) {
+            return this.findOne(id, user_id);
+        }
+
+        values.push(id, user_id);
 
         try {
             const { rows } = await this.db.query<Account>(
-                `UPDATE accounts
-                SET name     = COALESCE($1, name),
-                    currency = COALESCE($2, currency),
-                    broker   = CASE WHEN $3 THEN $4 ELSE broker END
-                WHERE id = $5 AND user_id = $6
+                `UPDATE accounts SET ${columns.join(', ')}
+                WHERE id = $${i} AND user_id = $${i + 1}
                 RETURNING id, user_id, name, broker, currency, created_at`,
-                [
-                    fields.name ?? null,
-                    fields.currency ?? null,
-                    brokerProvided,
-                    fields.broker ?? null,
-                    id,
-                    user_id,
-                ],
+                values,
             );
             return rows[0] ?? null;
         } catch (e: any) {

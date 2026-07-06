@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Tradel — a NestJS 11 (Express) + TypeScript backend. Currently scoped to the auth foundation: user registration/login over PostgreSQL. All HTTP routes are prefixed with `/api` (`app.setGlobalPrefix('api')` in `src/main.ts`).
+Tradel — a trading journal. Two apps in one repo:
+- `backend/` — NestJS 11 (Express) + TypeScript. Auth (register/login/refresh/logout) + accounts CRUD over PostgreSQL. All HTTP routes prefixed with `/api` (`app.setGlobalPrefix('api')` in `backend/src/main.ts`).
+- `frontend/` — Next.js (App Router) + Tailwind + TypeScript. Has its own `frontend/CLAUDE.md` — read that for frontend work.
+
+**All backend commands run from `backend/`.** Paths below are relative to `backend/` unless noted.
 
 ## Commands
 
@@ -14,8 +18,7 @@ npm run build            # nest build -> dist/
 npm run lint             # eslint --fix over {src,apps,libs,test}
 npm run format           # prettier write over src/ and test/
 
-npm test                 # jest, all *.spec.ts under src/
-npm test -- auth.service # run a single suite by filename match
+npm test                 # jest — NOTE: no *.spec.ts exist yet, so this finds nothing
 npm run test:e2e         # e2e suite (test/jest-e2e.json)
 ```
 
@@ -31,27 +34,37 @@ Note: the `-d DB_URL` in the migrate scripts is the **name of the env var** hold
 
 ## Database
 
-No ORM despite the README calling Prisma "planned". Persistence is the raw `pg` driver:
+No ORM despite the README still calling Prisma "planned". Persistence is the raw `pg` driver:
 - `DatabaseService` (`src/database/database.service.ts`) owns a single `pg.Pool`, opens it in `onModuleInit` (with a `SELECT 1` health check) and closes it in `onModuleDestroy`. Its `query<T>()` is the only DB entry point.
-- Repositories write raw parameterised SQL against that — see `UsersRepository`. Postgres unique-violation `23505` is caught and rethrown as a Nest `ConflictException`.
-- Schema lives only in `migrations/*.sql`, not in code. The `users` table is the source of truth for column names (`password_hash`, `created_at`).
+- Repositories write raw parameterised SQL against that — see `UsersRepository`, `RefreshTokenRepository`, `AccountsRepository`. Postgres unique-violation `23505` is caught and rethrown as a Nest `ConflictException`.
+- Schema lives only in `migrations/*.sql`, not in code. Tables: `users` (`password_hash`, `created_at`), `refresh_tokens` (`token_hash`, `expires_at`, `revoked_at` NULL = valid), `accounts` (`user_id`, `name`, `broker`, `currency` default `'USD'`, unique index on `(user_id, name)`). All ids are `UUID DEFAULT gen_random_uuid()`.
 
 Local Postgres is a **custom image**, not the official one: `database/Dockerfile` (alpine + postgresql16) + `database/init.sh` runs `initdb` and creates the user/db from env vars on first boot. `docker-compose up` builds it and bind-mounts data to `./volumes`.
 
 ## Architecture
 
-NestJS module graph (full diagram in `.docs/modulare-architecture.md`):
+NestJS module graph (diagrams in `.docs/`, e.g. `modulare-architecture.tldr`, `05-accounts-module-guide.md`):
 
-- `AppModule` (root) imports `ConfigModule`, `DatabaseModule`, `AuthModule`.
+- `AppModule` (root) imports `ConfigModule`, `DatabaseModule`, `AuthModule`, `AccountsModule`.
 - `ConfigModule` and `DatabaseModule` are `@Global` — `ConfigService` and `DatabaseService` inject anywhere without re-importing the module.
 - There is **no `UsersModule`**. `UsersRepository` lives in `src/users/` but is registered as a provider inside `AuthModule`.
-- `JwtModule.registerAsync` is configured inside `AuthModule` from `JWT_ACCESS_SECRET` / `JWT_ACCESS_TTL`.
+- `JwtModule.registerAsync` (from `JWT_ACCESS_SECRET` / `JWT_ACCESS_TTL`) is configured **separately in both** `AuthModule` and `AccountsModule` — `AccountsModule` needs it so `JwtGuard` can inject `JwtService`. Not shared/exported.
 
-Request flow: `AuthController` (`/auth/register`, `/auth/login`) → `AuthService` (bcrypt hash/compare, cost 12) → `UsersRepository` → `DatabaseService`.
+**Auth flow:** `AuthController` → `AuthService` (bcrypt cost 12) → `UsersRepository` + `RefreshTokenRepository`.
+- Access token = JWT (`sub`, `email`), short TTL. Refresh token = opaque `randomBytes(32)` hex, only its sha256 hash stored in `refresh_tokens`. `/auth/refresh` looks up by hash, rejects if missing/revoked/expired, mints a new access token (refresh token stays static). `/auth/logout` revokes by hash.
+- Refresh token rides an httpOnly cookie `refresh_token`, `sameSite: strict`, `path: /api/auth`, `secure` only in prod. Set via `cookie-parser` (registered in `main.ts`).
+
+**Protected routes:** `JwtGuard` (`src/auth/guards/jwt.guard.ts`) verifies the `Bearer` access token and attaches `req.user: JwtUser` (`{ sub, email }`, typed via module augmentation in `jwt-user.types.ts`). Applied with `@UseGuards(JwtGuard)`.
+
+**Accounts flow:** `AccountsController` (`@UseGuards(JwtGuard)`) → `AccountsService` → `AccountsRepository`. Owner scoping uses `req.user.sub`. NOTE: only `create` + `findAll` are real; `findOne`/`update`/`remove` are still stub strings, and their `:id` params are coerced with `+id` even though ids are UUIDs — placeholders, not finished.
+
+**CORS:** `main.ts` allows origin `http://localhost:5173` with credentials (cookies).
 
 ## Env validation
 
 `src/config/env.validation.ts` defines a Zod schema and a `validate()` that `ConfigModule.forRoot` runs against `process.env` at boot. On failure it prints the bad keys and `process.exit(1)` — the app will not start with an invalid `.env`. The inferred `Env` type is passed to `ConfigService<Env>` everywhere, so `config.get('KEY', { infer: true })` is typed. When you add an env var, add it to this schema and to `.env.example`.
+
+Vars: `NODE_ENV`, `PORT`; DB `DB_NAME`/`DB_USER`/`DB_PASSWORD`/`DB_PORT`/`DB_HOST`/`DB_DATA`/`DB_URL` (`DB_URL` validated as a URL); JWT `JWT_ACCESS_SECRET` + `JWT_REFRESH_SECRET` (both min 32 chars), `JWT_ACCESS_TTL` (default `900s`), `JWT_REFRESH_TTL` (default `7d`). TTL strings are parsed with `ms`.
 
 ## Conventions
 

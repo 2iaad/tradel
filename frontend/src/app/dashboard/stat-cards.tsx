@@ -8,7 +8,7 @@ export function StatCards() {
             {STATS.map((s) => (
                 <div
                     key={s.label}
-                    className={`${cardCls} px-5 py-[18px] flex flex-col gap-2 transition-[border-color,transform] duration-200 hover:border-[#2fd57f44] hover:-translate-y-0.5`}
+                    className={`${cardCls} px-5 py-[18px] flex flex-col gap-2 transition-[border-color] duration-200 hover:border-[#2fd57f44]`}
                 >
                     <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
                         {s.label}

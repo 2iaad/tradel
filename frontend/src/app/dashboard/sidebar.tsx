@@ -139,7 +139,7 @@ function AuthAction({ signedIn }: { signedIn: boolean }) {
     const signOutStore = useSessionStore((s) => s.signOut);
     const signOut = async () => {
         await signOutStore();
-        router.push('/login');
+        router.push('/dashboard');
     };
 
     return signedIn ? (

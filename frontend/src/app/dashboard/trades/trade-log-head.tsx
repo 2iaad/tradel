@@ -41,6 +41,7 @@ export function TradeLogHead({ log }: { log: ReturnType<typeof useTradeLog> }) {
             <SortHead col="pnl" label="P&L" align="right" log={log} />
             <SortHead col="date" label="DATE" align="right" log={log} />
             <span />
+            <span />
         </div>
     );
 }

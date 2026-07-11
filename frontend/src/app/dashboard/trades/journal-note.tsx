@@ -1,4 +1,4 @@
-import type { TradeLogRow } from "./trades.data";
+import type { TradeLogRow } from "./trade-log-row";
 
 const tagCls =
     "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-[#78878a] border border-[#222a2f]";

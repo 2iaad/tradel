@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Tradel — a trading journal. Two apps in one repo:
 - `backend/` — NestJS 11 (Express) + TypeScript. Auth (register/login/refresh/logout) + accounts CRUD over PostgreSQL. All HTTP routes prefixed with `/api` (`app.setGlobalPrefix('api')` in `backend/src/main.ts`).
-- `frontend/` — Next.js (App Router) + Tailwind + TypeScript. Has its own `frontend/CLAUDE.md` — read that for frontend work.
+- `frontend/` — Next.js (App Router) + Tailwind + TypeScript. Has its own `frontend/CLAUDE.md` — read that for frontend work. `/` is the marketing landing page (`src/app/(home)/`, route group — not linked from dashboard nav); `/login`, `/register`, `/reset` are auth; `/dashboard/*` is the app.
 
 **All backend commands run from `backend/`.** Paths below are relative to `backend/` unless noted.
 

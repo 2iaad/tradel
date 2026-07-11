@@ -1,4 +1,5 @@
 volumes
+**/.todo
 
 # compiled output
 dist

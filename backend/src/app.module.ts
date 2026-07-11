@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { validate } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { AccountsModule } from './accounts/accounts.module';
+import { TradesModule } from './trades/trades.module';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import { AccountsModule } from './accounts/accounts.module';
         AuthModule,
         DatabaseModule,
         AccountsModule,
+        TradesModule,
     ], // other modules this module depends on
 })
 export class AppModule {}

@@ -14,7 +14,7 @@ const demoCtaCls =
 const HERO_LINES = [
     'The market forgets.',
     <>
-        Your <span className="text-[#2fd57f]">journal</span> doesn&rsquo;t.
+        Your <span className="text-[#2fd57f]">journal </span>doesn&rsquo;t.
         <span className={cursorCls} />
     </>,
 ];

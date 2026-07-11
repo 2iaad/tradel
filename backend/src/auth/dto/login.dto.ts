@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/mapped-types'; // package lets you create new DTO classes by transforming existing ones — picking, omitting, modifying fields
+import { PickType } from '@nestjs/swagger'; // swagger's PickType carries @ApiProperty doc metadata across (mapped-types' does not); still validates like mapped-types
 import { RegisterDto } from './register.dto';
 
 /**

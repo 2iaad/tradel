@@ -2,7 +2,7 @@ import { G, R } from "../dashboard.data";
 import { signedMoney } from "@/lib/format";
 import { JournalNote } from "./journal-note";
 import { LOG_GRID } from "./trade-log-grid";
-import type { TradeLogRow } from "./trades.data";
+import type { TradeLogRow } from "./trade-log-row";
 
 const sideStyle = (long: boolean) => ({
     color: long ? G : R,
@@ -27,26 +27,27 @@ function LeadCells({ t }: { t: TradeLogRow }) {
             </span>
             <span>
                 <span className={`${badgeCls} font-medium text-[#78878a] border-[#222a2f]`}>
-                    {t.setup}
+                    {t.setup || "—"}
                 </span>
             </span>
         </>
     );
 }
 
-// Entry/exit/size + R/P&L/date/chevron (the trailing cells).
+// Entry/exit/size + R/P&L/date/chevron (the trailing cells). Null R/P&L
+// (still-open trade) renders as a dash.
 function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
-    const winCol = { color: t.pnlv >= 0 ? G : R };
+    const winCol = { color: (t.pnlv ?? 0) >= 0 ? G : R };
     return (
         <>
             <span className={numCls}>{t.entry}</span>
-            <span className={numCls}>{t.exit}</span>
+            <span className={numCls}>{t.exit ?? "—"}</span>
             <span className={numCls}>{t.size}</span>
             <span className="font-mono text-[12.5px] font-medium" style={winCol}>
-                {`${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
+                {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
             </span>
             <span className="font-mono text-[12.5px] font-semibold text-right" style={winCol}>
-                {signedMoney(t.pnlv)}
+                {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
             </span>
             <span className="font-mono text-[10.5px] text-[#5f6b70] text-right">{t.date}</span>
             <span
@@ -59,18 +60,42 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
     );
 }
 
-// One trade row (click to expand its journal note) + the expandable panel.
-export function TradeRow({
-    t,
-    open,
-    dense,
-    onToggle,
-}: {
+// Edit (✎) / delete (✕) icon buttons in the trailing cell.
+function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
+    const cls = "bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none transition-colors";
+    return (
+        <span className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+            <button
+                type="button"
+                onClick={onEdit}
+                title="Edit trade"
+                className={`${cls} text-[#5f6b70] hover:text-[#2fd57f]`}
+            >
+                ✎
+            </button>
+            <button
+                type="button"
+                onClick={onDelete}
+                title="Delete trade"
+                className={`${cls} text-[#5f6b70] hover:text-[#f0554e]`}
+            >
+                ✕
+            </button>
+        </span>
+    );
+}
+
+interface TradeRowProps {
     t: TradeLogRow;
     open: boolean;
     dense: boolean;
     onToggle: () => void;
-}) {
+    onEdit: () => void;
+    onDelete: () => void;
+}
+
+// One trade row (click to expand its journal note) + the expandable panel.
+export function TradeRow({ t, open, dense, onToggle, onEdit, onDelete }: TradeRowProps) {
     return (
         <div>
             <div
@@ -79,6 +104,7 @@ export function TradeRow({
             >
                 <LeadCells t={t} />
                 <TailCells t={t} open={open} />
+                <RowIcons onEdit={onEdit} onDelete={onDelete} />
             </div>
             {open && <JournalNote t={t} />}
         </div>

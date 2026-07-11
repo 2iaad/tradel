@@ -17,7 +17,7 @@ export function FilterToolbar({ log }: { log: ReturnType<typeof useTradeLog> }) 
             <SegmentedTabs options={SIDES} active={log.side} onChange={log.setSide} />
             <SegmentedTabs options={OUTCOMES} active={log.outcome} onChange={log.setOutcome} />
             <span className="ml-auto font-mono text-[10.5px] font-medium tracking-[0.1em] text-[#5f6b70]">
-                JUN 12 — JUL 02
+                {log.range}
             </span>
         </div>
     );

@@ -1,4 +1,3 @@
-import { kickerCls } from '@/lib/ui';
 import { HEAT_CELLS, REVIEW_POINTS } from './home.data';
 import { MaskedHeading } from './masked-heading';
 

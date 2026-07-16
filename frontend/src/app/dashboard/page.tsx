@@ -46,13 +46,13 @@ function StatCards({ stats }: { stats: Stat[] }) {
     );
 }
 
-// Journal-notes card for the signed-in dashboard.
-// ponytail: journal has no backend yet — renders the empty state until it does.
+// Notes card for the signed-in dashboard.
+// ponytail: notes have no backend yet — renders the empty state until it does.
 function NotesList() {
     return (
         <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3`}>
             <div className="flex items-center justify-between">
-                <h2 className={h2Cls}>Journal notes</h2>
+                <h2 className={h2Cls}>Notes</h2>
                 <button type="button" className={ghostBtnCls}>
                     + NEW
                 </button>
@@ -230,7 +230,7 @@ function EmptyCard({
     );
 }
 
-// Guest placeholders for the recent-trades and journal-notes cards.
+// Guest placeholders for the recent-trades and notes cards.
 function EmptyLedger({ onLog }: { onLog: () => void }) {
     return (
         <div className="grid grid-cols-[1.9fr_1fr] gap-4 items-stretch">
@@ -249,7 +249,7 @@ function EmptyLedger({ onLog }: { onLog: () => void }) {
                 </button>
             </EmptyCard>
             <EmptyCard
-                title="Journal notes"
+                title="Notes"
                 kicker="/// NO NOTES"
                 text="The reasoning behind each trade — the part that makes you better."
                 maxW="max-w-[240px]"

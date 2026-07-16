@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { kickerCls } from '@/lib/ui';
 import { YTD_STATS } from './home.data';
 import { MaskedHeading } from './masked-heading';
 import { drawScrubChart } from './scrub-chart.lib';

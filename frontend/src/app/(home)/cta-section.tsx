@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Tape, TOP_TICKS } from '@/components/tape';
-import { kickerCls } from '@/lib/ui';
 import { MaskedHeading } from './masked-heading';
 
 const h2Cls =

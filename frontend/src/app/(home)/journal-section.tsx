@@ -1,4 +1,3 @@
-import { kickerCls } from '@/lib/ui';
 import { BACK_NOTE, FRONT_NOTE, Note } from './home.data';
 import { MaskedHeading } from './masked-heading';
 import { NoteCard } from './note-card';

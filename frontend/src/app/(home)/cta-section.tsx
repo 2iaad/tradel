@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Tape, TOP_TICKS } from '@/components/tape';
-import { Kicker } from './kicker';
+import { kickerCls } from '@/lib/ui';
 import { MaskedHeading } from './masked-heading';
 
 const h2Cls =
@@ -28,7 +28,6 @@ function SignInLine() {
 function CtaBlock() {
     return (
         <div className="box-border flex flex-1 flex-col items-center justify-center gap-7 px-6 pt-[110px] pb-20 text-center">
-            <Kicker>{'/// START NOW'}</Kicker>
             <MaskedHeading
                 className={h2Cls}
                 delays={[140, 300]}

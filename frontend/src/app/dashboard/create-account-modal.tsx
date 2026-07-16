@@ -6,16 +6,13 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
-import { EmailField } from '@/components/auth/email-field';
-import { PasswordField } from '@/components/auth/password-field';
-import { UsernameField } from '@/components/auth/username-field';
+import { EmailField, PasswordField, UsernameField } from '@/components/auth/fields';
 
 // Modal title row with the close button.
 function ModalHeader({ onClose }: { onClose: () => void }) {
     return (
         <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-2.5">
-                <span className={kickerCls}>{'/// CREATE ACCOUNT'}</span>
                 <h2 className="m-0 text-2xl font-semibold tracking-[-0.01em] text-[#eef4f2]">
                     Start your journal
                 </h2>

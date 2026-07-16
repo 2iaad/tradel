@@ -3,7 +3,66 @@
 import { useEffect, useMemo, useState } from "react";
 import { signedMoney } from "@/lib/format";
 import { useTradesStore } from "@/stores/trades";
-import { toTradeLogRow, TradeLogRow } from "./trade-log-row";
+import type { ApiTrade } from "@/stores/trades";
+
+// Shared column template for the trade-log header + rows (must match exactly).
+// Trailing 44px cell = edit/delete icons (or save/cancel while editing).
+export const LOG_GRID =
+    "grid grid-cols-[76px_66px_1fr_88px_88px_88px_64px_104px_112px_24px_44px] gap-2";
+
+// Display row for the trade log table, derived from an API trade.
+export interface TradeLogRow {
+    id: string;
+    ts: number;
+    sym: string;
+    side: "LONG" | "SHORT";
+    setup: string;
+    entry: string;
+    exit: string | null;
+    size: string;
+    rv: number | null;
+    pnlv: number | null;
+    date: string;
+    time: string;
+    openedAt: string;
+    closedAt: string | null;
+    noteTitle: string;
+    noteBody: string;
+    tags: [string, string];
+}
+
+// "JUL 01"-style stamp.
+const day = (d: Date) =>
+    d.toLocaleDateString("en-US", { month: "short", day: "2-digit" }).toUpperCase();
+
+// Maps an API trade to the shape the log table renders.
+export function toTradeLogRow(t: ApiTrade): TradeLogRow {
+    const opened = new Date(t.opened_at);
+    const clock = opened.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+    return {
+        id: t.id,
+        ts: opened.getTime(),
+        sym: t.symbol,
+        side: t.side,
+        setup: "",
+        entry: t.entry,
+        exit: t.exit,
+        size: t.size,
+        rv: t.r === null ? null : parseFloat(t.r),
+        pnlv: t.pnl === null ? null : parseFloat(t.pnl),
+        date: day(opened),
+        time: `${day(opened)} · ${clock}`,
+        openedAt: t.opened_at,
+        closedAt: t.closed_at,
+        noteTitle: "",
+        noteBody: "",
+        tags: ["", ""],
+    };
+}
 
 export type SortCol = "date" | "pnl" | "r";
 type SideFilter = "ALL" | "LONG" | "SHORT";
@@ -92,7 +151,7 @@ export function useTradeLog() {
             count: n,
             total: trades.length,
             net: signedMoney(net),
-            netPos: net >= 0,
+            netV: net,
             win: n ? `${((wins / n) * 100).toFixed(1)}%` : "—",
             avgR: rRows.length ? `${avgR > 0 ? "+" : ""}${avgR.toFixed(2)}R` : "—",
             avgRPos: avgR >= 0,

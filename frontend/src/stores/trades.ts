@@ -44,8 +44,6 @@ interface TradesStore {
     removeTrade: (id: string) => Promise<void>;
 }
 
-const base = (accountId: string) => `/accounts/${accountId}/trades`;
-
 // ponytail: single-account journal — uses the user's first account, adds a
 // picker when multi-account support lands.
 export const useTradesStore = create<TradesStore>((set, get) => ({
@@ -65,7 +63,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
             const { data: accounts } = await api.get<{ id: string }[]>('/accounts');
             const account = accounts[0];
             if (account) {
-                const { data } = await api.get<ApiTrade[]>(base(account.id));
+                const { data } = await api.get<ApiTrade[]>(`/accounts/${account.id}/trades`);
                 set({ accountId: account.id, trades: data });
             }
         } catch (err) {
@@ -79,7 +77,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
     fetchTrade: async (id) => {
         const accId = get().accountId;
         if (!accId) throw new Error('No account yet');
-        return (await api.get<ApiTrade>(`${base(accId)}/${id}`)).data;
+        return (await api.get<ApiTrade>(`/accounts/${accId}/trades/${id}`)).data;
     },
 
     // POST a new trade (or PATCH when id is given), then re-sync the log.
@@ -89,9 +87,9 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
         const accId =
             get().accountId ??
             (await api.post<{ id: string }>('/accounts', { name: 'Main' })).data.id;
-        if (id) await api.patch(`${base(accId)}/${id}`, payload);
-        else await api.post(base(accId), payload);
-        const { data } = await api.get<ApiTrade[]>(base(accId));
+        if (id) await api.patch(`/accounts/${accId}/trades/${id}`, payload);
+        else await api.post(`/accounts/${accId}/trades`, payload);
+        const { data } = await api.get<ApiTrade[]>(`/accounts/${accId}/trades`);
         set({ accountId: accId, trades: data });
     },
 
@@ -99,7 +97,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
     removeTrade: async (id) => {
         const accId = get().accountId;
         if (!accId) return;
-        await api.delete(`${base(accId)}/${id}`);
+        await api.delete(`/accounts/${accId}/trades/${id}`);
         set({ trades: get().trades.filter((t) => t.id !== id) });
     },
 }));

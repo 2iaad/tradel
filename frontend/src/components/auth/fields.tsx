@@ -1,6 +1,50 @@
+'use client';
+
 import { useState } from 'react';
 
-import { Field } from '@/components/ui/field';
+import { inputCls, labelCls } from '@/lib/ui';
+
+// Labeled form input styled to the Carbon Terminal theme.
+function Field({
+    label,
+    ...input
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+    return (
+        <div>
+            <label className={labelCls}>{label}</label>
+            <input {...input} className={inputCls} />
+        </div>
+    );
+}
+
+// The email input used identically by every auth form.
+export function EmailField({ name = 'email' }: { name?: string }) {
+    return (
+        <Field
+            label="Email"
+            type="email"
+            name={name}
+            required
+            maxLength={50}
+            placeholder="you@example.com"
+        />
+    );
+}
+
+// The username input shared by the register form and signup modal.
+export function UsernameField() {
+    return (
+        <Field
+            label="Username"
+            type="text"
+            name="username"
+            required
+            minLength={3}
+            maxLength={15}
+            placeholder="alextrader"
+        />
+    );
+}
 
 // Password input; strong mode adds the signup complexity constraints.
 export function PasswordField({ strong = false }: { strong?: boolean }) {

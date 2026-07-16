@@ -5,8 +5,8 @@ import { apiMessage } from "@/lib/api";
 import { signedMoney } from "@/lib/format";
 import { errorCls } from "@/lib/ui";
 import type { TradePayload } from "@/stores/trades";
-import { LOG_GRID } from "./trade-log-grid";
-import type { TradeLogRow } from "./trade-log-row";
+import { LOG_GRID } from "./use-trade-log";
+import type { TradeLogRow } from "./use-trade-log";
 
 const inCls =
     "w-full box-border bg-[#0a0d0f] border border-[#222a2f] rounded px-2 py-1.5 font-mono text-[12px] text-[#e9eef0] outline-none focus:border-[#2fd57f66] [color-scheme:dark]";

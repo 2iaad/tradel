@@ -11,6 +11,9 @@ export const kickerCls = 'font-mono text-[11px] font-medium tracking-[0.2em] tex
 export const errorCls = 'm-0 text-[13px] text-[#f0554e]';
 
 // Dashboard building blocks.
+// Theme greens/reds shared by the dashboard cards and rows.
+export const G = '#2fd57f';
+export const R = '#f0554e';
 export const cardCls = 'bg-[#0e1214] border border-[#1b2226] rounded-[10px]';
 export const h2Cls = 'm-0 text-[17px] font-semibold text-[#eef4f2]';
 export const ctaCls =

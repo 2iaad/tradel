@@ -1,10 +1,11 @@
-import { cardCls } from "@/lib/ui";
-import { ConfirmDeleteModal } from "./confirm-delete-modal";
-import { TradeAddRow } from "./trade-add-row";
-import { TradeLogHead } from "./trade-log-head";
+"use client";
+
+import { cardCls, kickerCls } from "@/lib/ui";
+import type { TradePayload } from "@/stores/trades";
 import { TradeRow } from "./trade-row";
 import { TradeRowForm } from "./trade-row-form";
-import type { useTradeLog } from "./use-trade-log";
+import { LOG_GRID } from "./use-trade-log";
+import type { SortCol, useTradeLog } from "./use-trade-log";
 
 type Log = ReturnType<typeof useTradeLog>;
 
@@ -28,6 +29,75 @@ function TableHeader() {
                 EXPORT CSV
             </button>
         </div>
+    );
+}
+
+// A clickable, sortable column header; shows the active sort arrow.
+function SortHead({
+    col,
+    label,
+    align,
+    log,
+}: {
+    col: SortCol;
+    label: string;
+    align: "left" | "right";
+    log: Log;
+}) {
+    const on = log.sortCol === col;
+    return (
+        <button
+            type="button"
+            onClick={() => log.sortBy(col)}
+            className={`bg-none border-none p-0 font-mono text-[10px] font-medium tracking-[0.12em] cursor-pointer hover:text-[#c8d2d0] ${align === "right" ? "text-right" : "text-left"} ${on ? "text-[#c8d2d0]" : "text-[#5f6b70]"}`}
+        >
+            {label} {on ? (log.dir === "desc" ? "▼" : "▲") : ""}
+        </button>
+    );
+}
+
+// Column labels for the trade log; R / P&L / DATE are sortable.
+function TradeLogHead({ log }: { log: Log }) {
+    return (
+        <div
+            className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-[#161c20] font-mono text-[10px] font-medium tracking-[0.12em] text-[#5f6b70]`}
+        >
+            <span>SYMBOL</span>
+            <span>SIDE</span>
+            <span>SETUP</span>
+            <span>ENTRY</span>
+            <span>EXIT</span>
+            <span>SIZE</span>
+            <SortHead col="r" label="R" align="left" log={log} />
+            <SortHead col="pnl" label="P&L" align="right" log={log} />
+            <SortHead col="date" label="DATE" align="right" log={log} />
+            <span />
+            <span />
+        </div>
+    );
+}
+
+// Always-visible last row: "+ ADD TRADE"; click flips it to the inline form.
+function TradeAddRow({
+    active,
+    onActivate,
+    onSave,
+    onCancel,
+}: {
+    active: boolean;
+    onActivate: () => void;
+    onSave: (payload: TradePayload, id?: string) => Promise<void>;
+    onCancel: () => void;
+}) {
+    if (active) return <TradeRowForm t={null} onSave={onSave} onCancel={onCancel} />;
+    return (
+        <button
+            type="button"
+            onClick={onActivate}
+            className="w-full box-border bg-transparent border-0 border-t border-solid border-[#161c20] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-[#5f6b70] cursor-pointer transition-colors hover:text-[#2fd57f] hover:bg-[#10161a]"
+        >
+            + ADD TRADE
+        </button>
     );
 }
 
@@ -95,6 +165,52 @@ function TableFooter({ summary }: { summary: Log["summary"] }) {
                 SHOWING {summary.count} OF {summary.total} TRADES
             </span>
             <span>{summary.notedPct} WITH NOTES</span>
+        </div>
+    );
+}
+
+const confirmBtn =
+    "flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors";
+
+// Confirmation card shown before a trade is deleted.
+function ConfirmDeleteModal({
+    onCancel,
+    onConfirm,
+}: {
+    onCancel: () => void;
+    onConfirm: () => void;
+}) {
+    return (
+        <div
+            onClick={onCancel}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,6,8,0.7)] backdrop-blur-[6px] animate-[tradelFadeIn_0.25s_ease]"
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-[#0e1214] border border-[#222a2f] rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
+            >
+                <span className={kickerCls}>{"/// DELETE TRADE"}</span>
+                <h2 className="m-0 text-xl font-semibold text-[#eef4f2]">Delete this trade?</h2>
+                <p className="m-0 text-[13px] text-[#8a9995]">
+                    The trade is removed from your journal. This can&apos;t be undone.
+                </p>
+                <div className="flex gap-2.5 mt-1">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className={`${confirmBtn} bg-transparent border border-[#222a2f] text-[#78878a] hover:text-[#c8d2d0] hover:border-[#2b353b]`}
+                    >
+                        CANCEL
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onConfirm}
+                        className={`${confirmBtn} border-none bg-[#f0554e] text-[#140404] hover:bg-[#ff6f68]`}
+                    >
+                        DELETE
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

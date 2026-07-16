@@ -1,5 +1,5 @@
+import { kickerCls } from '@/lib/ui';
 import { BACK_NOTE, FRONT_NOTE, Note } from './home.data';
-import { Kicker } from './kicker';
 import { MaskedHeading } from './masked-heading';
 import { NoteCard } from './note-card';
 
@@ -35,7 +35,6 @@ function FeatureLines() {
 function JournalCopy() {
     return (
         <div className="flex flex-col gap-[22px]">
-            <Kicker>{'/// 01 — THE JOURNAL'}</Kicker>
             <MaskedHeading
                 className={h2Cls}
                 delays={[120, 260]}

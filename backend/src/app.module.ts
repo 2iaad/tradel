@@ -5,6 +5,7 @@ import { validate } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { TradesModule } from './trades/trades.module';
+import { NotesModule } from './notes/notes.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { TradesModule } from './trades/trades.module';
         DatabaseModule,
         AccountsModule,
         TradesModule,
+        NotesModule,
     ], // other modules this module depends on
 })
 export class AppModule {}

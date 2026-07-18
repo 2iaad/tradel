@@ -23,9 +23,8 @@ export class CreateNoteDto {
     @ArrayMaxSize(5)
     @IsString({ each: true })
     @MaxLength(20, { each: true })
-    tags!: string[];
+    tags?: string[];
 
-    @IsOptional()
     @IsUUID()
-    tradeId?: string;
+    tradeId!: string;
 }

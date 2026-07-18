@@ -3,7 +3,7 @@
 Like the accounts guide (`05-accounts-module-guide.md`), this file is not a
 copy-paste dump. It walks the **order** of the work and, more importantly,
 the **reasoning** at each step — the questions a senior engineer asks
-*before* typing, and how each answer becomes a decision. The code shown is
+_before_ typing, and how each answer becomes a decision. The code shown is
 deliberately plain: no clever generics, no abstractions. Plain code you
 fully understand beats smart code you half understand.
 
@@ -27,14 +27,14 @@ Inventory first. Never design in a vacuum:
 - **Backend**: `TradesModule` is a complete, working example of exactly the
   shape we need — nested route under an account, ownership check, raw SQL
   repository. We will copy its shape, not invent a new one.
-- **Frontend**: already *stubbed* for notes. `TradeLogRow` has `noteTitle`,
+- **Frontend**: already _stubbed_ for notes. `TradeLogRow` has `noteTitle`,
   `noteBody`, `tags` (always empty), the trade row expands into a
   `NotePanel` with a dead "+ ADD NOTE" button, the dashboard has a "Notes"
   card hardcoded to "NO NOTES YET", and the footer shows "0% WITH NOTES".
   The UI contract was designed before the backend — our job is to fill it.
 
 **The decision this produces:** we are not designing a feature from
-scratch; we are *completing a contract that already exists on both ends*.
+scratch; we are _completing a contract that already exists on both ends_.
 That kills a whole class of bikeshedding (what fields does a note have? —
 the UI already told us: title, body, tags, optional trade link).
 
@@ -46,7 +46,7 @@ off `users` directly, filtering "notes for my FTMO account" would need a
 different mechanism than "trades for my FTMO account". Consistency beats
 micro-optimizations — one mental model for the whole app.
 
-A note can *optionally* point at one trade (`trade_id` nullable). Two kinds
+A note can _optionally_ point at one trade (`trade_id` nullable). Two kinds
 of notes fall out of one column:
 
 - `trade_id` set → "why I took this exact trade"
@@ -65,7 +65,7 @@ consciously:
 - User deleted → accounts cascade → notes cascade. Nothing should outlive
   its owner. `ON DELETE CASCADE`.
 - **Trade deleted → note survives, link cleared.** `ON DELETE SET NULL`.
-  Why? The note is the trader's *thinking* — it's valuable even if the
+  Why? The note is the trader's _thinking_ — it's valuable even if the
   trade row is gone. Deleting someone's writing as a side effect of
   deleting a data row would be silent data loss.
 
@@ -77,7 +77,7 @@ key violation at 2am.
 Bottom-up, always: **table → repository → service → controller → verify
 with curl → frontend store → UI**.
 
-Why bottom-up? Because each layer can only be *tested* if the layer under
+Why bottom-up? Because each layer can only be _tested_ if the layer under
 it exists. Build the UI first and every bug becomes "is it the UI, the
 store, the API, or the DB?" — four suspects. Build bottom-up and verify
 each layer before moving on, and every bug has exactly one suspect: the
@@ -117,7 +117,7 @@ DROP TABLE notes;
 
 - **`tags TEXT[]` instead of a `tags` + `note_tags` join table.** The
   "correct" normalized answer is a join table. We're not doing it. Why:
-  the app only ever *displays* tags on a note; there is no "show me all
+  the app only ever _displays_ tags on a note; there is no "show me all
   notes tagged #fomo across accounts" feature yet. A join table costs two
   more tables, JOINs in every query, and more repository code — for a
   feature that doesn't exist. If tag-search ships later, migrate then.
@@ -144,7 +144,7 @@ npm run migrate:down   # prove the rollback works
 npm run migrate:up     # leave it applied
 ```
 
-Testing the rollback *now* takes 10 seconds. Discovering it's broken in six
+Testing the rollback _now_ takes 10 seconds. Discovering it's broken in six
 months takes an afternoon.
 
 ---
@@ -175,8 +175,8 @@ PATCH  /api/accounts/:accountId/notes/:id
 DELETE /api/accounts/:accountId/notes/:id
 ```
 
-**Why nested and not flat `/api/notes`?** Because the URL then *carries the
-ownership context*. Every handler receives `accountId` and can run the same
+**Why nested and not flat `/api/notes`?** Because the URL then _carries the
+ownership context_. Every handler receives `accountId` and can run the same
 ownership check trades uses. A flat `/notes` route would need the account
 id in the body or query — same information, worse place, and inconsistent
 with `/accounts/:accountId/trades`. Consistency is a feature: the next
@@ -184,7 +184,7 @@ person (you, in three months) guesses the URL correctly on the first try.
 
 **Why `?tradeId=` as a query param and not a route
 (`/trades/:tradeId/notes`)?** Both are defensible. Query param wins here
-because it's a *filter on a collection we already have*, not a new
+because it's a _filter on a collection we already have_, not a new
 resource. One endpoint, one repository method with an optional `WHERE` —
 instead of a second controller path that does 90% the same thing.
 
@@ -193,7 +193,7 @@ instead of a second controller path that does 90% the same thing.
 Open `trades.service.ts` and find this:
 
 ```ts
-private async assertOwnedAccount(accountId: string, userId: string) {
+private async verifyAccountOwnership(accountId: string, userId: string) {
     const account = await this.accounts.findOne(accountId, userId);
     if (!account) {
         throw new NotFoundException('Account not found');
@@ -212,14 +212,14 @@ it first. Three decisions hide in these six lines:
    "get me rows", not "is this allowed". Mixing authorization into SQL
    makes every query harder to read and the rule impossible to find.
 3. **It throws `NotFoundException`, not `ForbiddenException`.** Subtle and
-   important: responding 403 to "account exists but isn't yours" *confirms
-   the account exists*. That's an information leak — an attacker can
+   important: responding 403 to "account exists but isn't yours" _confirms
+   the account exists_. That's an information leak — an attacker can
    enumerate valid account ids. 404 for "not yours" and 404 for "doesn't
    exist" are indistinguishable from outside. Standard practice.
 
 Note what this check costs: one extra `SELECT` per request. Could you avoid
 it with a JOIN (`... FROM notes JOIN accounts ON ... AND user_id = $2`)?
-Yes. Should you? Not yet — the two-query version is *obviously correct* and
+Yes. Should you? Not yet — the two-query version is _obviously correct_ and
 readable, and no one has measured a performance problem. Correct and clear
 first; clever after profiling says you must.
 
@@ -277,7 +277,7 @@ Decisions:
   input into SQL is SQL injection. Non-negotiable, no exceptions, not even
   "just this once for a quick test".
 - **Two explicit queries in `findAllByAccount` instead of one dynamically
-  built string.** A senior *could* build the WHERE clause conditionally
+  built string.** A senior _could_ build the WHERE clause conditionally
   (trades' `update` does, because 9 optional columns force it). With one
   optional filter, two plain queries are dumber and better — you can read
   each one and know exactly what it does. Choose the boring version until
@@ -345,13 +345,13 @@ Decisions:
   like. Hand-writing a second DTO that duplicates every rule is how the two
   drift.
 - **Validation only runs because `main.ts` has
-  `app.useGlobalPipes(new ValidationPipe())`** — already set up. Know *why*
+  `app.useGlobalPipes(new ValidationPipe())`** — already set up. Know _why_
   your decorators work, not just that they do.
 
 One business rule belongs in the **service**, not the DTO: if `tradeId` is
-provided, check the trade exists *in this account* before inserting.
+provided, check the trade exists _in this account_ before inserting.
 Why not let the FK constraint catch it? Same 400-vs-500 reasoning — and the
-DB constraint only checks the trade exists *somewhere*, not that it's in
+DB constraint only checks the trade exists _somewhere_, not that it's in
 the caller's account. That cross-account check is exactly the kind of rule
 only the service layer can express.
 
@@ -362,7 +362,7 @@ Copy `trades.module.ts` exactly: import `AccountsModule` (it exports
 `JwtModule.registerAsync` block so `JwtGuard` can verify tokens here.
 
 Yes, the JwtModule config is now duplicated in a third place. Noticing that
-is good instinct. Resisting the urge to refactor it *in this PR* is better
+is good instinct. Resisting the urge to refactor it _in this PR_ is better
 instinct: **one PR, one purpose.** Mixing "add notes" with "refactor JWT
 setup" means a bug in either reverts both. Write it down, refactor next PR.
 
@@ -387,7 +387,7 @@ curl -s http://localhost:3000/api/accounts/<accountId>/notes \
   -d '{"title":"Chased the open","body":"No level, no plan.","tags":["fomo"]}'
 ```
 
-Test the *unhappy* paths too — that's where the engineering is:
+Test the _unhappy_ paths too — that's where the engineering is:
 
 - another user's `accountId` → expect **404** (not 403, not 200)
 - no token → **401**
@@ -430,7 +430,7 @@ notes?** Options:
 Take option 2. Reason: the trades endpoint stays untouched (no backend
 change, no risk to a working feature), and a journal has maybe hundreds of
 notes — one fetch is nothing. Option 1 becomes attractive only when data
-volume makes "fetch all" wasteful. Note the habit: *quantify* before
+volume makes "fetch all" wasteful. Note the habit: _quantify_ before
 optimizing. "Hundreds of rows" is not a performance problem.
 
 ### 3b. Wire the stubs (smallest diff possible)
@@ -449,7 +449,7 @@ The UI already exists — this step is filling holes, not building screens:
 - `dashboard/page.tsx` → `NotesList` renders the latest ~5 notes from the
   store instead of the hardcoded empty state.
 - `/dashboard/journal/page.tsx` → the full notes page: list, standalone
-  note composer. This is the biggest new surface; do it *last*, after the
+  note composer. This is the biggest new surface; do it _last_, after the
   small wirings proved the store works.
 
 Order within this step is deliberate too: smallest integration first

@@ -11,7 +11,7 @@ export class TradesService {
         private readonly accounts: AccountsRepository,
     ) {}
 
-    private async assertOwnedAccount(accountId: string, userId: string) {
+    private async verifyAccountOwnership(accountId: string, userId: string) {
         const account = await this.accounts.findOne(accountId, userId);
         if (!account) {
             throw new NotFoundException('Account not found');
@@ -19,7 +19,7 @@ export class TradesService {
     }
 
     async create(accountId: string, userId: string, dto: CreateTradeDto) {
-        await this.assertOwnedAccount(accountId, userId);
+        await this.verifyAccountOwnership(accountId, userId);
         const pnl = this.computePnl(dto.side, dto.entry, dto.exit, dto.size);
         return this.trades.create(accountId, {
             symbol: dto.symbol,
@@ -34,12 +34,12 @@ export class TradesService {
     }
 
     async findAll(accountId: string, userId: string) {
-        await this.assertOwnedAccount(accountId, userId);
+        await this.verifyAccountOwnership(accountId, userId);
         return this.trades.findAllByAccount(accountId);
     }
 
     async findOne(id: string, accountId: string, userId: string) {
-        await this.assertOwnedAccount(accountId, userId);
+        await this.verifyAccountOwnership(accountId, userId);
         const trade = await this.trades.findOne(id, accountId);
         if (!trade) {
             throw new NotFoundException('Trade not found');
@@ -48,7 +48,7 @@ export class TradesService {
     }
 
     async update(id: string, accountId: string, userId: string, dto: UpdateTradeDto) {
-        await this.assertOwnedAccount(accountId, userId);
+        await this.verifyAccountOwnership(accountId, userId);
         const pnl =
             dto.exit !== undefined
                 ? this.computePnl(dto.side, dto.entry, dto.exit, dto.size)
@@ -71,7 +71,7 @@ export class TradesService {
     }
 
     async remove(id: string, accountId: string, userId: string) {
-        await this.assertOwnedAccount(accountId, userId);
+        await this.verifyAccountOwnership(accountId, userId);
         const deleted = await this.trades.remove(id, accountId);
         if (!deleted) {
             throw new NotFoundException('Trade not found');

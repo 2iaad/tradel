@@ -25,5 +25,6 @@ import { TradesRepository } from './trades.repository';
     ],
     controllers: [TradesController],
     providers: [TradesService, TradesRepository],
+    exports: [TradesRepository],
 })
 export class TradesModule {}

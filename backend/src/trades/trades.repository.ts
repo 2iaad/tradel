@@ -65,20 +65,20 @@ export class TradesRepository {
         return rows[0];
     }
 
-    async findAllByAccount(account_id: string): Promise<Trade[]> {
-        const { rows } = await this.db.query<Trade>(
-            `SELECT * FROM trades WHERE account_id = $1 ORDER BY opened_at DESC`,
-            [account_id],
-        );
-        return rows;
-    }
-
     async findOne(id: string, account_id: string): Promise<Trade | null> {
         const { rows } = await this.db.query<Trade>(
             `SELECT * FROM trades WHERE id = $1 AND account_id = $2`,
             [id, account_id],
         );
         return rows[0] ?? null;
+    }
+
+    async findAllByAccount(account_id: string): Promise<Trade[]> {
+        const { rows } = await this.db.query<Trade>(
+            `SELECT * FROM trades WHERE account_id = $1 ORDER BY opened_at DESC`,
+            [account_id],
+        );
+        return rows;
     }
 
     async update(id: string, account_id: string, fields: UpdateTradeFields): Promise<Trade | null> {

@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 
+import { clientSize } from '@/lib/canvas-size';
+
 // Deterministic hash noise in [0,1) — keeps candles stable as they scroll.
 const rand = (i: number) => {
     const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
@@ -19,8 +21,7 @@ const price = (i: number) =>
 function drawCandles(canvas: HTMLCanvasElement, t: number) {
     if (!canvas.isConnected) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const { w, h } = clientSize(canvas);
     if (!w || !h) return;
     const W = Math.round(w * dpr);
     const H = Math.round(h * dpr);
@@ -81,6 +82,7 @@ export function useCandles(canvasRef: React.RefObject<HTMLCanvasElement | null>)
         let raf = 0;
         let last = 0;
         let t = 0;
+        let covered = false;
 
         const frame = (now: number) => {
             const dt = last ? Math.min((now - last) / 1000, 0.1) : 0.016;
@@ -90,7 +92,7 @@ export function useCandles(canvasRef: React.RefObject<HTMLCanvasElement | null>)
             raf = reduced ? 0 : requestAnimationFrame(frame);
         };
         const start = () => {
-            if (!raf) raf = requestAnimationFrame(frame);
+            if (!raf && !covered && !document.hidden) raf = requestAnimationFrame(frame);
         };
         const stop = () => {
             cancelAnimationFrame(raf);
@@ -98,11 +100,34 @@ export function useCandles(canvasRef: React.RefObject<HTMLCanvasElement | null>)
             last = 0;
         };
         const onVis = () => (document.hidden ? stop() : start());
+        // ponytail: both consumers (landing hero, auth panel) sit in the
+        // page's first viewport; the sticky hero stays pinned under opaque
+        // sections, so past one viewport of scroll (hero min-height 640px,
+        // +120px past the next section's rounded corners) the canvas is
+        // fully hidden — pause the loop instead of painting covered pixels.
+        // The section is also visibility-hidden while covered: on fast async
+        // scroll (Firefox APZ) the compositor can show the pinned hero layer
+        // through not-yet-rasterized gaps in the sections above it — hidden
+        // layers can't leak through, gaps show plain page background instead.
+        const sec = canvas.closest('section');
+        const onScroll = () => {
+            const c = window.scrollY > Math.max(window.innerHeight, 640) + 120;
+            if (c !== covered) {
+                covered = c;
+                if (sec) sec.style.visibility = c ? 'hidden' : '';
+                if (c) stop();
+                else start();
+            }
+        };
         document.addEventListener('visibilitychange', onVis);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll(); // restored scroll may start past the hero
         start();
         return () => {
             stop();
+            if (sec) sec.style.visibility = '';
             document.removeEventListener('visibilitychange', onVis);
+            window.removeEventListener('scroll', onScroll);
         };
     }, [canvasRef]);
 }

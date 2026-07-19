@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { ReactScan } from '@/components/react-scan';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -27,6 +28,7 @@ export default function RootLayout({
             lang="en"
             className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
         >
+            <ReactScan />
             <body className="min-h-full flex flex-col">{children}</body>
         </html>
     );

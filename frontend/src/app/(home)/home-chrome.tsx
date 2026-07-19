@@ -32,7 +32,10 @@ function useReveal() {
             const target =
                 el.dataset.reveal === 'mask' && el.parentElement ? el.parentElement : el;
             // already scrolled past (restored scroll) → visible, no animation
-            if (target.getBoundingClientRect().bottom < 0) return show(el);
+            if (target.getBoundingClientRect().bottom < 0) {
+                el.style.willChange = 'auto'; // never animates — drop the compositor layer
+                return show(el);
+            }
             byTarget.set(target, el);
         });
         const io = new IntersectionObserver(
@@ -56,17 +59,23 @@ function useScrollProgress(ref: React.RefObject<HTMLDivElement | null>) {
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
+        // scrollHeight forces layout — read it on resize/font load, not per scroll
+        let max = 1;
         const on = () => {
-            const max = document.documentElement.scrollHeight - window.innerHeight;
-            const p = Math.min(1, Math.max(0, window.scrollY / Math.max(1, max)));
+            const p = Math.min(1, Math.max(0, window.scrollY / max));
             el.style.transform = `scaleX(${p.toFixed(4)})`;
         };
-        on();
+        const recalc = () => {
+            max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+            on();
+        };
+        recalc();
+        document.fonts?.ready.then(recalc);
         window.addEventListener('scroll', on, { passive: true });
-        window.addEventListener('resize', on);
+        window.addEventListener('resize', recalc);
         return () => {
             window.removeEventListener('scroll', on);
-            window.removeEventListener('resize', on);
+            window.removeEventListener('resize', recalc);
         };
     }, [ref]);
 }

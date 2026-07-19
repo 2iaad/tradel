@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { cardCls, ctaCls, ghostBtnCls, h2Cls } from '@/lib/ui';
 import { useSessionStore } from '@/stores/session';
 import { CreateAccountModal } from './create-account-modal';
-import { GhostEquityCard } from './equity-card';
+import { EquityCard, GhostEquityCard } from './equity-card';
 import { PageHeader } from './page-header';
 import { TradesTable } from './trades-table';
 import { Stat, useDashboardData } from './use-dashboard-data';
@@ -78,7 +78,7 @@ function FullDashboard() {
                 </Link>
             </PageHeader>
             <StatCards stats={stats} />
-            {/* <EquityCard /> */}
+            <EquityCard />
             <div className="grid grid-cols-[1.9fr_1fr] gap-4 items-start">
                 <TradesTable rows={recent} loading={loading} />
                 <NotesList />

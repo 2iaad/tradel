@@ -105,10 +105,16 @@ export function useCandles(canvasRef: React.RefObject<HTMLCanvasElement | null>)
         // sections, so past one viewport of scroll (hero min-height 640px,
         // +120px past the next section's rounded corners) the canvas is
         // fully hidden — pause the loop instead of painting covered pixels.
+        // The section is also visibility-hidden while covered: on fast async
+        // scroll (Firefox APZ) the compositor can show the pinned hero layer
+        // through not-yet-rasterized gaps in the sections above it — hidden
+        // layers can't leak through, gaps show plain page background instead.
+        const sec = canvas.closest('section');
         const onScroll = () => {
             const c = window.scrollY > Math.max(window.innerHeight, 640) + 120;
             if (c !== covered) {
                 covered = c;
+                if (sec) sec.style.visibility = c ? 'hidden' : '';
                 if (c) stop();
                 else start();
             }
@@ -119,6 +125,7 @@ export function useCandles(canvasRef: React.RefObject<HTMLCanvasElement | null>)
         start();
         return () => {
             stop();
+            if (sec) sec.style.visibility = '';
             document.removeEventListener('visibilitychange', onVis);
             window.removeEventListener('scroll', onScroll);
         };

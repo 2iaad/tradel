@@ -25,6 +25,7 @@ function useScrub(r: ScrubRefs) {
     useEffect(() => {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let raf = 0;
+        let maxE = 0;
         const apply = () => {
             raf = 0;
             const sec = r.section.current;
@@ -33,9 +34,13 @@ function useScrub(r: ScrubRefs) {
             const rect = sec.getBoundingClientRect();
             const vh = window.innerHeight;
             if (rect.bottom < 0 || rect.top > vh) return; // section off-screen
-            const e = reduced
+            const target = reduced
                 ? 1
                 : Math.min(1, Math.max(0, -rect.top / Math.max(1, sec.offsetHeight - vh)));
+            // latch at the furthest progress: the curve draws with you but
+            // never un-draws — scrolling back past the section otherwise
+            // flashes the whole chart in and out at speed
+            const e = (maxE = Math.max(maxE, target));
             drawScrubChart(cv, e);
             setText(r.pnl.current, '+$' + Math.round(YTD_STATS.pnl * e).toLocaleString('en-US'));
             setText(r.win.current, (YTD_STATS.win * e).toFixed(1) + '%');
@@ -162,7 +167,10 @@ export function AnalyticsSection() {
     return (
         <section
             ref={section}
-            className="relative h-[230vh] border-t border-[#14191d] bg-[#07090b]"
+            // contain:paint — compositor-side clip to the section box, so on
+            // fast async scroll the pinned chart's stale layer can't be
+            // composited over other sections (seen gluing over the hero)
+            className="relative h-[230vh] border-t border-[#14191d] bg-[#07090b] [contain:paint]"
         >
             <div className={pinCls}>
                 <div className="mx-auto flex min-h-0 w-full max-w-[1160px] flex-1 flex-col gap-[26px]">

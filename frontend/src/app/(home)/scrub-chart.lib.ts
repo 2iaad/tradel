@@ -1,5 +1,7 @@
 // Pure drawing/math for the landing-page equity scrub — no React in here.
 
+import { clientSize } from '@/lib/canvas-size';
+
 const N = 127;
 const SEED = 37;
 const LO = 9600;
@@ -129,8 +131,7 @@ function drawTip(ctx: CanvasRenderingContext2D, g: Geom, pts: number[], e: numbe
 function prepare(canvas: HTMLCanvasElement) {
     if (!canvas.isConnected) return null;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const { w, h } = clientSize(canvas);
     if (!w || !h) return null;
     const W = Math.round(w * dpr);
     const H = Math.round(h * dpr);

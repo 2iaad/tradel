@@ -1,5 +1,7 @@
 // Pure drawing/math for the equity chart canvas — no React in here.
 
+import { clientSize } from '@/lib/canvas-size';
+
 export const RANGES = {
     '30D': { n: 24, seed: 11, lo: 20600, hi: 24700 },
     '90D': { n: 61, seed: 23, lo: 17200, hi: 24700 },
@@ -188,12 +190,55 @@ function drawHover(ctx: CanvasRenderingContext2D, g: Geom, f: ChartFrame, lo: nu
     ctx.fillText(lbl, bx + 12, by + 36);
 }
 
+/* Cached static layer (axes + finished curve) per canvas. Once the reveal
+   completes only the dot pulses and the hover moves, yet every frame was
+   re-stroking the glow line (shadowBlur), gradient fill, and axis text at
+   60fps — the expensive part. Render that once offscreen and blit it. */
+interface StaticLayer {
+    key: RangeKey;
+    ghost: boolean;
+    w: number;
+    h: number;
+    cv: HTMLCanvasElement;
+}
+const layers = new WeakMap<HTMLCanvasElement, StaticLayer>();
+
+function staticLayer(
+    canvas: HTMLCanvasElement,
+    f: ChartFrame,
+    g: Geom,
+    lo: number,
+    hi: number,
+    w: number,
+    h: number,
+) {
+    const prev = layers.get(canvas);
+    if (
+        prev &&
+        prev.key === f.key &&
+        prev.ghost === f.ghost &&
+        prev.w === canvas.width &&
+        prev.h === canvas.height
+    )
+        return prev.cv;
+    const cv = document.createElement('canvas');
+    cv.width = canvas.width;
+    cv.height = canvas.height;
+    const ctx = cv.getContext('2d');
+    if (!ctx) return null;
+    ctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
+    drawAxes(ctx, g, f, lo, hi);
+    if (f.ghost) drawGhostLine(ctx, g, f.pts);
+    else drawRealLine(ctx, g, f.pts);
+    layers.set(canvas, { key: f.key, ghost: f.ghost, w: canvas.width, h: canvas.height, cv });
+    return cv;
+}
+
 // Sizes the canvas to its element and returns a 2d ctx, or null to skip.
 function prepare(canvas: HTMLCanvasElement) {
     if (!canvas.isConnected) return null;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const { w, h } = clientSize(canvas);
     if (!w || !h) return null;
     const W = Math.round(w * dpr);
     const H = Math.round(h * dpr);
@@ -230,22 +275,31 @@ export function drawChart(canvas: HTMLCanvasElement, f: ChartFrame) {
         Y: (v) => py + (1 - v) * ph,
     };
 
-    drawAxes(ctx, g, f, lo, hi);
-
     // reveal progress
     let p = 0;
     if (f.reduced) p = 1;
     else if (f.reveal != null) p = Math.min(1, (performance.now() - f.reveal) / REVEAL_MS);
-    if (p === 0) return;
 
-    // clip to the revealed slice — grows from the left edge rightward
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, px + pw * ease(p) + 20, h);
-    ctx.clip();
-    if (f.ghost) drawGhostLine(ctx, g, f.pts);
-    else drawRealLine(ctx, g, f.pts);
-    ctx.restore();
+    const layer = p === 1 ? staticLayer(canvas, f, g, lo, hi, w, h) : null;
+    if (layer) {
+        // settled chart: one blit instead of a full redraw
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.drawImage(layer, 0, 0);
+        ctx.restore();
+    } else {
+        drawAxes(ctx, g, f, lo, hi);
+        if (p === 0) return;
+
+        // clip to the revealed slice — grows from the left edge rightward
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, px + pw * ease(p) + 20, h);
+        ctx.clip();
+        if (f.ghost) drawGhostLine(ctx, g, f.pts);
+        else drawRealLine(ctx, g, f.pts);
+        ctx.restore();
+    }
 
     // pulsing dot: ghost marks trade #1 (where the real curve will
     // begin); real marks the newest trade once the reveal completes

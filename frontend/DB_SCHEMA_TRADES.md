@@ -1,7 +1,7 @@
-# New tables needed — accounts, trades, journal notes
+# New tables needed — accounts, trades, notes
 
 Current DB only has `users` and `refresh_tokens`. To support multiple
-trading accounts per user, with trades and journal notes attached to them,
+trading accounts per user, with trades and notes attached to them,
 we need 3 new tables.
 
 ## Relationship diagram
@@ -36,7 +36,7 @@ we need 3 new tables.
         │ has many            │ has many
         │ *                   │ *
 ┌───────▼───────┐      ┌──────▼────────┐
-│    trades     │      │ journal_notes │
+│    trades     │      │ notes │
 │───────────────│      │───────────────│
 │ id        (PK)│      │ id        (PK)│
 │ account_id(FK)│──┐   │ account_id(FK)│──┐
@@ -65,9 +65,9 @@ we need 3 new tables.
 - **One account → many trades.** A trade always belongs to exactly one
   account, never directly to a user. Delete an account, all its trades go
   too (cascade).
-- **One account → many journal notes.** Same idea — a note belongs to an
+- **One account → many notes.** Same idea — a note belongs to an
   account (so notes can be scoped/filtered per account like trades are).
-- **One trade → many journal notes (optional).** A note can optionally
+- **One trade → many notes (optional).** A note can optionally
   point at a specific trade (`trade_id`), e.g. "why I took this exact
   trade". If the trade is deleted, the note stays but the link is cleared
   (`ON DELETE SET NULL`), not deleted — a note is still worth keeping.
@@ -105,7 +105,7 @@ CREATE TABLE trades (
 CREATE INDEX idx_trades_account_id ON trades (account_id);
 
 
-CREATE TABLE journal_notes (
+CREATE TABLE notes (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id  UUID         NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     trade_id    UUID         REFERENCES trades(id) ON DELETE SET NULL,
@@ -115,13 +115,13 @@ CREATE TABLE journal_notes (
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_journal_notes_account_id ON journal_notes (account_id);
-CREATE INDEX idx_journal_notes_trade_id ON journal_notes (trade_id);
+CREATE INDEX idx_notes_account_id ON notes (account_id);
+CREATE INDEX idx_notes_trade_id ON notes (trade_id);
 ```
 
 ## Ownership check (used everywhere)
 
-Since `trades` and `journal_notes` don't store `user_id` directly, every
+Since `trades` and `notes` don't store `user_id` directly, every
 read/write goes through the account:
 
 ```sql
@@ -129,5 +129,5 @@ read/write goes through the account:
 SELECT 1 FROM accounts WHERE id = $accountId AND user_id = $sessionUserId;
 ```
 
-One check, reused by every trades/journal endpoint. No duplicated
+One check, reused by every trades/notes endpoint. No duplicated
 ownership logic.

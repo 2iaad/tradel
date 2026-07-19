@@ -4,7 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 
 import { api } from '@/lib/api';
-import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
+import { btnCls, errorCls, linkCls } from '@/lib/ui';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { EmailField, PasswordField, UsernameField } from '@/components/auth/fields';
 

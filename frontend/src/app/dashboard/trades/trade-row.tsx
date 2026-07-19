@@ -91,7 +91,7 @@ function NoNote() {
     return (
         <div className="flex items-center gap-3.5">
             <span className="text-[12.5px] text-[#5f6b70]">
-                No journal note attached to this trade.
+                No note attached to this trade.
             </span>
             <button
                 type="button"
@@ -103,15 +103,15 @@ function NoNote() {
     );
 }
 
-// Expanded panel under a trade row: its journal note, or the add-note prompt.
-function JournalNote({ t }: { t: TradeLogRow }) {
+// Expanded panel under a trade row: its note, or the add-note prompt.
+function NotePanel({ t }: { t: TradeLogRow }) {
     return (
         <div className="bg-[#0a0d0f] border-t border-[#161c20] px-[22px] pt-4 pb-[18px] flex flex-col gap-2">
             {t.noteTitle ? (
                 <>
                     <div className="flex items-center gap-2.5">
                         <span className="font-mono text-[10px] font-medium tracking-[0.16em] text-[#2fd57f]">
-                            {"/// JOURNAL NOTE"}
+                            {"/// NOTE"}
                         </span>
                         <span className="font-mono text-[10px] text-[#4d5a5f]">{t.time}</span>
                     </div>
@@ -140,7 +140,7 @@ interface TradeRowProps {
     onDelete: () => void;
 }
 
-// One trade row (click to expand its journal note) + the expandable panel.
+// One trade row (click to expand its note) + the expandable panel.
 export function TradeRow({ t, open, dense, onToggle, onEdit, onDelete }: TradeRowProps) {
     return (
         <div>
@@ -152,7 +152,7 @@ export function TradeRow({ t, open, dense, onToggle, onEdit, onDelete }: TradeRo
                 <TailCells t={t} open={open} />
                 <RowIcons onEdit={onEdit} onDelete={onDelete} />
             </div>
-            {open && <JournalNote t={t} />}
+            {open && <NotePanel t={t} />}
         </div>
     );
 }

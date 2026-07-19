@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import homeMarkup from "../content/home.html?raw";
+---
+
+<Layout>
+  <div class="page-w" data-page-wrapper>
+    <Fragment set:html={homeMarkup} />
+  </div>
+  <script>
+    import "../scripts/home";
+  </script>
+</Layout>

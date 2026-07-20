@@ -1,0 +1,12 @@
+/* Tailwind v4 without preflight: the page's look is defined by the authored
+   stylesheets below, and preflight's resets would change it. Utilities are
+   layered, so the unlayered authored CSS always wins ties. */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Order matters: swiper -> site -> tradel preserves the original cascade. */
+@import '../styles/swiper.css';
+@import '../styles/site.css';
+@import '../styles/tradel.css';

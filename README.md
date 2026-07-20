@@ -1,5 +1,7 @@
 # Tradel homepage
 
+reference: https://walbi.com/
+
 An Astro implementation of the supplied homepage reference, branded as
 Tradel. The project is frontend-only and intentionally includes
 `noindex, nofollow` metadata for local learning use.

@@ -242,7 +242,12 @@ export function AiSignalsTitle() {
                 {' '}
                 {HOUSE_RECTS.map(([transform, width, height], index) => (
                     <Fragment key={index}>
-                        <rect fill="currentColor" height={height} transform={transform} width={width} />{' '}
+                        <rect
+                            fill="currentColor"
+                            height={height}
+                            transform={transform}
+                            width={width}
+                        />{' '}
                     </Fragment>
                 ))}
             </svg>

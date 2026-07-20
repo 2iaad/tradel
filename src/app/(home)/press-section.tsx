@@ -52,8 +52,7 @@ export function PressSection() {
                         ))}{' '}
                     </div>{' '}
                 </div>{' '}
-                <SliderArrows control="press" />{' '}
-                <div className="v-200 sm-64" />{' '}
+                <SliderArrows control="press" /> <div className="v-200 sm-64" />{' '}
             </div>{' '}
         </section>
     );

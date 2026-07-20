@@ -32,7 +32,12 @@ function BlogCard({ post, kind }: { post: BlogPost; kind: 'news' | 'academy' }) 
                         loading="lazy"
                         src={post.image}
                     />{' '}
-                    <img alt={post.title} className="cover-img anim" loading="lazy" src={post.image} />
+                    <img
+                        alt={post.title}
+                        className="cover-img anim"
+                        loading="lazy"
+                        src={post.image}
+                    />
                     {'  '}
                     <div className="blog-link__pills">
                         {' '}

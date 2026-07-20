@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
         'out/**',
         'build/**',
         'next-env.d.ts',
+        // The master-branch app is checked out here for merge prep; it lints
+        // under its own config, not this one.
+        'frontend/**',
     ]),
 ]);
 

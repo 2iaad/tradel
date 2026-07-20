@@ -2,7 +2,7 @@
 
 reference: https://walbi.com/
 
-An Astro implementation of the supplied homepage reference, branded as
+A Next.js implementation of the supplied homepage reference, branded as
 Tradel. The project is frontend-only and intentionally includes
 `noindex, nofollow` metadata for local learning use.
 
@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Astro serves the page at `http://localhost:4321`.
+Next.js serves the page at `http://localhost:4321`.
 
 ## Verify
 

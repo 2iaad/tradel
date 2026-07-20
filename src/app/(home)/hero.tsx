@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 export function Hero() {
     return (
         <>
@@ -26,78 +28,18 @@ export function Hero() {
                         </div>{' '}
                         <div className="bg">
                             {' '}
-                            <div className="cell-col var-4">
-                                {' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                            </div>{' '}
-                            <div className="cell-col var-2">
-                                {' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                            </div>{' '}
-                            <div className="cell-col var-5">
-                                {' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                            </div>{' '}
-                            <div className="cell-col var-6">
-                                {' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                                <div className="cell" /> <div className="cell" />{' '}
-                            </div>{' '}
+                            {['var-4', 'var-2', 'var-5', 'var-6'].map((variant) => (
+                                <Fragment key={variant}>
+                                    <div className={`cell-col ${variant}`}>
+                                        {' '}
+                                        {Array.from({ length: 30 }, (_, cellIndex) => (
+                                            <Fragment key={cellIndex}>
+                                                <div className="cell" />{' '}
+                                            </Fragment>
+                                        ))}
+                                    </div>{' '}
+                                </Fragment>
+                            ))}
                         </div>
                         <img
                             id="hero-img"

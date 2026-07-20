@@ -171,7 +171,8 @@ export function SeoSection() {
                                                 <p>
                                                     Step 3: Test, Adjust, Go Live. Run backtests,
                                                     fine-tune risk settings, and launch your agent
-                                                    into real trading. Whether you're using an auto
+                                                    into real trading. Whether you&apos;re using an
+                                                    auto
                                                     trading bot crypto or creating a custom AI agent
                                                     for auto crypto trading, the flexibility is
                                                     unmatched.
@@ -191,7 +192,8 @@ export function SeoSection() {
                                                 </ul>{' '}
                                                 <p>
                                                     Followers keep control of their funds at all
-                                                    times. It's the best crypto auto trading bot
+                                                    times. It&apos;s the best crypto auto trading
+                                                    bot
                                                     marketplace, giving you both choices and
                                                     control.
                                                 </p>{' '}

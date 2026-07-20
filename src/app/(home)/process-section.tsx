@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { AiSignalsTitle } from './ai-signals-title';
 
 export function ProcessSection() {
@@ -26,28 +27,19 @@ export function ProcessSection() {
                             </div>{' '}
                             <div className="progress-list">
                                 {' '}
-                                <div className="progress-bar is--tall" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" /> <div className="progress-bar" />{' '}
-                                <div className="progress-bar" />{' '}
-                                <div className="progress-bar is--end" />{' '}
+                                {Array.from({ length: 41 }, (_, index) => (
+                                    <Fragment key={index}>
+                                        <div
+                                            className={
+                                                index === 0
+                                                    ? 'progress-bar is--tall'
+                                                    : index === 40
+                                                      ? 'progress-bar is--end'
+                                                      : 'progress-bar'
+                                            }
+                                        />{' '}
+                                    </Fragment>
+                                ))}
                             </div>{' '}
                             <div className="progress-nr">04</div>{' '}
                         </div>{' '}

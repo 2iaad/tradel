@@ -12,7 +12,12 @@ function SocialSlide({ item }: { item: SocialChannel }) {
                 <div className="p-reg">{item.name}</div>{' '}
                 <div className="icon-med">
                     {' '}
-                    <svg fill="none" viewBox={item.viewBox} width="100%" xmlns="http://www.w3.org/2000/svg">
+                    <svg
+                        fill="none"
+                        viewBox={item.viewBox}
+                        width="100%"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
                         {' '}
                         <path
                             {...(item.evenodd ? { clipRule: 'evenodd', fillRule: 'evenodd' } : {})}
@@ -96,8 +101,7 @@ export function CommunitySection() {
                         ))}
                     </div>{' '}
                 </div>{' '}
-                <SliderArrows control="coverflow" />{' '}
-                <div className="v-160 sm--hide" />{' '}
+                <SliderArrows control="coverflow" /> <div className="v-160 sm--hide" />{' '}
             </div>{' '}
         </section>
     );

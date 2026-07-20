@@ -22,12 +22,14 @@ export default function HomePage() {
             <div className="page-w" data-page-wrapper="">
                 <main id="top" className="main-w" data-page-ns="home" data-page="true">
                     {' '}
-                    <HomeNav /> <HomeMenu />{'   '}
-                    <Hero /> <IntroSection /> <PartnersSection />{' '}
-                    <DownloadSection /> <LighthouseSection /> <ProcessSection />{' '}
-                    <ProcessEndSection /> <CommunitySection /> <EducationSection /> <PressSection />{' '}
-                    <CrossDivider /> <SupportSection /> <DownloadSection withHeading />{' '}
-                    <RatingBanner /> <SeoSection />{'  '}
+                    <HomeNav /> <HomeMenu />
+                    {'   '}
+                    <Hero /> <IntroSection /> <PartnersSection /> <DownloadSection />{' '}
+                    <LighthouseSection /> <ProcessSection /> <ProcessEndSection />{' '}
+                    <CommunitySection /> <EducationSection /> <PressSection /> <CrossDivider />{' '}
+                    <SupportSection /> <DownloadSection withHeading /> <RatingBanner />{' '}
+                    <SeoSection />
+                    {'  '}
                     <Footer />{' '}
                 </main>
             </div>

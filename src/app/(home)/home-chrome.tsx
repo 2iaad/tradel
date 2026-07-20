@@ -13,7 +13,13 @@ const CHECK_PATH =
 
 function GlobeIcon() {
     return (
-        <svg className="svg-2" fill="none" viewBox="0 0 24 25" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <svg
+            className="svg-2"
+            fill="none"
+            viewBox="0 0 24 25"
+            width="100%"
+            xmlns="http://www.w3.org/2000/svg"
+        >
             {' '}
             <path clipRule="evenodd" d={GLOBE_PATH} fill="currentColor" fillRule="evenodd" />{' '}
         </svg>
@@ -22,7 +28,13 @@ function GlobeIcon() {
 
 function CloseIcon(props: ComponentProps<'svg'>) {
     return (
-        <svg fill="none" viewBox="0 0 24 24" width="100%" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg
+            fill="none"
+            viewBox="0 0 24 24"
+            width="100%"
+            xmlns="http://www.w3.org/2000/svg"
+            {...props}
+        >
             {' '}
             <path clipRule="evenodd" d={CLOSE_PATH} fill="currentColor" fillRule="evenodd" />{' '}
         </svg>
@@ -31,7 +43,11 @@ function CloseIcon(props: ComponentProps<'svg'>) {
 
 function LocaleList() {
     return (
-        <div className="locals_list flex-v new-button w-locales-items" data-locals-list="" role="list">
+        <div
+            className="locals_list flex-v new-button w-locales-items"
+            data-locals-list=""
+            role="list"
+        >
             {' '}
             {LOCALES.map((locale) => (
                 <div key={locale.code} className="w-locales-item" role="listitem">
@@ -75,7 +91,12 @@ function MobileLocaleList() {
                             data-locale-check=""
                         >
                             {' '}
-                            <path clipRule="evenodd" d={CHECK_PATH} fill="currentColor" fillRule="evenodd" />{' '}
+                            <path
+                                clipRule="evenodd"
+                                d={CHECK_PATH}
+                                fill="currentColor"
+                                fillRule="evenodd"
+                            />{' '}
                         </svg>{' '}
                     </a>{' '}
                 </div>
@@ -106,7 +127,12 @@ export function HomeNav() {
                     <div className="nav-list">
                         {' '}
                         {NAV_LINKS.map((label) => (
-                            <a key={label} className="nav-link new-button_label" data-nav-item="" href="#">
+                            <a
+                                key={label}
+                                className="nav-link new-button_label"
+                                data-nav-item=""
+                                href="#"
+                            >
                                 {` ${label} `}
                             </a>
                         ))}{' '}
@@ -156,7 +182,12 @@ export function HomeMenu() {
                 <div className="menu-links">
                     {' '}
                     {MENU_LINKS.map((label) => (
-                        <a key={label} className="menu-link w-inline-block" data-menu-link="" href="#">
+                        <a
+                            key={label}
+                            className="menu-link w-inline-block"
+                            data-menu-link=""
+                            href="#"
+                        >
                             {' '}
                             <div className="menu-link__active" />{' '}
                             <div className="menu-link__text">{label}</div>{' '}
@@ -166,7 +197,11 @@ export function HomeMenu() {
                 </div>{' '}
                 <div className="menu-bottom">
                     {' '}
-                    <div className="locals_wrapper w-locales-list" data-locale-open="" data-locals="">
+                    <div
+                        className="locals_wrapper w-locales-list"
+                        data-locale-open=""
+                        data-locals=""
+                    >
                         {' '}
                         <button className="menu-button is--language">
                             {' '}

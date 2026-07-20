@@ -24,10 +24,17 @@ export default function HomePage() {
                     {' '}
                     <HomeNav /> <HomeMenu />
                     {'   '}
-                    <Hero /> <IntroSection /> <PartnersSection /> <DownloadSection />{' '}
-                    <LighthouseSection /> <ProcessSection /> <ProcessEndSection />{' '}
-                    <CommunitySection /> <EducationSection /> <PressSection /> <CrossDivider />{' '}
-                    <SupportSection /> <DownloadSection withHeading /> <RatingBanner />{' '}
+                    <Hero />
+                    <IntroSection />
+                    <PartnersSection />
+                    
+                    {/* <DownloadSection />{' '} */}
+                    <LighthouseSection />
+                    <ProcessSection />
+                    <ProcessEndSection />
+                    {' '}
+                    <CrossDivider />
+                    {' '}
                     <SeoSection />
                     {'  '}
                     <Footer />{' '}

@@ -1,0 +1,2 @@
+release: PGSSLMODE=no-verify DB_URL="$DATABASE_URL" npm run migrate:up
+web: npm run start:prod

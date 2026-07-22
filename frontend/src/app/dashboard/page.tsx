@@ -57,9 +57,6 @@ function NotesList() {
                     + NEW
                 </button>
             </div>
-            <div className="border border-dashed border-[#1b2226] rounded-lg px-4 py-8 text-center font-mono text-[11px] tracking-[0.12em] text-[#5f6b70]">
-                {'/// NO NOTES YET'}
-            </div>
         </div>
     );
 }
@@ -236,7 +233,7 @@ function EmptyLedger({ onLog }: { onLog: () => void }) {
         <div className="grid grid-cols-[1.9fr_1fr] gap-4 items-stretch">
             <EmptyCard
                 title="Recent trades"
-                kicker="/// EMPTY LEDGER"
+                kicker="EMPTY LEDGER"
                 text="Every trade you log lands here — entry, exit, size, and R."
                 maxW="max-w-[300px]"
             >
@@ -250,7 +247,7 @@ function EmptyLedger({ onLog }: { onLog: () => void }) {
             </EmptyCard>
             <EmptyCard
                 title="Notes"
-                kicker="/// NO NOTES"
+                kicker="NO NOTES"
                 text="The reasoning behind each trade — the part that makes you better."
                 maxW="max-w-[240px]"
             />

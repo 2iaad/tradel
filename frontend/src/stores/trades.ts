@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
+import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 
 // Trade row as returned by the trades API (NUMERIC columns arrive as strings).
@@ -34,7 +35,6 @@ export interface TradePayload {
 }
 
 interface TradesStore {
-    accountId: string | null;
     trades: ApiTrade[];
     loading: boolean;
     error: string | null;
@@ -44,28 +44,29 @@ interface TradesStore {
     removeTrade: (id: string) => Promise<void>;
 }
 
-// ponytail: single-account journal — uses the user's first account, adds a
-// picker when multi-account support lands.
+// Active account id lives in the accounts store; every request is scoped to it.
+const activeId = () => useAccountStore.getState().activeId;
+
 export const useTradesStore = create<TradesStore>((set, get) => ({
-    accountId: null,
     trades: [],
     loading: true,
     error: null,
 
-    // GET /accounts (first one) then GET /accounts/:id/trades.
+    // GET /accounts/:activeId/trades. No active account → empty log.
     load: async () => {
         if (useSessionStore.getState().session.status !== 'user') {
             set({ loading: false });
             return;
         }
+        const accId = activeId();
+        if (!accId) {
+            set({ trades: [], loading: false });
+            return;
+        }
         set({ loading: true, error: null });
         try {
-            const { data: accounts } = await api.get<{ id: string }[]>('/accounts');
-            const account = accounts[0];
-            if (account) {
-                const { data } = await api.get<ApiTrade[]>(`/accounts/${account.id}/trades`);
-                set({ accountId: account.id, trades: data });
-            }
+            const { data } = await api.get<ApiTrade[]>(`/accounts/${accId}/trades`);
+            set({ trades: data });
         } catch (err) {
             set({ error: apiMessage(err) });
         } finally {
@@ -73,31 +74,34 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
         }
     },
 
-    // GET /accounts/:accountId/trades/:id — one trade by id.
+    // GET /accounts/:activeId/trades/:id — one trade by id.
     fetchTrade: async (id) => {
-        const accId = get().accountId;
-        if (!accId) throw new Error('No account yet');
+        const accId = activeId();
+        if (!accId) throw new Error('No account selected');
         return (await api.get<ApiTrade>(`/accounts/${accId}/trades/${id}`)).data;
     },
 
     // POST a new trade (or PATCH when id is given), then re-sync the log.
-    // The very first save lazily POSTs the "Main" account trades hang off.
-    // Errors propagate to the caller (the modal renders them).
+    // Errors propagate to the caller (the form renders them).
     saveTrade: async (payload, id) => {
-        const accId =
-            get().accountId ??
-            (await api.post<{ id: string }>('/accounts', { name: 'Main' })).data.id;
+        const accId = activeId();
+        if (!accId) throw new Error('No account selected');
         if (id) await api.patch(`/accounts/${accId}/trades/${id}`, payload);
         else await api.post(`/accounts/${accId}/trades`, payload);
         const { data } = await api.get<ApiTrade[]>(`/accounts/${accId}/trades`);
-        set({ accountId: accId, trades: data });
+        set({ trades: data });
     },
 
     // DELETE a trade and drop it from the log.
     removeTrade: async (id) => {
-        const accId = get().accountId;
+        const accId = activeId();
         if (!accId) return;
         await api.delete(`/accounts/${accId}/trades/${id}`);
         set({ trades: get().trades.filter((t) => t.id !== id) });
     },
 }));
+
+// Re-sync the trade log whenever the active account changes.
+useAccountStore.subscribe((state, prev) => {
+    if (state.activeId !== prev.activeId) useTradesStore.getState().load();
+});

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 import { Tape, TOP_TICKS } from '@/components/tape';
+import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { Sidebar } from './sidebar';
 
@@ -10,10 +11,13 @@ import { Sidebar } from './sidebar';
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const status = useSessionStore((s) => s.session.status);
     const restore = useSessionStore((s) => s.restore);
+    const loadAccounts = useAccountStore((s) => s.load);
 
+    // Restore the session, then load accounts (which sets the active account
+    // and cascades into the trades/notes stores via their subscriptions).
     useEffect(() => {
-        restore();
-    }, [restore]);
+        restore().then(loadAccounts);
+    }, [restore, loadAccounts]);
 
     return (
         <div className="flex min-h-screen bg-[#0b0e10]">

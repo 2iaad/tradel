@@ -1,5 +1,7 @@
 import { G, R } from "@/lib/ui";
 import { signedMoney } from "@/lib/format";
+import { useNotesStore } from "@/stores/notes";
+import type { ApiNote } from "@/stores/notes";
 import { LOG_GRID } from "./use-trade-log";
 import type { TradeLogRow } from "./use-trade-log";
 
@@ -13,11 +15,17 @@ const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] trackin
 const tagCls =
     "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-[#78878a] border border-[#222a2f]";
 
-// Symbol, side pill, and setup pill (the three leading cells).
-function LeadCells({ t }: { t: TradeLogRow }) {
+// Symbol, side pill, and setup pill (the three leading cells). A green dot by
+// the symbol marks trades that carry at least one note.
+function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
     return (
         <>
-            <span className="font-mono text-[12.5px] font-semibold text-[#e9eef0]">{t.sym}</span>
+            <span className="flex items-center gap-1.5 font-mono text-[12.5px] font-semibold text-[#e9eef0]">
+                {hasNotes && (
+                    <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-[#2fd57f]" />
+                )}
+                {t.sym}
+            </span>
             <span>
                 <span
                     className={`${badgeCls} font-semibold tracking-[0.08em]`}
@@ -87,7 +95,7 @@ function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => vo
 }
 
 // Empty state shown when a trade has no attached note.
-function NoNote() {
+function NoNote({ onAddNote }: { onAddNote: () => void }) {
     return (
         <div className="flex items-center gap-3.5">
             <span className="text-[12.5px] text-[#5f6b70]">
@@ -95,6 +103,7 @@ function NoNote() {
             </span>
             <button
                 type="button"
+                onClick={onAddNote}
                 className="bg-none border-none p-0 font-mono text-[11px] font-medium tracking-[0.1em] text-[#2fd57f] cursor-pointer hover:text-[#5fe9a0]"
             >
                 + ADD NOTE
@@ -103,29 +112,44 @@ function NoNote() {
     );
 }
 
-// Expanded panel under a trade row: its note, or the add-note prompt.
-function NotePanel({ t }: { t: TradeLogRow }) {
+// One attached note rendered inside the expanded panel.
+function NoteBlock({ note }: { note: ApiNote }) {
+    const date = new Date(note.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+    });
     return (
-        <div className="bg-[#0a0d0f] border-t border-[#161c20] px-[22px] pt-4 pb-[18px] flex flex-col gap-2">
-            {t.noteTitle ? (
-                <>
-                    <div className="flex items-center gap-2.5">
-                        <span className="font-mono text-[10px] font-medium tracking-[0.16em] text-[#2fd57f]">
-                            {"/// NOTE"}
-                        </span>
-                        <span className="font-mono text-[10px] text-[#4d5a5f]">{t.time}</span>
-                    </div>
-                    <span className="text-[14.5px] font-semibold text-[#e9eef0]">{t.noteTitle}</span>
-                    <span className="text-[13px] leading-[1.6] text-[#8a9995] max-w-[720px]">
-                        {t.noteBody}
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2.5">
+                <span className="text-[14.5px] font-semibold text-[#e9eef0]">{note.title}</span>
+                {note.tags.length > 0 && (
+                    <span className="flex flex-wrap items-center gap-1.5">
+                        {note.tags.map((tag) => (
+                            <span key={tag} className={tagCls}>
+                                {tag}
+                            </span>
+                        ))}
                     </span>
-                    <span className="flex items-center gap-1.5">
-                        <span className={tagCls}>{t.tags[0]}</span>
-                        <span className={tagCls}>{t.tags[1]}</span>
-                    </span>
-                </>
+                )}
+            </div>
+            <span className="text-[13px] leading-[1.6] text-[#8a9995] max-w-[720px]">
+                {note.body}
+            </span>
+        </div>
+    );
+}
+
+// Expanded panel under a trade row: its note(s), or the add-note prompt.
+// Notes are joined from the notes store by trade id.
+function NotePanel({ t, onAddNote }: { t: TradeLogRow; onAddNote: () => void }) {
+    const notes = useNotesStore((s) => s.notes);
+    const tradeNotes = notes.filter((n) => n.trade_id === t.id);
+    return (
+        <div className="bg-[#0a0d0f] border-t border-[#161c20] px-[22px] pt-4 pb-[18px] flex flex-col gap-3.5">
+            {tradeNotes.length > 0 ? (
+                tradeNotes.map((n) => <NoteBlock key={n.id} note={n} />)
             ) : (
-                <NoNote />
+                <NoNote onAddNote={onAddNote} />
             )}
         </div>
     );
@@ -135,24 +159,36 @@ interface TradeRowProps {
     t: TradeLogRow;
     open: boolean;
     dense: boolean;
+    hasNotes: boolean;
     onToggle: () => void;
     onEdit: () => void;
     onDelete: () => void;
+    onAddNote: () => void;
 }
 
-// One trade row (click to expand its note) + the expandable panel.
-export function TradeRow({ t, open, dense, onToggle, onEdit, onDelete }: TradeRowProps) {
+// One trade row (click to expand its note) + the expandable panel. A green dot
+// on the chevron marks trades that carry at least one note.
+export function TradeRow({
+    t,
+    open,
+    dense,
+    hasNotes,
+    onToggle,
+    onEdit,
+    onDelete,
+    onAddNote,
+}: TradeRowProps) {
     return (
         <div>
             <div
                 onClick={onToggle}
                 className={`${LOG_GRID} items-center px-[22px] ${dense ? "py-[7px]" : "py-[11px]"} border-t border-[#161c20] transition-colors cursor-pointer hover:bg-[#10161a] ${open ? "bg-[#10161a]" : ""}`}
             >
-                <LeadCells t={t} />
+                <LeadCells t={t} hasNotes={hasNotes} />
                 <TailCells t={t} open={open} />
                 <RowIcons onEdit={onEdit} onDelete={onDelete} />
             </div>
-            {open && <NotePanel t={t} />}
+            {open && <NotePanel t={t} onAddNote={onAddNote} />}
         </div>
     );
 }

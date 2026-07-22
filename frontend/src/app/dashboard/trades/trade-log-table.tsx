@@ -1,7 +1,11 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import { cardCls, kickerCls } from "@/lib/ui";
+import { useNotesStore } from "@/stores/notes";
 import type { TradePayload } from "@/stores/trades";
+import { NoteModal } from "../journal/note-modal";
 import { TradeRow } from "./trade-row";
 import { TradeRowForm } from "./trade-row-form";
 import { LOG_GRID } from "./use-trade-log";
@@ -127,8 +131,14 @@ interface TableProps {
 }
 
 // Sortable column head + one row per filtered trade (inline form while
-// editing) + the always-present add row.
-function Rows({ log, dense }: TableProps) {
+// editing) + the always-present add row. `tradesWithNotes` marks which rows
+// carry notes; `onAddNote` opens the note form pre-scoped to a trade.
+function Rows({
+    log,
+    dense,
+    tradesWithNotes,
+    onAddNote,
+}: TableProps & { tradesWithNotes: Set<string>; onAddNote: (tradeId: string) => void }) {
     return (
         <div className="min-w-[820px]">
             <TradeLogHead log={log} />
@@ -141,9 +151,11 @@ function Rows({ log, dense }: TableProps) {
                         t={t}
                         open={log.openId === t.id}
                         dense={dense}
+                        hasNotes={tradesWithNotes.has(t.id)}
                         onToggle={() => log.toggleOpen(t.id)}
                         onEdit={() => log.startEdit(t.id)}
                         onDelete={() => log.askDelete(t.id)}
+                        onAddNote={() => onAddNote(t.id)}
                     />
                 ),
             )}
@@ -189,7 +201,6 @@ function ConfirmDeleteModal({
                 onClick={(e) => e.stopPropagation()}
                 className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-[#0e1214] border border-[#222a2f] rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
             >
-                <span className={kickerCls}>{"/// DELETE TRADE"}</span>
                 <h2 className="m-0 text-xl font-semibold text-[#eef4f2]">Delete this trade?</h2>
                 <p className="m-0 text-[13px] text-[#8a9995]">
                     The trade is removed from your journal. This can&apos;t be undone.
@@ -217,11 +228,24 @@ function ConfirmDeleteModal({
 
 // Full trade log: sortable header, expandable rows, empty state, footer.
 export function TradeLogTable({ log, dense }: TableProps) {
+    const notes = useNotesStore((s) => s.notes);
+    const tradesWithNotes = useMemo(
+        () => new Set(notes.map((n) => n.trade_id)),
+        [notes],
+    );
+    // Trade id the "+ add note" prompt targets (null = closed).
+    const [addNoteFor, setAddNoteFor] = useState<string | null>(null);
+
     return (
         <div className={`${cardCls} pt-5 flex flex-col overflow-hidden`}>
             <TableHeader />
             <div className="overflow-x-auto">
-                <Rows log={log} dense={dense} />
+                <Rows
+                    log={log}
+                    dense={dense}
+                    tradesWithNotes={tradesWithNotes}
+                    onAddNote={setAddNoteFor}
+                />
             </div>
             {log.rows.length === 0 && (
                 <EmptyState
@@ -232,6 +256,9 @@ export function TradeLogTable({ log, dense }: TableProps) {
             <TableFooter summary={log.summary} />
             {log.deletingId && (
                 <ConfirmDeleteModal onCancel={log.cancelDelete} onConfirm={log.confirmDelete} />
+            )}
+            {addNoteFor && (
+                <NoteModal note={null} tradeId={addNoteFor} onClose={() => setAddNoteFor(null)} />
             )}
         </div>
     );

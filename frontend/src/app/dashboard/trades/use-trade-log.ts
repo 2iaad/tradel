@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { signedMoney } from "@/lib/format";
+import { useNotesStore } from "@/stores/notes";
 import { useTradesStore } from "@/stores/trades";
 import type { ApiTrade } from "@/stores/trades";
 
@@ -79,10 +80,13 @@ export function useTradeLog() {
     const load = useTradesStore((s) => s.load);
     const saveTrade = useTradesStore((s) => s.saveTrade);
     const removeTrade = useTradesStore((s) => s.removeTrade);
+    const notes = useNotesStore((s) => s.notes);
+    const loadNotes = useNotesStore((s) => s.load);
 
     useEffect(() => {
         load();
-    }, [load]);
+        loadNotes(); // note badges + expanded note panels join by trade id
+    }, [load, loadNotes]);
 
     const trades = useMemo(() => apiTrades.map(toTradeLogRow), [apiTrades]);
     const [q, setQ] = useState("");
@@ -146,7 +150,8 @@ export function useTradeLog() {
         const wins = rows.filter((t) => (t.pnlv ?? 0) > 0).length;
         const rRows = rows.filter((t) => t.rv !== null);
         const avgR = rRows.length ? rRows.reduce((s, t) => s + (t.rv ?? 0), 0) / rRows.length : 0;
-        const noted = trades.filter((t) => t.noteTitle).length;
+        const notedIds = new Set(notes.map((n) => n.trade_id));
+        const noted = trades.filter((t) => notedIds.has(t.id)).length;
         return {
             count: n,
             total: trades.length,
@@ -157,7 +162,7 @@ export function useTradeLog() {
             avgRPos: avgR >= 0,
             notedPct: trades.length ? `${Math.round((noted / trades.length) * 100)}%` : "0%",
         };
-    }, [rows, trades]);
+    }, [rows, trades, notes]);
 
     // Oldest — newest stamp for the toolbar, from the unfiltered log.
     const range = useMemo(() => {

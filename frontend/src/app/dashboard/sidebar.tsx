@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
+import { AccountModal } from './account-modal';
 
 const NAV = [
     ['01', 'Dashboard', '/dashboard'],
@@ -133,6 +136,73 @@ function UserBadge({
     );
 }
 
+// Account switcher: active account button that expands to the account list +
+// "new account". Switching an account cascades into the trades/notes stores.
+function AccountPicker() {
+    const accounts = useAccountStore((s) => s.accounts);
+    const activeId = useAccountStore((s) => s.activeId);
+    const setActive = useAccountStore((s) => s.setActive);
+    const [open, setOpen] = useState(false);
+    const [creating, setCreating] = useState(false);
+
+    const active = accounts.find((a) => a.id === activeId) ?? null;
+
+    return (
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen((o) => !o)}
+                className="flex items-center justify-between gap-2 w-full box-border rounded-lg px-3 py-2.5 bg-[#0a0d0f] border border-[#1b2226] cursor-pointer transition-colors hover:border-[#2b353b]"
+            >
+                <span className="flex flex-col items-start gap-0.5 min-w-0">
+                    <span className="font-mono text-[9px] font-medium tracking-[0.16em] text-[#5f6b70]">
+                        ACCOUNT
+                    </span>
+                    <span className="text-[13px] font-medium text-[#e9eef0] truncate max-w-[150px]">
+                        {active ? active.name : 'No account'}
+                    </span>
+                </span>
+                <span className="font-mono text-[10px] text-[#5f6b70]">▾</span>
+            </button>
+            {open && (
+                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-[#0e1214] border border-[#222a2f] rounded-lg p-1.5 flex flex-col gap-0.5 shadow-[0_8px_28px_rgba(0,0,0,0.5)] z-40">
+                    {accounts.map((a) => (
+                        <button
+                            key={a.id}
+                            type="button"
+                            onClick={() => {
+                                setActive(a.id);
+                                setOpen(false);
+                            }}
+                            className={`flex items-center justify-between gap-2 rounded-md px-2.5 py-2 text-[13px] text-left cursor-pointer border-none transition-colors ${
+                                a.id === activeId
+                                    ? 'bg-[#10161a] text-[#eef4f2]'
+                                    : 'bg-transparent text-[#93a09d] hover:bg-[#0d1215] hover:text-[#c8d2d0]'
+                            }`}
+                        >
+                            <span className="truncate">{a.name}</span>
+                            {a.id === activeId && (
+                                <span className="text-[#2fd57f] text-[11px]">●</span>
+                            )}
+                        </button>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setCreating(true);
+                            setOpen(false);
+                        }}
+                        className="rounded-md px-2.5 py-2 mt-0.5 border-t border-[#161c20] bg-transparent font-mono text-[11px] font-medium tracking-[0.1em] text-[#2fd57f] text-left cursor-pointer hover:bg-[#0d1215]"
+                    >
+                        + NEW ACCOUNT
+                    </button>
+                </div>
+            )}
+            {creating && <AccountModal account={null} onClose={() => setCreating(false)} />}
+        </div>
+    );
+}
+
 // Sign-out button (signed in) or sign-in link (guest).
 function AuthAction({ signedIn }: { signedIn: boolean }) {
     const router = useRouter();
@@ -170,6 +240,7 @@ export function Sidebar() {
             <Logo />
             <NavLinks guest={session.status === 'guest'} />
             <div className="mt-auto flex flex-col gap-3">
+                {user && <AccountPicker />}
                 <UserBadge
                     initials={user ? session.email.slice(0, 2) : '?'}
                     name={user ? session.email.split('@')[0] : 'Guest'}

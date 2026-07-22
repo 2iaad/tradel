@@ -16,13 +16,20 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     constructor(private readonly config: ConfigService<Env>) {}
 
     async onModuleInit() {
-        this.pool = new Pool({
-            host: this.config.get('DB_HOST', { infer: true }),
-            port: this.config.get('DB_PORT', { infer: true }),
-            user: this.config.get('DB_USER', { infer: true }),
-            password: this.config.get('DB_PASSWORD', { infer: true }),
-            database: this.config.get('DB_NAME', { infer: true }),
-        });
+        // Prod (Neon/managed): single DB_URL + SSL. Dev: discrete DB_* vars.
+        const isProd = this.config.get('NODE_ENV', { infer: true }) === 'production';
+        this.pool = isProd
+            ? new Pool({
+                  connectionString: this.config.get('DB_URL', { infer: true }),
+                  ssl: { rejectUnauthorized: false },
+              })
+            : new Pool({
+                  host: this.config.get('DB_HOST', { infer: true }),
+                  port: this.config.get('DB_PORT', { infer: true }),
+                  user: this.config.get('DB_USER', { infer: true }),
+                  password: this.config.get('DB_PASSWORD', { infer: true }),
+                  database: this.config.get('DB_NAME', { infer: true }),
+              });
 
         this.pool.on('error', (err) => {
             this.logger.error('Unexpected POSTGRES poot error', err);

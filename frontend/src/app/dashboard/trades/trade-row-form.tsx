@@ -35,25 +35,24 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
 function FormCells({ t }: { t: TradeLogRow | null }) {
     return (
         <>
+            {/* date column: created_at, set server-side — shown after save */}
+            <span className={dashCls}>{t?.date ?? "—"}</span>
             <input name="symbol" defaultValue={t?.sym} required maxLength={20} placeholder="SYM" className={inCls} />
             <select name="side" defaultValue={t?.side ?? "LONG"} className={inCls}>
                 <option>LONG</option>
                 <option>SHORT</option>
             </select>
-            <span className={dashCls}>—</span>
             <input name="entry" type="number" step="any" defaultValue={t?.entry} required placeholder="entry" className={inCls} />
             <input name="exit" type="number" step="any" defaultValue={t?.exit ?? ""} placeholder="—" className={inCls} />
-            <input name="size" type="number" step="any" defaultValue={t?.size} required placeholder="size" className={inCls} />
+            <input name="size" type="number" step="any" defaultValue={t?.size} required placeholder="lots" className={inCls} />
+            <span className={dashCls}>
+                {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
+            </span>
             {t ? (
                 <input name="r" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
             ) : (
                 <span className={dashCls}>—</span>
             )}
-            <span className={`${dashCls} text-right`}>
-                {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
-            </span>
-            {/* date column: created_at, set server-side — shown after save */}
-            <span className={`${dashCls} text-right`}>{t?.date ?? "—"}</span>
         </>
     );
 }

@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { signedMoney } from "@/lib/format";
+import { useAccountStore } from "@/stores/accounts";
 import { useNotesStore } from "@/stores/notes";
+import { computeTradeStats } from "../trade-stats";
 import { useTradesStore } from "@/stores/trades";
 import type { ApiTrade } from "@/stores/trades";
 
 // Shared column template for the trade-log header + rows (must match exactly).
-// Trailing 44px cell = edit/delete icons (or save/cancel while editing).
+// DATE · SYMBOL · SIDE · ENTRY · EXIT · LOTS · P&L · R:R · chevron · icons.
 export const LOG_GRID =
-    "grid grid-cols-[76px_76px_1fr_88px_88px_88px_64px_90px_132px_14px_44px] gap-2";
+    "grid grid-cols-[104px_1fr_80px_88px_88px_64px_100px_64px_14px_44px] gap-2";
 
 // Display row for the trade log table, derived from an API trade.
 export interface TradeLogRow {
@@ -24,6 +25,7 @@ export interface TradeLogRow {
     rv: number | null;
     pnlv: number | null;
     date: string;
+    clock: string;
     time: string;
     noteTitle: string;
     noteBody: string;
@@ -54,6 +56,7 @@ export function toTradeLogRow(t: ApiTrade): TradeLogRow {
         rv: t.r === null ? null : parseFloat(t.r),
         pnlv: t.pnl === null ? null : parseFloat(t.pnl),
         date: day(created),
+        clock,
         time: `${day(created)} · ${clock}`,
         noteTitle: "",
         noteBody: "",
@@ -78,6 +81,8 @@ export function useTradeLog() {
     const removeTrade = useTradesStore((s) => s.removeTrade);
     const notes = useNotesStore((s) => s.notes);
     const loadNotes = useNotesStore((s) => s.load);
+    const accounts = useAccountStore((s) => s.accounts);
+    const activeId = useAccountStore((s) => s.activeId);
 
     useEffect(() => {
         load();
@@ -140,25 +145,18 @@ export function useTradeLog() {
         return [...filtered].sort((a, b) => (dir === "desc" ? val(b) - val(a) : val(a) - val(b)));
     }, [trades, q, side, outcome, sortCol, dir]);
 
+    // Shared stats over the FILTERED rows (drives the chip strip + footer);
+    // the headline cards use useTradeStats (all trades) instead.
     const summary = useMemo(() => {
-        const n = rows.length;
-        const net = rows.reduce((s, t) => s + (t.pnlv ?? 0), 0);
-        const wins = rows.filter((t) => (t.pnlv ?? 0) > 0).length;
-        const rRows = rows.filter((t) => t.rv !== null);
-        const avgR = rRows.length ? rRows.reduce((s, t) => s + (t.rv ?? 0), 0) / rRows.length : 0;
+        const sb = parseFloat(accounts.find((a) => a.id === activeId)?.starting_balance ?? "0");
         const notedIds = new Set(notes.map((n) => n.trade_id));
         const noted = trades.filter((t) => notedIds.has(t.id)).length;
         return {
-            count: n,
+            ...computeTradeStats(rows, sb),
             total: trades.length,
-            net: signedMoney(net),
-            netV: net,
-            win: n ? `${((wins / n) * 100).toFixed(1)}%` : "—",
-            avgR: rRows.length ? `${avgR > 0 ? "+" : ""}${avgR.toFixed(2)}R` : "—",
-            avgRPos: avgR >= 0,
             notedPct: trades.length ? `${Math.round((noted / trades.length) * 100)}%` : "0%",
         };
-    }, [rows, trades, notes]);
+    }, [rows, trades, notes, accounts, activeId]);
 
     // Oldest — newest stamp for the toolbar, from the unfiltered log.
     const range = useMemo(() => {

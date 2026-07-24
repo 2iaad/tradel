@@ -5,6 +5,7 @@ export interface Account {
     id: string;
     user_id: string;
     name: string;
+    starting_balance: string;
     broker: string | null;
     currency: string;
     created_at: Date;
@@ -19,13 +20,14 @@ export class AccountsRepository {
         name: string,
         broker: string | null,
         currency: string,
+        starting_balance: number,
     ): Promise<Account> {
         try {
             const { rows } = await this.db.query<Account>(
-                `INSERT INTO accounts (user_id, name, broker, currency)
-                VALUES ($1, $2, $3, $4)
-                RETURNING id, user_id, name, broker, currency, created_at`,
-                [user_id, name, broker, currency],
+                `INSERT INTO accounts (user_id, name, broker, currency, starting_balance)
+                VALUES ($1, $2, $3, $4, $5)
+                RETURNING id, user_id, name, broker, currency, starting_balance, created_at`,
+                [user_id, name, broker, currency, starting_balance],
             );
             return rows[0];
         } catch (e: any) {
@@ -53,7 +55,12 @@ export class AccountsRepository {
     async update(
         id: string,
         user_id: string,
-        fields: { name?: string; broker?: string | null; currency?: string },
+        fields: {
+            name?: string;
+            broker?: string | null;
+            currency?: string;
+            starting_balance?: number;
+        },
     ): Promise<Account | null> {
         // Build the SET clause only from the fields that were actually passed,
         // so PATCH with a partial body doesn't overwrite columns with undefined.
@@ -61,7 +68,7 @@ export class AccountsRepository {
         const values: unknown[] = [];
         let i = 1;
 
-        for (const key of ['name', 'broker', 'currency'] as const) {
+        for (const key of ['name', 'broker', 'currency', 'starting_balance'] as const) {
             if (fields[key] !== undefined) {
                 columns.push(`${key} = $${i}`);
                 values.push(fields[key]);
@@ -80,7 +87,7 @@ export class AccountsRepository {
             const { rows } = await this.db.query<Account>(
                 `UPDATE accounts SET ${columns.join(', ')}
                 WHERE id = $${i} AND user_id = $${i + 1}
-                RETURNING id, user_id, name, broker, currency, created_at`,
+                RETURNING id, user_id, name, broker, currency, starting_balance, created_at`,
                 values,
             );
             return rows[0] ?? null;

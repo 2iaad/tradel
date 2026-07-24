@@ -8,7 +8,13 @@ export class AccountsService {
     constructor(private readonly accounts: AccountsRepository) {}
 
     async create(userId: string, dto: CreateAccountDto) {
-        return this.accounts.create(userId, dto.name, dto.broker ?? null, dto.currency ?? 'USD');
+        return this.accounts.create(
+            userId,
+            dto.name,
+            dto.broker ?? null,
+            dto.currency ?? 'USD',
+            dto.startingBalance,
+        );
     }
 
     async findAll(userId: string) {
@@ -24,7 +30,12 @@ export class AccountsService {
     }
 
     async update(id: string, userId: string, dto: UpdateAccountDto) {
-        const account = await this.accounts.update(id, userId, dto);
+        // DTO uses camelCase startingBalance; the column/repo uses snake_case.
+        const { startingBalance, ...rest } = dto;
+        const account = await this.accounts.update(id, userId, {
+            ...rest,
+            ...(startingBalance !== undefined && { starting_balance: startingBalance }),
+        });
         if (!account) {
             throw new NotFoundException('Account not found');
         }

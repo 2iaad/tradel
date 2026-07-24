@@ -37,7 +37,7 @@ Note: the `-d DB_URL` in the migrate scripts is the **name of the env var** hold
 No ORM despite the README still calling Prisma "planned". Persistence is the raw `pg` driver:
 - `DatabaseService` (`src/database/database.service.ts`) owns a single `pg.Pool`, opens it in `onModuleInit` (with a `SELECT 1` health check) and closes it in `onModuleDestroy`. Its `query<T>()` is the only DB entry point.
 - Repositories write raw parameterised SQL against that — see `UsersRepository`, `RefreshTokenRepository`, `AccountsRepository`. Postgres unique-violation `23505` is caught and rethrown as a Nest `ConflictException`.
-- Schema lives only in `migrations/*.sql`, not in code. Tables: `users` (`password_hash`, `created_at`), `refresh_tokens` (`token_hash`, `expires_at`, `revoked_at` NULL = valid), `accounts` (`user_id`, `name`, `broker`, `currency` default `'USD'`, unique index on `(user_id, name)`). All ids are `UUID DEFAULT gen_random_uuid()`.
+- Schema lives only in `migrations/*.sql`, not in code. Tables: `users` (`password_hash`, `created_at`), `refresh_tokens` (`token_hash`, `expires_at`, `revoked_at` NULL = valid), `accounts` (`user_id`, `name`, `broker`, `currency` default `'USD'`, `starting_balance` `NUMERIC(14,2)` default `0`, unique index on `(user_id, name)`), `trades` (`account_id`, `symbol`, `side`, `entry`, `exit`, `size`, `r`, `pnl`, `created_at` — **no `opened_at`/`closed_at`**, a trade's only timestamp is `created_at`), `notes`. All ids are `UUID DEFAULT gen_random_uuid()`. NUMERIC columns (`starting_balance`, and trades' `entry`/`exit`/`size`/`r`/`pnl`) come back from `pg` as **strings** — parse on the frontend.
 
 Local Postgres is a **custom image**, not the official one: `database/Dockerfile` (alpine + postgresql16) + `database/init.sh` runs `initdb` and creates the user/db from env vars on first boot. `docker-compose up` builds it and bind-mounts data to `./volumes`.
 
@@ -56,7 +56,7 @@ NestJS module graph (diagrams in `.docs/`, e.g. `modulare-architecture.tldr`, `0
 
 **Protected routes:** `JwtGuard` (`src/auth/guards/jwt.guard.ts`) verifies the `Bearer` access token and attaches `req.user: JwtUser` (`{ sub, email }`, typed via module augmentation in `jwt-user.types.ts`). Applied with `@UseGuards(JwtGuard)`.
 
-**Accounts flow:** `AccountsController` (`@UseGuards(JwtGuard)`) → `AccountsService` → `AccountsRepository`. Owner scoping uses `req.user.sub`. NOTE: only `create` + `findAll` are real; `findOne`/`update`/`remove` are still stub strings, and their `:id` params are coerced with `+id` even though ids are UUIDs — placeholders, not finished.
+**Accounts flow:** `AccountsController` (`@UseGuards(JwtGuard)`) → `AccountsService` → `AccountsRepository`. Owner scoping uses `req.user.sub`. Full CRUD is real (`create`/`findAll`/`findOne`/`update`/`remove`), `:id` params are UUID strings, missing rows 404. `update` builds its SQL `SET` only from the fields actually present in the PATCH body. DTO field `startingBalance` (camelCase, **required** on create) maps to the snake_case `starting_balance` column — the service translates it before hitting the repo.
 
 **CORS:** `main.ts` allows origin `http://localhost:5173` with credentials (cookies).
 

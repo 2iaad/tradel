@@ -7,7 +7,7 @@ import { emailFromToken } from '@/lib/format';
 
 export type Session =
     | { status: 'checking'; email: null }
-    | { status: 'guest'; email: null }
+    | { status: 'anon'; email: null }
     | { status: 'user'; email: string };
 
 interface SessionStore {
@@ -40,13 +40,13 @@ export const useSessionStore = create<SessionStore>((set) => ({
         if (email) {
             set({ session: { status: 'user', email: email } });
         } else {
-            set({ session: { status: 'guest', email: null } });
+            set({ session: { status: 'anon', email: null } });
         }
     },
 
     signOut: async () => {
         await api.post('/auth/logout');
         setAccessToken(null);
-        set({ session: { status: 'guest', email: null } });
+        set({ session: { status: 'anon', email: null } });
     },
 }));

@@ -15,6 +15,7 @@ function toPayload(f: FormData): AccountPayload {
         name: (f.get('name') as string).trim(),
         broker: broker === '' ? undefined : broker,
         currency: f.get('currency') as string,
+        startingBalance: Number(f.get('startingBalance')),
     };
 }
 
@@ -95,6 +96,19 @@ export function AccountModal({
                                 <option key={c}>{c}</option>
                             ))}
                         </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>Starting balance</label>
+                        <input
+                            name="startingBalance"
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            defaultValue={account?.starting_balance ?? '0'}
+                            required
+                            placeholder="10000"
+                            className={inputCls}
+                        />
                     </div>
                     {error && <p className={errorCls}>{error}</p>}
                     <button type="submit" disabled={pending} className={btnCls}>

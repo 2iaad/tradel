@@ -9,7 +9,7 @@ import type { ApiTrade } from "@/stores/trades";
 // Shared column template for the trade-log header + rows (must match exactly).
 // Trailing 44px cell = edit/delete icons (or save/cancel while editing).
 export const LOG_GRID =
-    "grid grid-cols-[76px_66px_1fr_88px_88px_88px_64px_90px_132px_14px_44px] gap-2";
+    "grid grid-cols-[76px_76px_1fr_88px_88px_88px_64px_90px_132px_14px_44px] gap-2";
 
 // Display row for the trade log table, derived from an API trade.
 export interface TradeLogRow {
@@ -25,8 +25,6 @@ export interface TradeLogRow {
     pnlv: number | null;
     date: string;
     time: string;
-    openedAt: string;
-    closedAt: string | null;
     noteTitle: string;
     noteBody: string;
     tags: [string, string];
@@ -38,15 +36,15 @@ const day = (d: Date) =>
 
 // Maps an API trade to the shape the log table renders.
 export function toTradeLogRow(t: ApiTrade): TradeLogRow {
-    const opened = new Date(t.opened_at);
-    const clock = opened.toLocaleTimeString("en-US", {
+    const created = new Date(t.created_at);
+    const clock = created.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
     });
     return {
         id: t.id,
-        ts: opened.getTime(),
+        ts: created.getTime(),
         sym: t.symbol,
         side: t.side,
         setup: "",
@@ -55,10 +53,8 @@ export function toTradeLogRow(t: ApiTrade): TradeLogRow {
         size: t.size,
         rv: t.r === null ? null : parseFloat(t.r),
         pnlv: t.pnl === null ? null : parseFloat(t.pnl),
-        date: day(opened),
-        time: `${day(opened)} · ${clock}`,
-        openedAt: t.opened_at,
-        closedAt: t.closed_at,
+        date: day(created),
+        time: `${day(created)} · ${clock}`,
         noteTitle: "",
         noteBody: "",
         tags: ["", ""],

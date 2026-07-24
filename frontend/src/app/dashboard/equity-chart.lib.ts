@@ -1,42 +1,82 @@
 // Pure drawing/math for the equity chart canvas — no React in here.
 
 import { clientSize } from '@/lib/canvas-size';
+import type { ApiTrade } from '@/stores/trades';
 
+// Range keys → trailing-window length in days. YTD/ALL computed per-call.
 export const RANGES = {
-    '30D': { n: 24, seed: 11, lo: 20600, hi: 24700 },
-    '90D': { n: 61, seed: 23, lo: 17200, hi: 24700 },
-    YTD: { n: 127, seed: 37, lo: 9600, hi: 24700 },
-    ALL: { n: 214, seed: 51, lo: 6200, hi: 24700 },
+    '30D': 30,
+    '90D': 90,
+    YTD: 'ytd',
+    ALL: 'all',
 } as const;
 export type RangeKey = keyof typeof RANGES;
 
 export const REVEAL_MS = 2000;
 
-// Deterministic hash noise in [0,1) — stable curves per seed.
-const rand = (i: number) => {
-    const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
-    return x - Math.floor(x);
-};
+// Real equity series for a range: cumulative starting_balance + closed-trade
+// P&L, ordered by close time. `pts` is normalized to [0,1] against [lo,hi];
+// `sig` invalidates the static-layer cache when the underlying data changes.
+export interface Series {
+    pts: number[];
+    lo: number;
+    hi: number;
+    sig: string;
+}
 
-/* Equity points normalized to [0,1]: upward base ramp + random-walk
-   drawdowns → "up, but not fake". */
-export function curve(range: RangeKey): number[] {
-    const { n, seed } = RANGES[range];
-    const walk = [0];
-    let v = 0;
-    for (let i = 1; i <= n; i++) {
-        let s = rand(seed + i * 7.13) - 0.5;
-        if (rand(seed + i * 13.7) > 0.88) s *= 2.6; // outlier trades
-        v += s;
-        walk.push(v);
+// Window start (ms) for a range key, relative to now. ALL → 0 (everything).
+function windowStart(key: RangeKey): number {
+    const r = RANGES[key];
+    if (r === 'all') return 0;
+    if (r === 'ytd') return new Date(new Date().getFullYear(), 0, 1).getTime();
+    return Date.now() - r * 86400_000;
+}
+
+/* Builds the equity series from closed trades. A trade counts as closed once
+   it has a pnl (matching the dashboard stats), ordered by when it was logged
+   (created_at). Equity climbs by each trade's pnl in that order; the window's
+   first point is seeded at the running equity *before* the window (so a 30D
+   view starts at the right balance, not the base). Flat line at
+   startingBalance when nothing closed. */
+const closedTime = (t: ApiTrade) => Date.parse(t.created_at);
+
+export function buildSeries(
+    trades: ApiTrade[],
+    startingBalance: number,
+    key: RangeKey,
+): Series {
+    const closed = trades
+        .filter((t) => t.pnl !== null)
+        .sort((a, b) => closedTime(a) - closedTime(b));
+
+    const start = windowStart(key);
+    let running = startingBalance;
+    let i = 0;
+    // Fast-forward through trades that closed before the window.
+    for (; i < closed.length && closedTime(closed[i]) < start; i++)
+        running += parseFloat(closed[i].pnl!);
+
+    const equity = [running]; // seed at pre-window running equity
+    for (; i < closed.length; i++) {
+        running += parseFloat(closed[i].pnl!);
+        equity.push(running);
     }
-    const min = Math.min(...walk);
-    const span = Math.max(...walk) - min || 1;
-    return walk.map((wv, i) => {
-        const ramp = 0.07 + 0.76 * (i / n);
-        const wig = ((wv - min) / span - 0.5) * 0.34;
-        return Math.min(1, Math.max(0.02, ramp + wig));
-    });
+    // Nothing closed in-window: draw a flat 2-point line, not a single point
+    // (the geometry divides by the trade-index span).
+    if (equity.length === 1) equity.push(running);
+
+    let lo = Math.min(...equity);
+    let hi = Math.max(...equity);
+    if (lo === hi) {
+        // Flat series: pad so normalization doesn't divide by zero.
+        const pad = Math.abs(lo) * 0.01 || 1;
+        lo -= pad;
+        hi += pad;
+    }
+    const span = hi - lo;
+    const pts = equity.map((v) => (v - lo) / span);
+    const sig = `${key}:${equity.length}:${equity[equity.length - 1]}`;
+    return { pts, lo, hi, sig };
 }
 
 const fmt = (v: number) => '$' + Math.round(v).toLocaleString('en-US');
@@ -44,9 +84,10 @@ const ease = (p: number) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) /
 
 // Everything one frame needs, computed by the hook per draw call.
 export interface ChartFrame {
-    key: RangeKey;
     pts: number[];
-    ghost: boolean;
+    lo: number;
+    hi: number;
+    sig: string; // static-layer cache key: changes when the data changes
     reveal: number | null; // reveal start timestamp, null = not started
     reduced: boolean;
     hover: { x: number; y: number } | null;
@@ -62,8 +103,7 @@ interface Geom {
     Y: (v: number) => number;
 }
 
-function drawAxes(ctx: CanvasRenderingContext2D, g: Geom, f: ChartFrame, lo: number, hi: number) {
-    const dimCol = f.ghost ? '#3d4a4f' : '#5f6b70';
+function drawAxes(ctx: CanvasRenderingContext2D, g: Geom, lo: number, hi: number) {
     // grid + y ($) labels
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
@@ -77,15 +117,15 @@ function drawAxes(ctx: CanvasRenderingContext2D, g: Geom, f: ChartFrame, lo: num
         ctx.moveTo(g.px, gy + 0.5);
         ctx.lineTo(g.px + g.pw, gy + 0.5);
         ctx.stroke();
-        ctx.fillStyle = dimCol;
-        ctx.fillText(f.ghost ? '$—' : fmt(lo + t * (hi - lo)), g.px - 10, gy);
+        ctx.fillStyle = '#5f6b70';
+        ctx.fillText(fmt(lo + t * (hi - lo)), g.px - 10, gy);
     }
     // x (trades) labels
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     for (let gi = 0; gi <= 4; gi++) {
         const i = Math.round((gi / 4) * g.n);
-        ctx.fillStyle = dimCol;
+        ctx.fillStyle = '#5f6b70';
         ctx.fillText(String(i), g.X(i), g.py + g.ph + 10);
     }
     ctx.textAlign = 'right';
@@ -100,17 +140,6 @@ function tracePath(ctx: CanvasRenderingContext2D, g: Geom, pts: number[]) {
         if (i === 0) ctx.moveTo(x, yy);
         else ctx.lineTo(x, yy);
     });
-}
-
-// Dashed ghost line — deliberately dim: a preview, not data.
-function drawGhostLine(ctx: CanvasRenderingContext2D, g: Geom, pts: number[]) {
-    tracePath(ctx, g, pts);
-    ctx.setLineDash([6, 7]);
-    ctx.strokeStyle = 'rgba(255,255,255,0.13)';
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-    ctx.setLineDash([]);
 }
 
 // Gradient area fill + glowing line for the real curve.
@@ -134,7 +163,7 @@ function drawRealLine(ctx: CanvasRenderingContext2D, g: Geom, pts: number[]) {
     ctx.shadowBlur = 0;
 }
 
-// Pulsing marker dot.
+// Pulsing marker dot on the newest trade once the reveal completes.
 function drawDot(ctx: CanvasRenderingContext2D, dx: number, dy: number) {
     const tt = performance.now() / 1000;
     ctx.beginPath();
@@ -195,8 +224,7 @@ function drawHover(ctx: CanvasRenderingContext2D, g: Geom, f: ChartFrame, lo: nu
    re-stroking the glow line (shadowBlur), gradient fill, and axis text at
    60fps — the expensive part. Render that once offscreen and blit it. */
 interface StaticLayer {
-    key: RangeKey;
-    ghost: boolean;
+    sig: string;
     w: number;
     h: number;
     cv: HTMLCanvasElement;
@@ -213,13 +241,7 @@ function staticLayer(
     h: number,
 ) {
     const prev = layers.get(canvas);
-    if (
-        prev &&
-        prev.key === f.key &&
-        prev.ghost === f.ghost &&
-        prev.w === canvas.width &&
-        prev.h === canvas.height
-    )
+    if (prev && prev.sig === f.sig && prev.w === canvas.width && prev.h === canvas.height)
         return prev.cv;
     const cv = document.createElement('canvas');
     cv.width = canvas.width;
@@ -227,10 +249,9 @@ function staticLayer(
     const ctx = cv.getContext('2d');
     if (!ctx) return null;
     ctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
-    drawAxes(ctx, g, f, lo, hi);
-    if (f.ghost) drawGhostLine(ctx, g, f.pts);
-    else drawRealLine(ctx, g, f.pts);
-    layers.set(canvas, { key: f.key, ghost: f.ghost, w: canvas.width, h: canvas.height, cv });
+    drawAxes(ctx, g, lo, hi);
+    drawRealLine(ctx, g, f.pts);
+    layers.set(canvas, { sig: f.sig, w: canvas.width, h: canvas.height, cv });
     return cv;
 }
 
@@ -258,7 +279,8 @@ export function drawChart(canvas: HTMLCanvasElement, f: ChartFrame) {
     const prep = prepare(canvas);
     if (!prep) return;
     const { ctx, w, h } = prep;
-    const { n, lo, hi } = RANGES[f.key];
+    const { lo, hi } = f;
+    const n = f.pts.length - 1; // point count → last trade index
 
     // plot box (space for $ labels left, trade-count labels bottom)
     const px = 64;
@@ -288,7 +310,7 @@ export function drawChart(canvas: HTMLCanvasElement, f: ChartFrame) {
         ctx.drawImage(layer, 0, 0);
         ctx.restore();
     } else {
-        drawAxes(ctx, g, f, lo, hi);
+        drawAxes(ctx, g, lo, hi);
         if (p === 0) return;
 
         // clip to the revealed slice — grows from the left edge rightward
@@ -296,16 +318,13 @@ export function drawChart(canvas: HTMLCanvasElement, f: ChartFrame) {
         ctx.beginPath();
         ctx.rect(0, 0, px + pw * ease(p) + 20, h);
         ctx.clip();
-        if (f.ghost) drawGhostLine(ctx, g, f.pts);
-        else drawRealLine(ctx, g, f.pts);
+        drawRealLine(ctx, g, f.pts);
         ctx.restore();
     }
 
-    // pulsing dot: ghost marks trade #1 (where the real curve will
-    // begin); real marks the newest trade once the reveal completes
-    if (f.ghost) drawDot(ctx, g.X(0), g.Y(f.pts[0]));
-    else if (p === 1) drawDot(ctx, g.X(n), g.Y(f.pts[n]));
+    // pulsing dot marks the newest trade once the reveal completes
+    if (p === 1) drawDot(ctx, g.X(n), g.Y(f.pts[n]));
 
-    if (!f.ghost && f.hover && f.hover.x >= px && f.hover.x <= px + pw && p === 1)
+    if (f.hover && f.hover.x >= px && f.hover.x <= px + pw && p === 1)
         drawHover(ctx, g, f, lo, hi);
 }

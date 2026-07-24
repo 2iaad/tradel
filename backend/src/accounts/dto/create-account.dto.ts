@@ -1,4 +1,13 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString, Length, MaxLength } from 'class-validator';
+import {
+    IsIn,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Length,
+    MaxLength,
+    Min,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP'] as const;
@@ -21,4 +30,8 @@ export class CreateAccountDto {
     @IsString()
     @IsIn(CURRENCIES)
     currency?: string;
+
+    @IsNumber()
+    @Min(0)
+    startingBalance!: number;
 }

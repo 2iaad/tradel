@@ -11,8 +11,6 @@ export interface Trade {
     size: string;
     r: string | null;
     pnl: string | null;
-    opened_at: Date;
-    closed_at: Date | null;
     created_at: Date;
 }
 
@@ -24,8 +22,6 @@ export interface CreateTradeFields {
     size: number;
     r?: number | null;
     pnl?: number | null;
-    opened_at: string;
-    closed_at?: string | null;
 }
 
 export interface UpdateTradeFields {
@@ -36,8 +32,6 @@ export interface UpdateTradeFields {
     size?: number;
     r?: number | null;
     pnl?: number | null;
-    opened_at?: string;
-    closed_at?: string | null;
 }
 
 @Injectable()
@@ -46,8 +40,8 @@ export class TradesRepository {
 
     async create(account_id: string, fields: CreateTradeFields): Promise<Trade> {
         const { rows } = await this.db.query<Trade>(
-            `INSERT INTO trades (account_id, symbol, side, entry, exit, size, r, pnl, opened_at, closed_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `INSERT INTO trades (account_id, symbol, side, entry, exit, size, r, pnl)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *`,
             [
                 account_id,
@@ -58,8 +52,6 @@ export class TradesRepository {
                 fields.size,
                 fields.r ?? null,
                 fields.pnl ?? null,
-                fields.opened_at,
-                fields.closed_at ?? null,
             ],
         );
         return rows[0];
@@ -75,7 +67,7 @@ export class TradesRepository {
 
     async findAllByAccount(account_id: string): Promise<Trade[]> {
         const { rows } = await this.db.query<Trade>(
-            `SELECT * FROM trades WHERE account_id = $1 ORDER BY opened_at DESC`,
+            `SELECT * FROM trades WHERE account_id = $1 ORDER BY created_at DESC`,
             [account_id],
         );
         return rows;
@@ -96,8 +88,6 @@ export class TradesRepository {
             'size',
             'r',
             'pnl',
-            'opened_at',
-            'closed_at',
         ] as const) {
             if (fields[key] !== undefined) {
                 columns.push(`${key} = $${i}`);

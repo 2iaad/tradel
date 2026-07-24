@@ -28,8 +28,6 @@ export class TradesService {
             exit: dto.exit,
             size: dto.size,
             pnl,
-            opened_at: dto.openedAt,
-            closed_at: dto.closedAt,
         });
     }
 
@@ -61,8 +59,6 @@ export class TradesService {
             size: dto.size,
             r: dto.r,
             pnl,
-            opened_at: dto.openedAt,
-            closed_at: dto.closedAt,
         });
         if (!trade) {
             throw new NotFoundException('Trade not found');

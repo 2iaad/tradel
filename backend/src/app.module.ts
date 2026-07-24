@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { TradesModule } from './trades/trades.module';
 import { NotesModule } from './notes/notes.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { NotesModule } from './notes/notes.module';
         AccountsModule,
         TradesModule,
         NotesModule,
+        AnalyticsModule,
     ], // other modules this module depends on
 })
 export class AppModule {}

@@ -3,9 +3,11 @@
 import { useEffect, useMemo } from "react";
 
 import { signedMoney } from "@/lib/format";
+import { useAnalyticsStore } from "@/stores/analytics";
+import type { Summary } from "@/stores/analytics";
 import { useTradesStore } from "@/stores/trades";
 import { G, R } from "@/lib/ui";
-import { toTradeLogRow, TradeLogRow } from "./trades/use-trade-log";
+import { toTradeLogRow } from "./trades/use-trade-log";
 
 // One stat card on the signed-in dashboard.
 export interface Stat {
@@ -16,32 +18,25 @@ export interface Stat {
     sCol: string;
 }
 
-// Headline stats derived from the full trade list.
-function computeStats(rows: TradeLogRow[]): Stat[] {
-    const closed = rows.filter((t) => t.pnlv !== null);
-    const wins = closed.filter((t) => (t.pnlv ?? 0) > 0);
-    const net = closed.reduce((s, t) => s + (t.pnlv ?? 0), 0);
-    const grossWin = wins.reduce((s, t) => s + (t.pnlv ?? 0), 0);
-    const grossLoss = Math.abs(
-        closed.reduce((s, t) => s + Math.min(t.pnlv ?? 0, 0), 0),
-    );
-    const pf = grossLoss > 0 ? (grossWin / grossLoss).toFixed(2) : "—";
-    const winRate = closed.length
-        ? `${((wins.length / closed.length) * 100).toFixed(1)}%`
-        : "—";
+// The four headline stat cards, from the analytics summary (one source of
+// truth — the same numbers the analytics page shows).
+function computeStats(s: Summary): Stat[] {
+    const pf = s.profitFactor === null ? "—" : s.profitFactor.toFixed(2);
+    const winRate = s.winRate === null ? "—" : `${(s.winRate * 100).toFixed(1)}%`;
+    const total = s.closed + s.open;
     return [
         {
             label: "NET P&L",
-            value: closed.length ? signedMoney(net) : "—",
-            vCol: net >= 0 ? G : R,
-            sub: `${closed.length} CLOSED TRADES`,
+            value: s.closed ? signedMoney(s.net) : "—",
+            vCol: s.net >= 0 ? G : R,
+            sub: `${s.closed} CLOSED TRADES`,
             sCol: "#5f6b70",
         },
         {
             label: "WIN RATE",
             value: winRate,
             vCol: "#eef4f2",
-            sub: `${wins.length}W · ${closed.length - wins.length}L`,
+            sub: `${s.wins}W · ${s.losses}L`,
             sCol: "#5f6b70",
         },
         {
@@ -53,29 +48,44 @@ function computeStats(rows: TradeLogRow[]): Stat[] {
         },
         {
             label: "TRADES LOGGED",
-            value: String(rows.length),
+            value: String(total),
             vCol: "#eef4f2",
-            sub: `${rows.length - closed.length} OPEN`,
+            sub: `${s.open} OPEN`,
             sCol: "#5f6b70",
         },
     ];
 }
 
-// Loads the trade log and derives the signed-in dashboard's stats + recent rows.
+// Empty stat cards shown before the summary loads (or with no account).
+const EMPTY_STATS: Stat[] = [
+    { label: "NET P&L", value: "—", vCol: "#eef4f2", sub: "0 CLOSED TRADES", sCol: "#5f6b70" },
+    { label: "WIN RATE", value: "—", vCol: "#eef4f2", sub: "0W · 0L", sCol: "#5f6b70" },
+    { label: "PROFIT FACTOR", value: "—", vCol: "#eef4f2", sub: "GROSS PROFIT / LOSS", sCol: "#5f6b70" },
+    { label: "TRADES LOGGED", value: "0", vCol: "#eef4f2", sub: "0 OPEN", sCol: "#5f6b70" },
+];
+
+// Loads the analytics summary (for stats) + trade log (for recent rows) and
+// derives the signed-in dashboard's data.
 export function useDashboardData() {
+    const summary = useAnalyticsStore((s) => s.summary);
+    const loadSummary = useAnalyticsStore((s) => s.load);
     const apiTrades = useTradesStore((s) => s.trades);
     const loading = useTradesStore((s) => s.loading);
-    const load = useTradesStore((s) => s.load);
+    const loadTrades = useTradesStore((s) => s.load);
 
     useEffect(() => {
-        load();
-    }, [load]);
+        loadSummary();
+        loadTrades();
+    }, [loadSummary, loadTrades]);
 
-    const rows = useMemo(() => apiTrades.map(toTradeLogRow), [apiTrades]);
-    const stats = useMemo(() => computeStats(rows), [rows]);
+    const stats = useMemo(() => (summary ? computeStats(summary) : EMPTY_STATS), [summary]);
     const recent = useMemo(
-        () => [...rows].sort((a, b) => b.ts - a.ts).slice(0, 8),
-        [rows],
+        () =>
+            apiTrades
+                .map(toTradeLogRow)
+                .sort((a, b) => b.ts - a.ts)
+                .slice(0, 8),
+        [apiTrades],
     );
 
     return { stats, recent, loading };

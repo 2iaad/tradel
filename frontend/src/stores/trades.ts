@@ -17,8 +17,6 @@ export interface ApiTrade {
     size: string;
     r: string | null;
     pnl: string | null;
-    opened_at: string;
-    closed_at: string | null;
     created_at: string;
 }
 
@@ -30,8 +28,6 @@ export interface TradePayload {
     exit?: number;
     size?: number;
     r?: number;
-    openedAt?: string;
-    closedAt?: string;
 }
 
 interface TradesStore {

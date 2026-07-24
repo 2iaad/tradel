@@ -33,12 +33,12 @@ function windowStart(key: RangeKey): number {
 }
 
 /* Builds the equity series from closed trades. A trade counts as closed once
-   it has a pnl (matching the dashboard stats) — closed_at may be null, so we
-   order by closed_at when set, else opened_at. Equity climbs by each trade's
-   pnl in that order; the window's first point is seeded at the running equity
-   *before* the window (so a 30D view starts at the right balance, not the
-   base). Flat line at startingBalance when nothing closed. */
-const closedTime = (t: ApiTrade) => Date.parse(t.closed_at ?? t.opened_at);
+   it has a pnl (matching the dashboard stats), ordered by when it was logged
+   (created_at). Equity climbs by each trade's pnl in that order; the window's
+   first point is seeded at the running equity *before* the window (so a 30D
+   view starts at the right balance, not the base). Flat line at
+   startingBalance when nothing closed. */
+const closedTime = (t: ApiTrade) => Date.parse(t.created_at);
 
 export function buildSeries(
     trades: ApiTrade[],

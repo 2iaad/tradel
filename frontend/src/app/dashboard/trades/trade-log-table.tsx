@@ -66,15 +66,14 @@ function TradeLogHead({ log }: { log: Log }) {
         <div
             className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-[#161c20] font-mono text-[10px] font-medium tracking-[0.12em] text-[#5f6b70]`}
         >
-            <span>PAIR</span>
-            <span>DIRECTION</span>
-            <span>SETUP</span>
+            <SortHead col="date" label="DATE" align="left" log={log} />
+            <span>SYMBOL</span>
+            <span>SIDE</span>
             <span>ENTRY</span>
             <span>EXIT</span>
-            <span>SIZE</span>
-            <SortHead col="r" label="R" align="left" log={log} />
-            <SortHead col="pnl" label="P&L" align="right" log={log} />
-            <SortHead col="date" label="DATE" align="right" log={log} />
+            <span>LOTS</span>
+            <SortHead col="pnl" label="P&L" align="left" log={log} />
+            <SortHead col="r" label="R:R" align="left" log={log} />
             <span />
             <span />
         </div>

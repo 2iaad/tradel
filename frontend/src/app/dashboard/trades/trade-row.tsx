@@ -15,11 +15,15 @@ const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] trackin
 const tagCls =
     "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-[#78878a] border border-[#222a2f]";
 
-// Symbol, side pill, and setup pill (the three leading cells). A green dot by
-// the symbol marks trades that carry at least one note.
+// Date (stacked date + time), symbol, and side pill (the three leading
+// cells). A green dot by the symbol marks trades that carry at least one note.
 function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
     return (
         <>
+            <span className="flex flex-col gap-0.5">
+                <span className="font-mono text-[12px] text-[#c8d2d0]">{t.date}</span>
+                <span className="font-mono text-[10px] text-[#5f6b70]">{t.clock}</span>
+            </span>
             <span className="flex items-center gap-1.5 font-mono text-[12.5px] font-semibold text-[#e9eef0]">
                 {hasNotes && (
                     <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-[#2fd57f]" />
@@ -34,16 +38,11 @@ function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
                     {t.side}
                 </span>
             </span>
-            <span>
-                <span className={`${badgeCls} font-medium text-[#78878a] border-[#222a2f]`}>
-                    {t.setup || "—"}
-                </span>
-            </span>
         </>
     );
 }
 
-// Entry/exit/size + R/P&L/date/chevron (the trailing cells). Null R/P&L
+// Entry/exit/lots + P&L/R:R/chevron (the trailing cells). Null R/P&L
 // (still-open trade) renders as a dash.
 function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
     const winCol = { color: (t.pnlv ?? 0) >= 0 ? G : R };
@@ -52,13 +51,12 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
             <span className={numCls}>{t.entry}</span>
             <span className={numCls}>{t.exit ?? "—"}</span>
             <span className={numCls}>{t.size}</span>
+            <span className="font-mono text-[12.5px] font-semibold" style={winCol}>
+                {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
+            </span>
             <span className="font-mono text-[12.5px] font-medium" style={winCol}>
                 {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
             </span>
-            <span className="font-mono text-[12.5px] font-semibold text-right" style={winCol}>
-                {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
-            </span>
-            <span className="font-mono text-[10.5px] text-[#5f6b70] text-right">{t.date}</span>
             <span
                 className="font-mono text-[11px] text-[#5f6b70] text-center inline-block transition-transform"
                 style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}

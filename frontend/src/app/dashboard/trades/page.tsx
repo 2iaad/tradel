@@ -1,7 +1,8 @@
 "use client";
 
-import { ctaCls, G, R } from "@/lib/ui";
+import { cardCls, ctaCls, G, R } from "@/lib/ui";
 import { PageHeader } from "../page-header";
+import { StatCards, useTradeStats } from "../trade-stats";
 import { TradeLogTable } from "./trade-log-table";
 import { useTradeLog } from "./use-trade-log";
 
@@ -55,32 +56,26 @@ function FilterToolbar({ log }: { log: Log }) {
     );
 }
 
-// One summary cell (label + value).
-function Cell({ label, value, color }: { label: string; value: string; color?: string }) {
+// One label+value pill in the quick-stats strip.
+function Chip({ label, value, color }: { label: string; value: string; color?: string }) {
     return (
-        <div className="flex flex-col gap-1.5 px-5 py-4 border-l border-[#161c20] first:border-l-0">
-            <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
-                {label}
-            </span>
-            <span className="text-[21px] font-semibold" style={{ color: color ?? "#eef4f2" }}>
-                {value}
-            </span>
-        </div>
+        <span className="inline-flex items-center gap-1.5 bg-[#0a0d0f] border border-[#1b2226] rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium tracking-[0.04em] text-[#78878a]">
+            {label && <span>{label}</span>}
+            <span style={{ color: color ?? "#c8d2d0" }}>{value}</span>
+        </span>
     );
 }
 
-// Four-up stat strip reflecting the active filters.
-function SummaryStrip({ summary }: { summary: Log["summary"] }) {
+// Quick-stats pill strip under the cards.
+function ChipStrip({ s }: { s: Log["summary"] }) {
     return (
-        <div className="grid grid-cols-4 bg-[#0e1214] border border-[#1b2226] rounded-[10px] overflow-hidden">
-            <Cell label="TRADES" value={String(summary.count)} />
-            <Cell
-                label="NET P&L"
-                value={summary.net}
-                color={summary.netV > 0 ? G : summary.netV < 0 ? R : undefined}
-            />
-            <Cell label="WIN RATE" value={summary.win} />
-            <Cell label="AVG R" value={summary.avgR} color={summary.avgRPos ? G : R} />
+        <div className={`${cardCls} flex flex-wrap items-center gap-2 px-3.5 py-3`}>
+            <Chip label="" value={`${s.count} trades`} color={G} />
+            <Chip label="Avg win" value={s.avgWin} color={G} />
+            <Chip label="Avg loss" value={s.avgLoss} color={R} />
+            <Chip label="PF" value={s.pf} />
+            <Chip label="Streak" value={s.streak} color={s.streak === "—" ? undefined : s.streakWin ? G : R} />
+            <Chip label="This month" value={s.monthNet} color={s.monthPos ? G : R} />
         </div>
     );
 }
@@ -88,6 +83,7 @@ function SummaryStrip({ summary }: { summary: Log["summary"] }) {
 // Trades route: filterable, sortable trade log backed by the trades API.
 export default function TradesPage() {
     const log = useTradeLog();
+    const stats = useTradeStats();
     return (
         <div className="w-full max-w-[1240px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title="Trade log">
@@ -99,8 +95,9 @@ export default function TradesPage() {
                     + Log trade
                 </button>
             </PageHeader>
+            <StatCards s={stats} />
+            <ChipStrip s={log.summary} />
             <FilterToolbar log={log} />
-            <SummaryStrip summary={log.summary} />
             <TradeLogTable log={log} dense={false} />
         </div>
     );

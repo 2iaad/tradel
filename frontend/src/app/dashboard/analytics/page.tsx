@@ -5,44 +5,13 @@ import { useEffect } from 'react';
 import { signedMoney } from '@/lib/format';
 import { cardCls, G, h2Cls, R } from '@/lib/ui';
 import { useAnalyticsStore } from '@/stores/analytics';
-import type { BreakdownEntry, Summary } from '@/stores/analytics';
+import type { BreakdownEntry } from '@/stores/analytics';
+import { useTradesStore } from '@/stores/trades';
 import { EquityCard } from '../equity-card';
 import { PageHeader } from '../page-header';
+import { StatCards, useTradeStats } from '../trade-stats';
 
 const pct = (v: number | null) => (v === null ? '—' : `${(v * 100).toFixed(1)}%`);
-const ratio = (v: number | null) => (v === null ? '—' : v.toFixed(2));
-const rr = (v: number | null) => (v === null ? '—' : `${v > 0 ? '+' : ''}${v.toFixed(2)}R`);
-
-// Headline metrics as {label, value, color, sub} tiles.
-function tiles(s: Summary) {
-    return [
-        { label: 'NET P&L', value: s.closed ? signedMoney(s.net) : '—', col: s.net >= 0 ? G : R, sub: `${s.closed} CLOSED` },
-        { label: 'WIN RATE', value: pct(s.winRate), col: '#eef4f2', sub: `${s.wins}W · ${s.losses}L` },
-        { label: 'PROFIT FACTOR', value: ratio(s.profitFactor), col: '#eef4f2', sub: 'GROSS PROFIT / LOSS' },
-        { label: 'EXPECTANCY', value: s.expectancy === null ? '—' : signedMoney(s.expectancy), col: (s.expectancy ?? 0) >= 0 ? G : R, sub: 'AVG P&L / TRADE' },
-        { label: 'AVG R', value: rr(s.avgR), col: (s.avgR ?? 0) >= 0 ? G : R, sub: 'MEAN R MULTIPLE' },
-        { label: 'OPEN', value: String(s.open), col: '#eef4f2', sub: 'TRADES RUNNING' },
-    ];
-}
-
-// Six summary stat cards across the top.
-function StatGrid({ summary }: { summary: Summary }) {
-    return (
-        <div className="grid grid-cols-3 gap-4">
-            {tiles(summary).map((t) => (
-                <div key={t.label} className={`${cardCls} px-5 py-[18px] flex flex-col gap-2`}>
-                    <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
-                        {t.label}
-                    </span>
-                    <span className="text-[26px] font-semibold tracking-[-0.01em]" style={{ color: t.col }}>
-                        {t.value}
-                    </span>
-                    <span className="font-mono text-[11px] font-medium text-[#5f6b70]">{t.sub}</span>
-                </div>
-            ))}
-        </div>
-    );
-}
 
 // One row of the breakdown bar chart: label, proportional bar, net P&L.
 function BreakdownRow({ row, max }: { row: BreakdownEntry; max: number }) {
@@ -89,10 +58,13 @@ export default function AnalyticsPage() {
     const bySide = useAnalyticsStore((s) => s.bySide);
     const loading = useAnalyticsStore((s) => s.loading);
     const load = useAnalyticsStore((s) => s.load);
+    const loadTrades = useTradesStore((s) => s.load);
+    const stats = useTradeStats();
 
     useEffect(() => {
         load();
-    }, [load]);
+        loadTrades(); // headline cards compute from the trade log
+    }, [load, loadTrades]);
 
     return (
         <div className="w-full max-w-[1240px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
@@ -103,7 +75,7 @@ export default function AnalyticsPage() {
                 </p>
             ) : (
                 <>
-                    {summary && <StatGrid summary={summary} />}
+                    <StatCards s={stats} />
                     <EquityCard />
                     <div className="grid grid-cols-2 gap-4 items-start">
                         <BreakdownCard title="P&L by symbol" rows={bySymbol} />

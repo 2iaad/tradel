@@ -66,8 +66,8 @@ function TradeLogHead({ log }: { log: Log }) {
         <div
             className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-[#161c20] font-mono text-[10px] font-medium tracking-[0.12em] text-[#5f6b70]`}
         >
-            <span>SYMBOL</span>
-            <span>SIDE</span>
+            <span>PAIR</span>
+            <span>DIRECTION</span>
             <span>SETUP</span>
             <span>ENTRY</span>
             <span>EXIT</span>
@@ -98,7 +98,7 @@ function TradeAddRow({
         <button
             type="button"
             onClick={onActivate}
-            className="w-full box-border bg-transparent border-0 border-t border-solid border-[#161c20] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-[#5f6b70] cursor-pointer transition-colors hover:text-[#2fd57f] hover:bg-[#10161a]"
+            className="w-full h-18 box-border bg-[#090d0e] border-0 border-t border-solid border-[#161c20] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-[#2fd57f] cursor-pointer transition-colors hover:bg-[#10161a]"
         >
             + ADD TRADE
         </button>

@@ -1,19 +1,25 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { cardCls, ctaCls, h2Cls } from '@/lib/ui';
-import { RANGES, RangeKey, curve, drawChart } from './equity-chart.lib';
+import { cardCls, h2Cls } from '@/lib/ui';
+import { useAccountStore } from '@/stores/accounts';
+import { useTradesStore } from '@/stores/trades';
+import { RANGES, RangeKey, Series, buildSeries, drawChart } from './equity-chart.lib';
 
 /* Drives the equity chart canvas: one rAF loop, paused on hidden tab;
    reveal animation triggers when the chart scrolls into view and re-arms
    when it fully leaves; range switches replay the reveal; static full
    curve for reduced motion. Hover is tracked in local vars — zero
-   re-renders. Returns the ref to attach to the <canvas>. */
-function useEquityCanvas(range: RangeKey, ghost: boolean) {
+   re-renders. `series` is the real equity data; the loop reads it via a ref
+   so new trades repaint without re-arming the effect. Returns the ref to
+   attach to the <canvas>. */
+function useEquityCanvas(range: RangeKey, series: Series) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const rangeRef = useRef(range);
     const revealT0 = useRef<number | null>(null);
+    const seriesRef = useRef(series);
+    seriesRef.current = series;
 
     // Range switch replays the reveal (skip the initial render).
     useEffect(() => {
@@ -31,14 +37,14 @@ function useEquityCanvas(range: RangeKey, ghost: boolean) {
         let played = false;
         let onScreen = false;
         let hover: { x: number; y: number } | null = null;
-        const curves: Partial<Record<RangeKey, number[]>> = {};
 
         const tick = () => {
-            const key = rangeRef.current;
+            const s = seriesRef.current;
             drawChart(canvas, {
-                key,
-                pts: (curves[key] ??= curve(key)),
-                ghost,
+                pts: s.pts,
+                lo: s.lo,
+                hi: s.hi,
+                sig: s.sig,
                 reveal: revealT0.current,
                 reduced,
                 hover,
@@ -82,10 +88,8 @@ function useEquityCanvas(range: RangeKey, ghost: boolean) {
         const onLeave = () => {
             hover = null;
         };
-        if (!ghost) {
-            canvas.addEventListener('mousemove', onMove);
-            canvas.addEventListener('mouseleave', onLeave);
-        }
+        canvas.addEventListener('mousemove', onMove);
+        canvas.addEventListener('mouseleave', onLeave);
         const onVis = () => (document.hidden ? stop() : start());
         document.addEventListener('visibilitychange', onVis);
 
@@ -96,21 +100,16 @@ function useEquityCanvas(range: RangeKey, ghost: boolean) {
             canvas.removeEventListener('mouseleave', onLeave);
             document.removeEventListener('visibilitychange', onVis);
         };
-    }, [ghost]);
+    }, []);
 
     return canvasRef;
 }
 
-// Canvas equity curve; ghost mode draws the dim dashed guest preview.
-function EquityChart({ range = 'YTD', ghost = false }: { range?: RangeKey; ghost?: boolean }) {
-    const canvasRef = useEquityCanvas(range, ghost);
+// Canvas equity curve, driven by the real trade log.
+function EquityChart({ range, series }: { range: RangeKey; series: Series }) {
+    const canvasRef = useEquityCanvas(range, series);
 
-    return (
-        <canvas
-            ref={canvasRef}
-            className={`w-full h-[340px] block ${ghost ? '' : 'cursor-crosshair'}`}
-        />
-    );
+    return <canvas ref={canvasRef} className="w-full h-[340px] block cursor-crosshair" />;
 }
 
 // Equity curve title + axis subtitle.
@@ -147,9 +146,23 @@ function RangePicker({ range, onChange }: { range: RangeKey; onChange: (k: Range
     );
 }
 
-// Equity-curve card with the range picker; owns the selected range.
+// Equity-curve card with the range picker; owns the selected range and builds
+// the equity series from the (already-loaded) trade log + active account.
 export function EquityCard() {
     const [range, setRange] = useState<RangeKey>('YTD');
+    const trades = useTradesStore((s) => s.trades);
+    const activeId = useAccountStore((s) => s.activeId);
+    const accounts = useAccountStore((s) => s.accounts);
+
+    const startingBalance = useMemo(() => {
+        const acc = accounts.find((a) => a.id === activeId);
+        return acc ? parseFloat(acc.starting_balance) : 0;
+    }, [accounts, activeId]);
+
+    const series = useMemo(
+        () => buildSeries(trades, startingBalance, range),
+        [trades, startingBalance, range],
+    );
 
     return (
         <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
@@ -157,46 +170,7 @@ export function EquityCard() {
                 <ChartTitle />
                 <RangePicker range={range} onChange={setRange} />
             </div>
-            <EquityChart range={range} />
-        </div>
-    );
-}
-
-// Centered call-to-action overlaid on the ghost curve.
-function GhostOverlay({ onStart }: { onStart: () => void }) {
-    return (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 pointer-events-none">
-            <span className="text-xl font-semibold text-[#eef4f2]">
-                Your curve starts at trade #1
-            </span>
-            <span className="text-[13.5px] text-[#7e8d89] max-w-[340px] text-center">
-                The dotted line is what a journaled year can look like.
-            </span>
-            <button
-                type="button"
-                onClick={onStart}
-                className={`${ctaCls} pointer-events-auto mt-1.5 px-5`}
-            >
-                Log your first trade
-            </button>
-        </div>
-    );
-}
-
-// Guest equity-curve card: dim dashed preview with the signup CTA on top.
-export function GhostEquityCard({ onStart }: { onStart: () => void }) {
-    return (
-        <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
-            <div className="flex items-center justify-between gap-4">
-                <ChartTitle />
-                <span className="font-mono text-[10px] font-medium tracking-[0.12em] text-[#5f6b70] border border-dashed border-[#2b343a] rounded-md px-2.5 py-[5px]">
-                    PREVIEW
-                </span>
-            </div>
-            <div className="relative">
-                <EquityChart ghost />
-                <GhostOverlay onStart={onStart} />
-            </div>
+            <EquityChart range={range} series={series} />
         </div>
     );
 }

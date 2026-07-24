@@ -9,7 +9,7 @@ import type { ApiTrade } from "@/stores/trades";
 // Shared column template for the trade-log header + rows (must match exactly).
 // Trailing 44px cell = edit/delete icons (or save/cancel while editing).
 export const LOG_GRID =
-    "grid grid-cols-[76px_66px_1fr_88px_88px_88px_64px_90px_132px_14px_44px] gap-2";
+    "grid grid-cols-[76px_76px_1fr_88px_88px_88px_64px_90px_132px_14px_44px] gap-2";
 
 // Display row for the trade log table, derived from an API trade.
 export interface TradeLogRow {

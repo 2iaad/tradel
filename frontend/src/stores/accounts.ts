@@ -11,6 +11,7 @@ export interface Account {
     name: string;
     broker: string | null;
     currency: string;
+    starting_balance: string; // NUMERIC arrives as a string over the API
 }
 
 // Body for POST/PATCH accounts; mirrors CreateAccountDto/UpdateAccountDto.
@@ -18,6 +19,7 @@ export interface AccountPayload {
     name?: string;
     broker?: string;
     currency?: string;
+    startingBalance?: number;
 }
 
 // ponytail: active account id persisted in localStorage — no server-side

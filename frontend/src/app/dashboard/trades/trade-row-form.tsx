@@ -12,22 +12,8 @@ const inCls =
     "w-full box-border bg-[#0a0d0f] border border-[#222a2f] rounded px-2 py-1.5 font-mono text-[12px] text-[#e9eef0] outline-none focus:border-[#2fd57f66] [color-scheme:dark]";
 const dashCls = "font-mono text-[12px] text-[#4d5a5f]";
 
-// "YYYY-MM-DD" date-input value from an ISO stamp, in local time.
-function toDateInput(iso?: string) {
-    const d = iso ? new Date(iso) : new Date();
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().slice(0, 10);
-}
-
-// openedAt ISO from the picked date, keeping the previous (or current) clock time.
-function withClock(date: string, prevIso: string | null): string {
-    const d = prevIso ? new Date(prevIso) : new Date();
-    const [y, m, day] = date.split("-").map(Number);
-    d.setFullYear(y, m - 1, day);
-    return d.toISOString();
-}
-
 // Inline form fields → trades API payload; empty optional fields stay undefined.
+// The trade date is created_at (set server-side), so there's no date field.
 function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
     const opt = (k: string) => {
         const v = f.get(k);
@@ -42,7 +28,6 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
         size: num("size"),
         // R has no column on create (CreateTradeDto) — edit only.
         r: prev ? num("r") : undefined,
-        openedAt: withClock(f.get("openedAt") as string, prev?.openedAt ?? null),
     };
 }
 
@@ -67,7 +52,8 @@ function FormCells({ t }: { t: TradeLogRow | null }) {
             <span className={`${dashCls} text-right`}>
                 {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
             </span>
-            <input name="openedAt" type="date" defaultValue={toDateInput(t?.openedAt)} required className={inCls} />
+            {/* date column: created_at, set server-side — shown after save */}
+            <span className={`${dashCls} text-right`}>{t?.date ?? "—"}</span>
         </>
     );
 }

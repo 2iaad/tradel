@@ -4,7 +4,9 @@
 @layer theme, base, components, utilities;
 
 @import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
+/* Keep Tailwind's automatic source scan inside src/. The repository also
+   contains runtime volumes that are intentionally unreadable by the app user. */
+@import 'tailwindcss/utilities.css' layer(utilities) source('../');
 
 /* Order matters: swiper -> site -> tradel preserves the original cascade. */
 @import '../styles/swiper.css';

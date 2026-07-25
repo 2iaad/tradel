@@ -8,6 +8,7 @@ import { useAccountStore } from "@/stores/accounts";
 import { useTradesStore } from "@/stores/trades";
 import { toTradeLogRow } from "./trades/use-trade-log";
 import type { TradeLogRow } from "./trades/use-trade-log";
+import { WinRateDonut } from "./win-rate-donut";
 
 // Headline trade stats shared by the dashboard, trades, and analytics pages
 // (cards + chip strip). Pure — pages pass whichever rows they want summarized.
@@ -18,6 +19,8 @@ export function computeTradeStats(rows: TradeLogRow[], startingBalance: number) 
     const net = rows.reduce((s, t) => s + (t.pnlv ?? 0), 0);
     const winRows = rows.filter((t) => (t.pnlv ?? 0) > 0);
     const lossRows = rows.filter((t) => (t.pnlv ?? 0) < 0);
+    // Breakeven = a closed trade (has pnl) that netted exactly 0.
+    const breakevens = rows.filter((t) => t.pnlv === 0).length;
     const wins = winRows.length;
     const grossW = winRows.reduce((s, t) => s + (t.pnlv ?? 0), 0);
     const grossL = -lossRows.reduce((s, t) => s + (t.pnlv ?? 0), 0);
@@ -69,6 +72,7 @@ export function computeTradeStats(rows: TradeLogRow[], startingBalance: number) 
         winPctV: n ? (wins / n) * 100 : null,
         wins,
         losses: lossRows.length,
+        breakevens,
         avgR: rRows.length ? `${avgR > 0 ? "+" : ""}${avgR.toFixed(2)}R` : "—",
         avgRPos: avgR >= 0,
         rCount: rRows.length,
@@ -147,7 +151,6 @@ const subCls = "text-[#5f6b70]";
 // The four headline cards (Total P&L / Win Rate / Best Trade / Avg R:R).
 export function StatCards({ s }: { s: TradeStats }) {
     const netCol = s.netV > 0 ? G : s.netV < 0 ? R : undefined;
-    const pts = s.winPctV === null ? null : s.winPctV - 50;
     return (
         <div className="grid grid-cols-4 gap-4">
             <StatCard label="TOTAL P&L" chip={s.ret} value={s.net} valueColor={netCol}>
@@ -155,15 +158,11 @@ export function StatCards({ s }: { s: TradeStats }) {
                 <span className={subCls}>{s.count} trades recorded</span>
             </StatCard>
             <StatCard label="WIN RATE" chip={s.count ? `${s.wins}W / ${s.losses}L` : null} value={s.win}>
-                <span className={subCls}>
-                    {pts === null
-                        ? "No trades yet"
-                        : `${Math.abs(pts).toFixed(0)}pts ${pts >= 0 ? "above" : "below"} 50%`}
-                </span>
-                <span className={subCls}>
-                    <span style={{ color: G }}>{s.avgWin} avg win</span> /{" "}
-                    <span style={{ color: R }}>{s.avgLoss} avg loss</span>
-                </span>
+                {s.count ? (
+                    <WinRateDonut wins={s.wins} losses={s.losses} breakevens={s.breakevens} />
+                ) : (
+                    <span className={subCls}>No trades yet</span>
+                )}
             </StatCard>
             <StatCard
                 label="BEST TRADE"

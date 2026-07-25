@@ -159,7 +159,7 @@ export default function JournalPage() {
     }, [notes, q, tag]);
 
     return (
-        <div className="w-full max-w-[1000px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title="Trade notes" />
 
             <div className="flex items-center gap-3 flex-wrap">
@@ -203,7 +203,7 @@ export default function JournalPage() {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-2 gap-4 max-[720px]:grid-cols-1">
+                <div className="grid grid-cols-2 gap-6 max-[720px]:grid-cols-1">
                     {rows.map((n) => (
                         <NoteCard
                             key={n.id}

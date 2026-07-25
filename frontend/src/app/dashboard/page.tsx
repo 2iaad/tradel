@@ -59,7 +59,7 @@ export default function DashboardPage() {
     const stats = useTradeStats();
 
     return (
-        <div className="w-full max-w-[1240px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title={`${greeting()}, ${name}`}>
                 <Link href="/dashboard/trades" className={ctaCls}>
                     + Log trade

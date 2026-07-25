@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { cardCls, ctaCls, G, R } from "@/lib/ui";
-import { PageHeader } from "../page-header";
-import { StatCards, useTradeStats } from "../trade-stats";
-import { TradeLogTable } from "./trade-log-table";
-import { useTradeLog } from "./use-trade-log";
+import { cardCls, ctaCls, G, R } from '@/lib/ui';
+import { PageHeader } from '../page-header';
+import { StatCards, useTradeStats } from '../trade-stats';
+import { TradeLogTable } from './trade-log-table';
+import { useTradeLog } from './use-trade-log';
 
 type Log = ReturnType<typeof useTradeLog>;
 
-const SIDES = ["ALL", "LONG", "SHORT"] as const;
-const OUTCOMES = ["ALL", "WINS", "LOSSES"] as const;
+const SIDES = ['ALL', 'LONG', 'SHORT'] as const;
+const OUTCOMES = ['ALL', 'WINS', 'LOSSES'] as const;
 
 // Segmented pill toggle; the active option fills green.
 function SegmentedTabs<T extends string>({
@@ -30,7 +30,7 @@ function SegmentedTabs<T extends string>({
                         key={opt}
                         type="button"
                         onClick={() => onChange(opt)}
-                        className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${on ? "bg-[#2fd57f] text-[#04130a]" : "bg-transparent text-[#5f6b70] hover:text-[#c8d2d0]"}`}
+                        className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${on ? 'bg-[#2fd57f] text-[#04130a]' : 'bg-transparent text-[#5f6b70] hover:text-[#c8d2d0]'}`}
                     >
                         {opt}
                     </button>
@@ -61,20 +61,24 @@ function Chip({ label, value, color }: { label: string; value: string; color?: s
     return (
         <span className="inline-flex items-center gap-1.5 bg-[#0a0d0f] border border-[#1b2226] rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium tracking-[0.04em] text-[#78878a]">
             {label && <span>{label}</span>}
-            <span style={{ color: color ?? "#c8d2d0" }}>{value}</span>
+            <span style={{ color: color ?? '#c8d2d0' }}>{value}</span>
         </span>
     );
 }
 
 // Quick-stats pill strip under the cards.
-function ChipStrip({ s }: { s: Log["summary"] }) {
+function ChipStrip({ s }: { s: Log['summary'] }) {
     return (
         <div className={`${cardCls} flex flex-wrap items-center gap-2 px-3.5 py-3`}>
             <Chip label="" value={`${s.count} trades`} color={G} />
             <Chip label="Avg win" value={s.avgWin} color={G} />
             <Chip label="Avg loss" value={s.avgLoss} color={R} />
             <Chip label="PF" value={s.pf} />
-            <Chip label="Streak" value={s.streak} color={s.streak === "—" ? undefined : s.streakWin ? G : R} />
+            <Chip
+                label="Streak"
+                value={s.streak}
+                color={s.streak === '—' ? undefined : s.streakWin ? G : R}
+            />
             <Chip label="This month" value={s.monthNet} color={s.monthPos ? G : R} />
         </div>
     );
@@ -85,11 +89,11 @@ export default function TradesPage() {
     const log = useTradeLog();
     const stats = useTradeStats();
     return (
-        <div className="w-full max-w-[1240px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title="Trade log">
                 <button
                     type="button"
-                    onClick={() => log.startEdit("new")}
+                    onClick={() => log.startEdit('new')}
                     className={`${ctaCls} whitespace-nowrap`}
                 >
                     + Log trade

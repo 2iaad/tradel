@@ -30,7 +30,7 @@ function AccountRow({
                         {account.name}
                     </span>
                     {active && (
-                        <span className="font-mono text-[9px] font-medium tracking-[0.12em] text-[#2fd57f] border border-[#2fd57f44] rounded px-1.5 py-0.5">
+                        <span className="font-mono text-[9px] font-medium tracking-[0.12em] text-[#ffdd3a] border border-[#ffdd3a44] rounded px-1.5 py-0.5">
                             ACTIVE
                         </span>
                     )}
@@ -44,7 +44,7 @@ function AccountRow({
                     type="button"
                     onClick={onEdit}
                     title="Edit account"
-                    className={`${iconCls} text-[#5f6b70] hover:text-[#2fd57f]`}
+                    className={`${iconCls} text-[#5f6b70] hover:text-[#ffdd3a]`}
                 >
                     ✎
                 </button>

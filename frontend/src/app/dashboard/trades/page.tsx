@@ -30,7 +30,7 @@ function SegmentedTabs<T extends string>({
                         key={opt}
                         type="button"
                         onClick={() => onChange(opt)}
-                        className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${on ? 'bg-[#2fd57f] text-[#04130a]' : 'bg-transparent text-[#5f6b70] hover:text-[#c8d2d0]'}`}
+                        className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${on ? 'bg-[#ffdd3a] text-[#231a00]' : 'bg-transparent text-[#5f6b70] hover:text-[#c8d2d0]'}`}
                     >
                         {opt}
                     </button>
@@ -48,7 +48,7 @@ function FilterToolbar({ log }: { log: Log }) {
                 value={log.q}
                 onChange={(e) => log.setQ(e.target.value)}
                 placeholder="Search symbol or setup…"
-                className="flex-1 min-w-[200px] max-w-[300px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#2fd57f66] placeholder:text-[#4d5a5f]"
+                className="flex-1 min-w-[200px] max-w-[300px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#ffdd3a66] placeholder:text-[#4d5a5f]"
             />
             <SegmentedTabs options={SIDES} active={log.side} onChange={log.setSide} />
             <SegmentedTabs options={OUTCOMES} active={log.outcome} onChange={log.setOutcome} />

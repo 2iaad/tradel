@@ -1,22 +1,5 @@
 // Content data for the home page sections.
 
-export const NAV_LINKS = ['AI', 'blog', 'Academy', 'Earn'];
-
-export const MENU_LINKS = ['AI', 'Blog', 'ACADEMY', 'EARN'];
-
-export type Locale = {
-    code: string;
-    name: string;
-};
-
-export const LOCALES: Locale[] = [
-    { code: 'en', name: 'English' },
-    { code: 'pt-BR', name: 'Portuguese (Brazil)' },
-    { code: 'ru', name: 'Russian' },
-    { code: 'nl', name: 'Dutch' },
-    { code: 'de', name: 'German' },
-];
-
 export type BlogPost = {
     title: string;
     image: string;
@@ -118,30 +101,24 @@ export const PRESS_QUOTES: PressQuote[] = [
 
 export type FooterLink = {
     label: string;
+    href: string;
     current?: boolean;
-    external?: boolean;
 };
 
 export const FOOTER_LINK_COLUMNS: FooterLink[][] = [
     [
-        { label: 'Home', current: true },
-        { label: 'trade' },
-        { label: 'AI' },
-        { label: 'Blog' },
-        { label: 'Academy' },
-        { label: 'Earn' },
-        { label: 'TL Agents' },
-        { label: 'Algotrading' },
-        { label: 'Trading Strategies' },
-        { label: 'AI Trading Agents - Not Bots.' },
-        { label: 'Copy Trading' },
+        { label: 'Home', href: '/', current: true },
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Trade log', href: '/dashboard/trades' },
+        { label: 'Journal', href: '/dashboard/journal' },
+        { label: 'Calendar', href: '/dashboard/calendar' },
+        { label: 'Analytics', href: '/dashboard/analytics' },
     ],
     [
-        { label: 'Coins' },
-        { label: 'Mobile application' },
-        { label: 'Become a Partner', external: true },
-        { label: 'Terms Of Use' },
-        { label: 'Privacy Policy' },
+        { label: 'Log in', href: '/login' },
+        { label: 'Create account', href: '/register' },
+        { label: 'Reset password', href: '/reset' },
+        { label: 'Settings', href: '/dashboard/settings' },
     ],
 ];
 

@@ -18,9 +18,9 @@ export function IntroSection() {
                     <div className="col col-lg-6 col-sm-12">
                         <div className="intro-w">
                             <p className="p-large indent--large">
-                                Traders traded. Bots followed rules. Agents think, decide, act,
-                                evolve. Turn your ideas into fully independent market actors. No
-                                code.
+                                Every trade tells a story. Log entries and exits, track your
+                                P&amp;L, and see the patterns behind your wins and losses. Build the
+                                discipline that turns guesswork into an edge.
                             </p>
                             <div className="intro-cube" />
                         </div>

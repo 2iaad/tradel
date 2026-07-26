@@ -1,7 +1,7 @@
 import { Footer } from './footer';
 import { Hero } from './hero';
 import { HomeAnimation } from './home-animation';
-import { HomeMenu, HomeNav } from './home-chrome';
+import { HomeNav } from './home-chrome';
 import { IntroSection } from './intro-section';
 import { LighthouseSection } from './lighthouse-section';
 import { PartnersSection } from './partners-section';
@@ -14,16 +14,14 @@ export default function Home() {
         <>
             <div className="page-w" data-page-wrapper="">
                 <main id="top" className="main-w" data-page-ns="home" data-page="true">
-                    <HomeNav /> <HomeMenu />
-                    {'   '}
+                    <HomeNav />
                     <Hero />
                     <IntroSection />
                     <PartnersSection />
                     <LighthouseSection />
-                    <CrossDivider />
-                    <SeoSection />
-                    {'  '}
-                    <Footer />
+                    {/* <CrossDivider /> */}
+                    {/* <SeoSection /> */}
+                    {/* <Footer /> */}
                 </main>
             </div>
             <HomeAnimation />

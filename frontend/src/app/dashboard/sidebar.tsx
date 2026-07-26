@@ -35,7 +35,7 @@ type NavItem = (typeof NAV)[number];
 const linkCls = (active: boolean) =>
     `${itemCls} ${
         active
-            ? 'bg-[#10161a] shadow-[inset_2px_0_0_#2fd57f] text-[#eef4f2 font-medium'
+            ? 'bg-[#10161a] shadow-[inset_2px_0_0_#ffdd3a] text-[#eef4f2 font-medium'
             : 'text-[#93a09d] transition-colors hover:bg-[#0d1215] hover:text-[#c8d2d0]'
     }`;
 
@@ -65,7 +65,7 @@ function NavLinks() {
 // Round initials avatar.
 function Avatar({ initials }: { initials: string }) {
     return (
-        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#10161a] border border-[#222a2f] font-mono text-xs font-semibold text-[#2fd57f] uppercase">
+        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#10161a] border border-[#222a2f] font-mono text-xs font-semibold text-[#ffdd3a] uppercase">
             {initials}
         </span>
     );
@@ -132,7 +132,7 @@ function AccountPicker() {
                         >
                             <span className="truncate">{a.name}</span>
                             {a.id === activeId && (
-                                <span className="text-[#2fd57f] text-[11px]">●</span>
+                                <span className="text-[#ffdd3a] text-[11px]">●</span>
                             )}
                         </button>
                     ))}
@@ -142,7 +142,7 @@ function AccountPicker() {
                             setCreating(true);
                             setOpen(false);
                         }}
-                        className="rounded-md px-2.5 py-2 mt-0.5 border-t border-[#161c20] bg-transparent font-mono text-[11px] font-medium tracking-[0.1em] text-[#2fd57f] text-left cursor-pointer hover:bg-[#0d1215]"
+                        className="rounded-md px-2.5 py-2 mt-0.5 border-t border-[#161c20] bg-transparent font-mono text-[11px] font-medium tracking-[0.1em] text-[#ffdd3a] text-left cursor-pointer hover:bg-[#0d1215]"
                     >
                         + NEW ACCOUNT
                     </button>

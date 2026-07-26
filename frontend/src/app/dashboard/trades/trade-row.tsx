@@ -26,7 +26,7 @@ function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
             </span>
             <span className="flex items-center gap-1.5 font-mono text-[12.5px] font-semibold text-[#e9eef0]">
                 {hasNotes && (
-                    <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-[#2fd57f]" />
+                    <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-[#ffdd3a]" />
                 )}
                 {t.sym}
             </span>
@@ -76,7 +76,7 @@ function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => vo
                 type="button"
                 onClick={onEdit}
                 title="Edit trade"
-                className={`${cls} text-[#5f6b70] hover:text-[#2fd57f]`}
+                className={`${cls} text-[#5f6b70] hover:text-[#ffdd3a]`}
             >
                 ✎
             </button>
@@ -102,7 +102,7 @@ function NoNote({ onAddNote }: { onAddNote: () => void }) {
             <button
                 type="button"
                 onClick={onAddNote}
-                className="bg-none border-none p-0 font-mono text-[11px] font-medium tracking-[0.1em] text-[#2fd57f] cursor-pointer hover:text-[#5fe9a0]"
+                className="bg-none border-none p-0 font-mono text-[11px] font-medium tracking-[0.1em] text-[#ffdd3a] cursor-pointer hover:text-[#ffe867]"
             >
                 + ADD NOTE
             </button>

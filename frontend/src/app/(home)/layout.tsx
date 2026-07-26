@@ -5,8 +5,8 @@ import '../../styles/site.css';
 import '../../styles/tradel.css';
 
 export const metadata: Metadata = {
-    title: 'Tradel — AI-powered trading agents',
-    description: 'Create, direct, and evolve autonomous AI trading agents in one conversation.',
+    title: 'Tradel — AI-powered trading journal',
+    description: 'Log your trades, see your progress.',
     robots: { index: false, follow: false, noarchive: true },
 };
 

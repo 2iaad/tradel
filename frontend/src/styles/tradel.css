@@ -76,6 +76,30 @@ body {
   z-index: 4;
 }
 
+/* Landing accent: yellow instead of the cloned theme's green.
+   Overrides the site.css vars; every section (cells, buttons, cubes,
+   glows, selection) keys off these. */
+:root {
+  --color--tradel: #ffdd3a;
+  --color--tradel-15: #ffdd3a26;
+  --color--tradel-45: #ffdd3a73;
+}
+
+/* Hero CTA: only one button now (nav links removed), so center it instead
+   of the theme's space-between edge alignment that clipped it off-screen. */
+.home-hero__bottom {
+  justify-content: center;
+  bottom: 4rem;
+}
+
+/* Lighthouse media (viz video, phone screens) have the green baked into
+   the asset pixels — shift mint (155°) to the yellow accent (50°). */
+.lh-intro__vid .bg-vid,
+.lh-phone__wrap .phone,
+.lh-phone__wrap .lh-notch {
+  filter: hue-rotate(-105deg);
+}
+
 /* Single frosted layer under the intro grid cells — one backdrop-filter
    instead of one per cell; cell borders stay crisp on top. */
 .bg-cover__blur {

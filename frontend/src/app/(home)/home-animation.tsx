@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import gsap from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
@@ -25,6 +27,7 @@ type FrameSequence = {
 };
 
 let lenis: Lenis | null = null;
+const splits: SplitText[] = [];
 
 function prepareBrandingAndAnchors() {
     const heroImage = document.querySelector<HTMLImageElement>('#hero-img');
@@ -84,7 +87,9 @@ function prepareBrandingAndAnchors() {
 
     document.querySelectorAll<HTMLAnchorElement>('.nav-link').forEach((link) => {
         const label = link.textContent?.trim().toLowerCase() ?? '';
-        link.href = navTargets[label] ?? '#top';
+        const target = navTargets[label];
+        // Only rewrite in-page section links; leave real routes (/login) alone.
+        if (target) link.href = target;
     });
 
     document.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
@@ -352,19 +357,23 @@ function setupSplitText() {
     ).filter((target) => !target.closest('.process-text'));
 
     if (responsiveLineTargets.length) {
-        SplitText.create(responsiveLineTargets, {
-            autoSplit: true,
-            linesClass: 'line',
-            type: 'lines',
-        });
+        splits.push(
+            SplitText.create(responsiveLineTargets, {
+                autoSplit: true,
+                linesClass: 'line',
+                type: 'lines',
+            }),
+        );
     }
 
     if (processLineTargets.length) {
-        SplitText.create(processLineTargets, {
-            autoSplit: false,
-            linesClass: 'line',
-            type: 'lines',
-        });
+        splits.push(
+            SplitText.create(processLineTargets, {
+                autoSplit: false,
+                linesClass: 'line',
+                type: 'lines',
+            }),
+        );
     }
 }
 
@@ -1190,17 +1199,27 @@ function initialize() {
     requestAnimationFrame(() => ScrollTrigger.refresh());
 }
 
-if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initialize, { once: true });
-    } else {
-        initialize();
-    }
+// Undo the global side effects initialize() sets up, so leaving the home page
+// via client-side nav doesn't leave Lenis/ScrollTrigger transforms bleeding
+// onto /login and /register (which only cleared on a hard refresh before).
+function teardown() {
+    lenis?.destroy();
+    lenis = null;
+    ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    gsap.globalTimeline.clear();
+    // Revert SplitText so the line-wrapping <div>s and their leftover GSAP
+    // transforms don't survive the unmount and bleed onto the next page.
+    splits.forEach((split) => split.revert());
+    splits.length = 0;
+    document.documentElement.classList.remove('tradel-initialized', 'js-ready');
 }
 
-// Renders nothing; importing this module from the page puts the animation
-// code in the initial script graph, same timing as the deferred module
-// script it replaced.
+// Runs the animation setup on mount, tears it down on unmount so it re-inits
+// cleanly when the user returns to the home page.
 export function HomeAnimation() {
+    useEffect(() => {
+        initialize();
+        return teardown;
+    }, []);
     return null;
 }

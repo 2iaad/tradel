@@ -14,7 +14,7 @@ import {
     type ChartOptions,
 } from 'chart.js';
 
-import { G, cardCls, h2Cls } from '@/lib/ui';
+import { A, cardCls, h2Cls } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
 import { RANGES, RangeKey, buildSeries } from './equity-chart.lib';
@@ -57,7 +57,7 @@ function RangePicker({ range, onChange }: { range: RangeKey; onChange: (k: Range
                     onClick={() => onChange(key)}
                     className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${
                         key === range
-                            ? 'bg-[#2fd57f] text-[#04130a]'
+                            ? 'bg-[#ffdd3a] text-[#231a00]'
                             : 'bg-transparent text-[#5f6b70]'
                     }`}
                 >
@@ -90,8 +90,8 @@ export function EquityCard() {
             datasets: [
                 {
                     data: equity,
-                    borderColor: G,
-                    backgroundColor: 'rgba(47,213,127,0.08)',
+                    borderColor: A,
+                    backgroundColor: 'rgba(255,221,58,0.08)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.25,

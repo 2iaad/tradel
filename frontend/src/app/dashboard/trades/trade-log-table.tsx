@@ -97,7 +97,7 @@ function TradeAddRow({
         <button
             type="button"
             onClick={onActivate}
-            className="w-full h-18 box-border bg-[#090d0e] border-0 border-t border-solid border-[#161c20] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-[#2fd57f] cursor-pointer transition-colors hover:bg-[#10161a]"
+            className="w-full h-18 box-border bg-[#090d0e] border-0 border-t border-solid border-[#161c20] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-[#ffdd3a] cursor-pointer transition-colors hover:bg-[#10161a]"
         >
             + ADD TRADE
         </button>
@@ -115,7 +115,7 @@ function EmptyState({ label, onClear }: { label: string; onClear?: () => void })
                 <button
                     type="button"
                     onClick={onClear}
-                    className="bg-none border border-[#1b2226] rounded-lg px-4 py-2 font-mono text-[11px] font-medium tracking-[0.1em] text-[#2fd57f] cursor-pointer transition-colors hover:border-[#2fd57f44]"
+                    className="bg-none border border-[#1b2226] rounded-lg px-4 py-2 font-mono text-[11px] font-medium tracking-[0.1em] text-[#ffdd3a] cursor-pointer transition-colors hover:border-[#ffdd3a44]"
                 >
                     CLEAR FILTERS
                 </button>

@@ -116,7 +116,7 @@ export function LighthouseSection() {
                     </div>
                 </div>
             </div> */}
-            <div className="full-height" />
+            {/* <div className="full-height" /> */}
         </section>
     );
 }

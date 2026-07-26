@@ -43,7 +43,7 @@ function FormHeading({ kicker, title }: { kicker: string; title: string }) {
     return (
         <div className="mb-2">
             <div className={`${kickerCls} mb-3`}>{kicker}</div>
-            <h2 className="m-0 text-[30px] font-semibold tracking-[-0.01em] text-[#eef4f2]">
+            <h2 className="m-0 text-[clamp(26px,2.4vw,34px)] font-semibold tracking-[-0.01em] text-[#eef4f2]">
                 {title}
             </h2>
         </div>
@@ -75,7 +75,7 @@ function RememberRow({ onReset }: { onReset: () => void }) {
     return (
         <div className="flex justify-between items-center">
             <label className="flex items-center gap-2 text-[13px] text-[#93a09d] cursor-pointer">
-                <input type="checkbox" className="accent-[#2fd57f] w-[15px] h-[15px] m-0" />
+                <input type="checkbox" className="accent-[#ffdd3a] w-[15px] h-[15px] m-0" />
                 Remember me
             </label>
             <button type="button" onClick={onReset} className={`${linkCls} text-[13px]`}>
@@ -184,17 +184,17 @@ function HeroCopy() {
     return (
         <div className="absolute inset-0 flex flex-col justify-between box-border px-[52px] py-11">
             <div className="flex items-center gap-2.5">
-                <span className="w-[9px] h-[9px] rounded-full bg-[#2fd57f] animate-[tradelPulse_2.2s_ease-out_infinite]" />
+                <span className="w-[9px] h-[9px] rounded-full bg-[#ffdd3a] animate-[tradelPulse_2.2s_ease-out_infinite]" />
                 <span className="font-mono text-[13px] font-semibold tracking-[0.22em] text-[#e8efec]">
                     TRADEL
                 </span>
             </div>
             <div className="flex flex-col gap-3.5">
-                <h1 className="m-0 text-[clamp(36px,3.4vw,52px)] font-semibold leading-[1.12] tracking-[-0.015em] text-[#eef4f1]">
+                <h1 className="m-0 text-6xl! font-semibold leading-[1.05] tracking-[-0.02em] text-[#eef4f1]">
                     Every trade,
                     <br />
                     on the record.
-                    <span className="inline-block w-[13px] h-[0.78em] bg-[#2fd57f] ml-[9px] align-[-2px] animate-[tradelBlink_1.1s_steps(1)_infinite]" />
+                    <span className="inline-block w-[13px] h-[0.9em] bg-[#ffdd3a] ml-[9px] align-[-2px] animate-[tradelBlink_1.1s_steps(1)_infinite]" />
                 </h1>
                 <p className="m-0 text-[15px] leading-[1.5] text-[#7e8d89] max-w-[360px]">
                     Log entries, exits, and the reasoning between them.
@@ -254,7 +254,7 @@ export default function AuthLayout() {
     const [mode, setMode] = useAuthMode();
 
     return (
-        <div className="relative w-full h-screen min-h-[640px] bg-[#0b0e10] overflow-hidden">
+        <div className="relative w-full h-screen min-h-[640px] bg-[#050505] overflow-hidden">
             <Tape
                 items={TOP_TICKS}
                 duration="46s"

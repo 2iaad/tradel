@@ -1,14 +1,15 @@
-"use client";
+'use client';
 
-import { ctaCls, G, R } from "@/lib/ui";
-import { PageHeader } from "../page-header";
-import { TradeLogTable } from "./trade-log-table";
-import { useTradeLog } from "./use-trade-log";
+import { cardCls, ctaCls, G, R } from '@/lib/ui';
+import { PageHeader } from '../page-header';
+import { StatCards, useTradeStats } from '../trade-stats';
+import { TradeLogTable } from './trade-log-table';
+import { useTradeLog } from './use-trade-log';
 
 type Log = ReturnType<typeof useTradeLog>;
 
-const SIDES = ["ALL", "LONG", "SHORT"] as const;
-const OUTCOMES = ["ALL", "WINS", "LOSSES"] as const;
+const SIDES = ['ALL', 'LONG', 'SHORT'] as const;
+const OUTCOMES = ['ALL', 'WINS', 'LOSSES'] as const;
 
 // Segmented pill toggle; the active option fills green.
 function SegmentedTabs<T extends string>({
@@ -29,7 +30,7 @@ function SegmentedTabs<T extends string>({
                         key={opt}
                         type="button"
                         onClick={() => onChange(opt)}
-                        className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${on ? "bg-[#2fd57f] text-[#04130a]" : "bg-transparent text-[#5f6b70] hover:text-[#c8d2d0]"}`}
+                        className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${on ? 'bg-[#ffdd3a] text-[#231a00]' : 'bg-transparent text-[#5f6b70] hover:text-[#c8d2d0]'}`}
                     >
                         {opt}
                     </button>
@@ -47,7 +48,7 @@ function FilterToolbar({ log }: { log: Log }) {
                 value={log.q}
                 onChange={(e) => log.setQ(e.target.value)}
                 placeholder="Search symbol or setup…"
-                className="flex-1 min-w-[200px] max-w-[300px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#2fd57f66] placeholder:text-[#4d5a5f]"
+                className="flex-1 min-w-[200px] max-w-[300px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#ffdd3a66] placeholder:text-[#4d5a5f]"
             />
             <SegmentedTabs options={SIDES} active={log.side} onChange={log.setSide} />
             <SegmentedTabs options={OUTCOMES} active={log.outcome} onChange={log.setOutcome} />
@@ -55,32 +56,30 @@ function FilterToolbar({ log }: { log: Log }) {
     );
 }
 
-// One summary cell (label + value).
-function Cell({ label, value, color }: { label: string; value: string; color?: string }) {
+// One label+value pill in the quick-stats strip.
+function Chip({ label, value, color }: { label: string; value: string; color?: string }) {
     return (
-        <div className="flex flex-col gap-1.5 px-5 py-4 border-l border-[#161c20] first:border-l-0">
-            <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
-                {label}
-            </span>
-            <span className="text-[21px] font-semibold" style={{ color: color ?? "#eef4f2" }}>
-                {value}
-            </span>
-        </div>
+        <span className="inline-flex items-center gap-1.5 bg-[#0a0d0f] border border-[#1b2226] rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium tracking-[0.04em] text-[#78878a]">
+            {label && <span>{label}</span>}
+            <span style={{ color: color ?? '#c8d2d0' }}>{value}</span>
+        </span>
     );
 }
 
-// Four-up stat strip reflecting the active filters.
-function SummaryStrip({ summary }: { summary: Log["summary"] }) {
+// Quick-stats pill strip under the cards.
+function ChipStrip({ s }: { s: Log['summary'] }) {
     return (
-        <div className="grid grid-cols-4 bg-[#0e1214] border border-[#1b2226] rounded-[10px] overflow-hidden">
-            <Cell label="TRADES" value={String(summary.count)} />
-            <Cell
-                label="NET P&L"
-                value={summary.net}
-                color={summary.netV > 0 ? G : summary.netV < 0 ? R : undefined}
+        <div className={`${cardCls} flex flex-wrap items-center gap-2 px-3.5 py-3`}>
+            <Chip label="" value={`${s.count} trades`} color={G} />
+            <Chip label="Avg win" value={s.avgWin} color={G} />
+            <Chip label="Avg loss" value={s.avgLoss} color={R} />
+            <Chip label="PF" value={s.pf} />
+            <Chip
+                label="Streak"
+                value={s.streak}
+                color={s.streak === '—' ? undefined : s.streakWin ? G : R}
             />
-            <Cell label="WIN RATE" value={summary.win} />
-            <Cell label="AVG R" value={summary.avgR} color={summary.avgRPos ? G : R} />
+            <Chip label="This month" value={s.monthNet} color={s.monthPos ? G : R} />
         </div>
     );
 }
@@ -88,19 +87,21 @@ function SummaryStrip({ summary }: { summary: Log["summary"] }) {
 // Trades route: filterable, sortable trade log backed by the trades API.
 export default function TradesPage() {
     const log = useTradeLog();
+    const stats = useTradeStats();
     return (
-        <div className="w-full max-w-[1240px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title="Trade log">
                 <button
                     type="button"
-                    onClick={() => log.startEdit("new")}
+                    onClick={() => log.startEdit('new')}
                     className={`${ctaCls} whitespace-nowrap`}
                 >
                     + Log trade
                 </button>
             </PageHeader>
+            <StatCards s={stats} />
+            <ChipStrip s={log.summary} />
             <FilterToolbar log={log} />
-            <SummaryStrip summary={log.summary} />
             <TradeLogTable log={log} dense={false} />
         </div>
     );

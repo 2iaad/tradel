@@ -52,10 +52,13 @@ function DayCell({ day }: { day: CalendarDay | null }) {
             className="aspect-square rounded-lg border border-[#1b2226] p-2 flex flex-col justify-between"
             style={{ background: tint }}
         >
-            <span className="font-mono text-[11px] text-[#5f6b70]">{dayNum}</span>
+            <span className="font-mono text-[14px] text-[#5f6b70]">{dayNum}</span>
             {active && (
                 <span className="flex flex-col gap-0.5">
-                    <span className="font-mono text-[12px] font-semibold" style={{ color: pos ? G : R }}>
+                    <span
+                        className="font-mono text-[12px] font-semibold"
+                        style={{ color: pos ? G : R }}
+                    >
                         {signedMoney(day.pnl)}
                     </span>
                     <span className="font-mono text-[9.5px] text-[#5f6b70]">
@@ -102,8 +105,8 @@ export default function CalendarPage() {
     const monthNet = useMemo(() => days.reduce((s, d) => s + d.pnl, 0), [days]);
 
     return (
-        <div className="w-full max-w-[1240px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
-            <PageHeader kicker="CALENDAR" title="Daily P&L">
+        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+            <PageHeader kicker="" title="Daily P&L">
                 <MonthNav month={month} onShift={(n) => load(shiftMonth(month, n))} />
             </PageHeader>
             <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-4`}>
@@ -111,13 +114,13 @@ export default function CalendarPage() {
                     {WEEKDAYS.map((w) => (
                         <span
                             key={w}
-                            className="text-center font-mono text-[10px] font-medium tracking-[0.12em] text-[#5f6b70]"
+                            className="text-center font-mono text-[12px] font-medium tracking-[0.12em] text-[#5f6b70]"
                         >
                             {w}
                         </span>
                     ))}
                 </div>
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-4">
                     {cells.map((c, i) => (
                         <DayCell key={c ? c.date : `pad-${i}`} day={c} />
                     ))}
@@ -125,7 +128,9 @@ export default function CalendarPage() {
                 <div className="flex justify-end border-t border-[#161c20] pt-3">
                     <span className="font-mono text-[12px] text-[#5f6b70]">
                         MONTH NET&nbsp;
-                        <span style={{ color: monthNet >= 0 ? G : R }}>{signedMoney(monthNet)}</span>
+                        <span style={{ color: monthNet >= 0 ? G : R }}>
+                            {signedMoney(monthNet)}
+                        </span>
                     </span>
                 </div>
             </div>

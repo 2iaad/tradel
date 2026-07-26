@@ -9,7 +9,7 @@ import { LOG_GRID } from "./use-trade-log";
 import type { TradeLogRow } from "./use-trade-log";
 
 const inCls =
-    "w-full box-border bg-[#0a0d0f] border border-[#222a2f] rounded px-2 py-1.5 font-mono text-[12px] text-[#e9eef0] outline-none focus:border-[#2fd57f66] [color-scheme:dark]";
+    "w-full box-border bg-[#0a0d0f] border border-[#222a2f] rounded px-2 py-1.5 font-mono text-[12px] text-[#e9eef0] outline-none focus:border-[#ffdd3a66] [color-scheme:dark]";
 const dashCls = "font-mono text-[12px] text-[#4d5a5f]";
 
 // Inline form fields → trades API payload; empty optional fields stay undefined.
@@ -35,25 +35,24 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
 function FormCells({ t }: { t: TradeLogRow | null }) {
     return (
         <>
+            {/* date column: created_at, set server-side — shown after save */}
+            <span className={dashCls}>{t?.date ?? "—"}</span>
             <input name="symbol" defaultValue={t?.sym} required maxLength={20} placeholder="SYM" className={inCls} />
             <select name="side" defaultValue={t?.side ?? "LONG"} className={inCls}>
                 <option>LONG</option>
                 <option>SHORT</option>
             </select>
-            <span className={dashCls}>—</span>
             <input name="entry" type="number" step="any" defaultValue={t?.entry} required placeholder="entry" className={inCls} />
             <input name="exit" type="number" step="any" defaultValue={t?.exit ?? ""} placeholder="—" className={inCls} />
-            <input name="size" type="number" step="any" defaultValue={t?.size} required placeholder="size" className={inCls} />
+            <input name="size" type="number" step="any" defaultValue={t?.size} required placeholder="lots" className={inCls} />
+            <span className={dashCls}>
+                {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
+            </span>
             {t ? (
                 <input name="r" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
             ) : (
                 <span className={dashCls}>—</span>
             )}
-            <span className={`${dashCls} text-right`}>
-                {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
-            </span>
-            {/* date column: created_at, set server-side — shown after save */}
-            <span className={`${dashCls} text-right`}>{t?.date ?? "—"}</span>
         </>
     );
 }
@@ -63,7 +62,7 @@ function FormIcons({ pending, onCancel }: { pending: boolean; onCancel: () => vo
     const cls = "bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none";
     return (
         <span className="flex items-center justify-end gap-2">
-            <button type="submit" disabled={pending} title="Save" className={`${cls} text-[#2fd57f] hover:text-[#5fe9a0] disabled:opacity-50`}>
+            <button type="submit" disabled={pending} title="Save" className={`${cls} text-[#ffdd3a] hover:text-[#ffe867] disabled:opacity-50`}>
                 ✓
             </button>
             <button type="button" onClick={onCancel} title="Cancel" className={`${cls} text-[#5f6b70] hover:text-[#c8d2d0]`}>

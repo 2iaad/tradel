@@ -76,6 +76,17 @@ body {
   z-index: 4;
 }
 
+/* The theme now lives in the low `home-theme` cascade layer, so the app's
+   unlayered body font (globals.css) would win on the home page too. Re-anchor
+   the theme typography on the page wrapper — descendants inherit from here,
+   and nothing unlayered targets .page-w. */
+.page-w {
+  color: var(--color--white);
+  font-family: Intervariable, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+
 /* Landing accent: yellow instead of the cloned theme's green.
    Overrides the site.css vars; every section (cells, buttons, cubes,
    glows, selection) keys off these. */
@@ -83,13 +94,6 @@ body {
   --color--tradel: #ffdd3a;
   --color--tradel-15: #ffdd3a26;
   --color--tradel-45: #ffdd3a73;
-}
-
-/* Hero CTA: only one button now (nav links removed), so center it instead
-   of the theme's space-between edge alignment that clipped it off-screen. */
-.home-hero__bottom {
-  justify-content: center;
-  bottom: 4rem;
 }
 
 /* Lighthouse media (viz video, phone screens) have the green baked into

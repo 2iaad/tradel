@@ -44,7 +44,9 @@ export function Hero() {
                 </div>
             </section>
             <div className="hero-bottom__wrap">
-                <div className="home-hero__bottom">
+                {/* justify-center + raised bottom: single CTA, theme's
+                    space-between clipped it at the screen edge */}
+                <div className="home-hero__bottom justify-center bottom-16">
                     <a
                         className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block"
                         data-nav-item=""

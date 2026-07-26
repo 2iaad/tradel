@@ -1,0 +1,10 @@
+/* The cloned Webflow theme (site.css + friends) is full of unlayered global
+   element rules (body font, h1/h2 sizes, links, buttons). Loaded plainly it
+   lingers after client-side nav and restyles /login, /register, /dashboard
+   until a hard refresh. Importing it into the `home-theme` cascade layer
+   (ranked below Tailwind's components/utilities in globals.css) makes it
+   powerless against app styles everywhere, while the home page — which uses
+   the theme's own classes — keeps looking the same. */
+@import './swiper.css' layer(home-theme);
+@import './site.css' layer(home-theme);
+@import './tradel.css' layer(home-theme);

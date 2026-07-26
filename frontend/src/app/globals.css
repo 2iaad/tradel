@@ -1,3 +1,8 @@
+/* Fix the cascade order up front: the cloned home theme (see
+   src/styles/home-theme.css) sits between Tailwind's base and components, so
+   Tailwind utilities always beat it — on the home page and anywhere the
+   stylesheet lingers after client-side navigation. */
+@layer theme, base, home-theme, components, utilities;
 @import 'tailwindcss';
 
 :root {
@@ -16,19 +21,6 @@ body {
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans), system-ui, sans-serif;
-}
-
-/* site.css (loaded only under the home route group) sets unlayered global
-   h1 font-size 17.375em and h1,h2 uppercase. On client-nav from / to
-   /login the stylesheet lingers a frame and flashes those onto auth headings.
-   Reset case + size everywhere outside the home wrapper. Because site.css is
-   unlayered it beats Tailwind utility layers, so plain classes like text-2xl
-   would not win here anyway; auth headings use arbitrary text-[..] values,
-   which Tailwind emits with enough weight to override this reset. */
-body :not(.page-w) h1,
-body :not(.page-w) h2 {
-    font-size: 1rem;
-    text-transform: none;
 }
 
 /* Kill Chrome's yellow autofill wash so inputs keep the dark theme. */

@@ -35,7 +35,7 @@ function NoteCard({
         <div className={`${cardCls} p-5 flex flex-col gap-2.5`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="font-mono text-[10px] font-semibold tracking-[0.08em] text-[#2fd57f] border border-[#2fd57f33] rounded px-1.5 py-0.5 whitespace-nowrap">
+                    <span className="font-mono text-[10px] font-semibold tracking-[0.08em] text-[#ffdd3a] border border-[#ffdd3a33] rounded px-1.5 py-0.5 whitespace-nowrap">
                         {symbol}
                     </span>
                     <span className="font-mono text-[10px] text-[#4d5a5f]">{date}</span>
@@ -45,7 +45,7 @@ function NoteCard({
                         type="button"
                         onClick={onEdit}
                         title="Edit note"
-                        className={`${iconCls} text-[#5f6b70] hover:text-[#2fd57f]`}
+                        className={`${iconCls} text-[#5f6b70] hover:text-[#ffdd3a]`}
                     >
                         ✎
                     </button>
@@ -159,7 +159,7 @@ export default function JournalPage() {
     }, [notes, q, tag]);
 
     return (
-        <div className="w-full max-w-[1000px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title="Trade notes" />
 
             <div className="flex items-center gap-3 flex-wrap">
@@ -167,12 +167,12 @@ export default function JournalPage() {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search notes…"
-                    className="flex-1 min-w-[200px] max-w-[320px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#2fd57f66] placeholder:text-[#4d5a5f]"
+                    className="flex-1 min-w-[200px] max-w-[320px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#ffdd3a66] placeholder:text-[#4d5a5f]"
                 />
                 <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
-                    className="box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3 py-2.5 text-[#c8d2d0] font-mono text-[12px] outline-none focus:border-[#2fd57f66] [color-scheme:dark]"
+                    className="box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3 py-2.5 text-[#c8d2d0] font-mono text-[12px] outline-none focus:border-[#ffdd3a66] [color-scheme:dark]"
                 >
                     {allTags.map((t) => (
                         <option key={t} value={t}>
@@ -203,7 +203,7 @@ export default function JournalPage() {
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-2 gap-4 max-[720px]:grid-cols-1">
+                <div className="grid grid-cols-2 gap-6 max-[720px]:grid-cols-1">
                     {rows.map((n) => (
                         <NoteCard
                             key={n.id}

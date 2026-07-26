@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 
-import '../../styles/swiper.css';
-import '../../styles/site.css';
-import '../../styles/tradel.css';
+import '../../styles/home-theme.css';
 
 export const metadata: Metadata = {
     title: 'Tradel — AI-powered trading journal',

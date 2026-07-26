@@ -75,7 +75,7 @@ function RememberRow({ onReset }: { onReset: () => void }) {
     return (
         <div className="flex justify-between items-center">
             <label className="flex items-center gap-2 text-[13px] text-[#93a09d] cursor-pointer">
-                <input type="checkbox" className="accent-[#ffdd3a] w-[15px] h-[15px] m-0" />
+                <input type="checkbox" className="accent-[#ffdd3a] w-[15px] h-[15px] m-0 [color-scheme:dark]" />
                 Remember me
             </label>
             <button type="button" onClick={onReset} className={`${linkCls} text-[13px]`}>

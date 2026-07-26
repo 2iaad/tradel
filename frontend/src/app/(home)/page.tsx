@@ -1,21 +1,35 @@
-import { AnalyticsSection } from './analytics-section';
-import { CtaSection } from './cta-section';
+import { Footer } from './footer';
 import { Hero } from './hero';
-import { HomeNav, MotionLayer } from './home-chrome';
-import { JournalSection } from './journal-section';
-import { ReviewSection } from './review-section';
+import { HomeAnimation } from './home-animation';
+import { HomeMenu, HomeNav } from './home-chrome';
+import { IntroSection } from './intro-section';
+import { LighthouseSection } from './lighthouse-section';
+import { PartnersSection } from './partners-section';
+import { ProcessEndSection, ProcessSection } from './process-section';
+import { SeoSection } from './seo-section';
+import { CrossDivider } from './support-section';
 
-// Landing page — five full-height movements over the candlestick backdrop.
+// Recreate the homepage composition from experiment/ui.
 export default function Home() {
     return (
-        <div className="relative bg-[#07090b]">
-            <MotionLayer />
-            <HomeNav />
-            <Hero />
-            <JournalSection />
-            <AnalyticsSection />
-            <ReviewSection />
-            <CtaSection />
-        </div>
+        <>
+            <div className="page-w" data-page-wrapper="">
+                <main id="top" className="main-w" data-page-ns="home" data-page="true">
+                    <HomeNav /> <HomeMenu />
+                    {'   '}
+                    <Hero />
+                    <IntroSection />
+                    <PartnersSection />
+                    <LighthouseSection />
+                    {/* <ProcessSection />
+                    <ProcessEndSection /> */}
+                    <CrossDivider />
+                    <SeoSection />
+                    {'  '}
+                    <Footer />
+                </main>
+            </div>
+            <HomeAnimation />
+        </>
     );
 }

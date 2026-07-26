@@ -15,6 +15,8 @@ export type RangeKey = keyof typeof RANGES;
 // P&L, ordered by close time. `pts` is normalized to [0,1] against [lo,hi].
 export interface Series {
     pts: number[];
+    /** Timestamp (ms) per point — seed at the window start, then one per trade. */
+    dates: number[];
     lo: number;
     hi: number;
 }
@@ -52,13 +54,19 @@ export function buildSeries(
         running += parseFloat(closed[i].pnl!);
 
     const equity = [running]; // seed at pre-window running equity
+    // Seed date: window start, or the first in-window trade (ALL has start 0).
+    const dates = [start > 0 ? start : (closed[i] ? closedTime(closed[i]) : Date.now())];
     for (; i < closed.length; i++) {
         running += parseFloat(closed[i].pnl!);
         equity.push(running);
+        dates.push(closedTime(closed[i]));
     }
     // Nothing closed in-window: draw a flat 2-point line, not a single point
     // (the geometry divides by the trade-index span).
-    if (equity.length === 1) equity.push(running);
+    if (equity.length === 1) {
+        equity.push(running);
+        dates.push(Date.now());
+    }
 
     let lo = Math.min(...equity);
     let hi = Math.max(...equity);
@@ -70,5 +78,5 @@ export function buildSeries(
     }
     const span = hi - lo;
     const pts = equity.map((v) => (v - lo) / span);
-    return { pts, lo, hi };
+    return { pts, dates, lo, hi };
 }

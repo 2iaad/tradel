@@ -1,6 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+import dynamic from "next/dynamic";
+import {
+    BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    LinearScale,
+    Tooltip,
+} from "chart.js";
 
 import { signedMoney } from "@/lib/format";
 import { cardCls, G, R } from "@/lib/ui";
@@ -9,6 +17,11 @@ import { useTradesStore } from "@/stores/trades";
 import { toTradeLogRow } from "./trades/use-trade-log";
 import type { TradeLogRow } from "./trades/use-trade-log";
 import { WinRateDonut } from "./win-rate-donut";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
+
+// Chart.js touches `window` at import — client-only, no SSR pass.
+const Bar = dynamic(() => import("react-chartjs-2").then((m) => m.Bar), { ssr: false });
 
 // Headline trade stats shared by the dashboard, trades, and analytics pages
 // (cards + chip strip). Pure — pages pass whichever rows they want summarized.
@@ -64,7 +77,33 @@ export function computeTradeStats(rows: TradeLogRow[], startingBalance: number) 
             ? `${net >= 0 ? "+" : ""}${((net / startingBalance) * 100).toFixed(1)}%`
             : null;
 
+    // Mini-chart series for the stat cards.
+    // TOTAL P&L: net result per day over the last 7 calendar days.
+    const dayBars: number[] = [];
+    const dayLabels: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const key = d.toDateString();
+        dayBars.push(
+            closed.reduce(
+                (sum, t) => (new Date(t.ts).toDateString() === key ? sum + (t.pnlv ?? 0) : sum),
+                0,
+            ),
+        );
+        dayLabels.push(d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase());
+    }
+    const chron = [...closed].sort((a, b) => a.ts - b.ts);
+    const rChron = chron.filter((t) => t.rv !== null).slice(-20);
+    const topTrades = [...closed].sort((a, b) => (b.pnlv ?? 0) - (a.pnlv ?? 0)).slice(0, 5);
+
     return {
+        dayBars,
+        dayLabels,
+        rBars: rChron.map((t) => t.rv ?? 0),
+        rBarLabels: rChron.map((t) => t.sym),
+        topBars: topTrades.map((t) => t.pnlv ?? 0),
+        topBarLabels: topTrades.map((t) => t.sym),
         count: n,
         net: signedMoney(net),
         netV: net,
@@ -148,6 +187,70 @@ function StatCard({
 
 const subCls = "text-[#5f6b70]";
 
+// Tiny axis-less bar chart for the stat cards: green above zero, red below.
+function MiniBars({
+    values,
+    labels,
+    unit,
+    showX = false,
+}: {
+    values: number[];
+    labels: string[];
+    unit: "money" | "r";
+    showX?: boolean;
+}) {
+    const fmt = (v: number) =>
+        unit === "money" ? signedMoney(v) : `${v > 0 ? "+" : ""}${v.toFixed(2)}R`;
+    return (
+        <div className="mt-4 h-[120px]">
+            <Bar
+                data={{
+                    labels,
+                    datasets: [
+                        {
+                            data: values,
+                            backgroundColor: values.map((v) => (v > 0 ? G : v < 0 ? R : "#5f6b70")),
+                            borderRadius: 2,
+                        },
+                    ],
+                }}
+                options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 500 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (c) => fmt(c.parsed.y ?? 0),
+                            },
+                        },
+                    },
+                    scales: {
+                        x: showX
+                            ? {
+                                  grid: { display: false, drawTicks: false },
+                                  ticks: {
+                                      color: "#5f6b70",
+                                      font: { family: "monospace", size: 9 },
+                                      padding: 8,
+                                  },
+                              }
+                            : { display: false },
+                        // Exact data bounds — no rounding down to a "nice" tick,
+                        // which reserved empty space below barely-negative bars.
+                        y: {
+                            display: false,
+                            min: Math.min(0, ...values),
+                            max: Math.max(0, ...values),
+                        },
+                    },
+                }}
+            />
+        </div>
+    );
+}
+
 // The four headline cards (Total P&L / Win Rate / Best Trade / Avg R:R).
 export function StatCards({ s }: { s: TradeStats }) {
     const netCol = s.netV > 0 ? G : s.netV < 0 ? R : undefined;
@@ -156,6 +259,9 @@ export function StatCards({ s }: { s: TradeStats }) {
             <StatCard label="TOTAL P&L" chip={s.ret} value={s.net} valueColor={netCol}>
                 <span style={{ color: netCol ?? "#5f6b70" }}>Avg {s.avgTrade} per trade</span>
                 <span className={subCls}>{s.count} trades recorded</span>
+                {s.count > 0 && (
+                    <MiniBars values={s.dayBars} labels={s.dayLabels} unit="money" showX />
+                )}
             </StatCard>
             <StatCard label="WIN RATE" chip={s.count ? `${s.wins}W / ${s.losses}L` : null} value={s.win}>
                 {s.count ? (
@@ -174,6 +280,9 @@ export function StatCards({ s }: { s: TradeStats }) {
                     Worst: {s.worst}
                 </span>
                 <span className={subCls}>{s.count} total trades</span>
+                {s.topBars.length > 0 && (
+                    <MiniBars values={s.topBars} labels={s.topBarLabels} unit="money" showX />
+                )}
             </StatCard>
             <StatCard
                 label="AVG R:R"
@@ -183,6 +292,9 @@ export function StatCards({ s }: { s: TradeStats }) {
             >
                 <span className={subCls}>PF: {s.pf === "—" ? "—" : `${s.pf}x`}</span>
                 <span className={subCls}>{s.rCount} trades with R:R data</span>
+                {s.rBars.length > 0 && (
+                    <MiniBars values={s.rBars} labels={s.rBarLabels} unit="r" showX />
+                )}
             </StatCard>
         </div>
     );

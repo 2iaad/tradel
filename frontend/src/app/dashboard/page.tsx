@@ -1,8 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-
-import { cardCls, ctaCls, ghostBtnCls, h2Cls } from '@/lib/ui';
+import { cardCls, ghostBtnCls, h2Cls } from '@/lib/ui';
 import { useNotesStore } from '@/stores/notes';
 import { useSessionStore } from '@/stores/session';
 import { EquityCard } from './equity-card';
@@ -60,11 +58,7 @@ export default function DashboardPage() {
 
     return (
         <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
-            <PageHeader kicker="" title={`${greeting()}, ${name}`}>
-                <Link href="/dashboard/trades" className={ctaCls}>
-                    + Log trade
-                </Link>
-            </PageHeader>
+            {/* <PageHeader kicker="" title={`${greeting()}, ${name}`} /> */}
             <StatCards s={stats} />
             <EquityCard />
             <div className="grid grid-cols-[1.9fr_1fr] gap-4 items-start">

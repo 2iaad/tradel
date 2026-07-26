@@ -5,7 +5,6 @@ import { HomeMenu, HomeNav } from './home-chrome';
 import { IntroSection } from './intro-section';
 import { LighthouseSection } from './lighthouse-section';
 import { PartnersSection } from './partners-section';
-import { ProcessEndSection, ProcessSection } from './process-section';
 import { SeoSection } from './seo-section';
 import { CrossDivider } from './support-section';
 
@@ -21,8 +20,6 @@ export default function Home() {
                     <IntroSection />
                     <PartnersSection />
                     <LighthouseSection />
-                    {/* <ProcessSection />
-                    <ProcessEndSection /> */}
                     <CrossDivider />
                     <SeoSection />
                     {'  '}

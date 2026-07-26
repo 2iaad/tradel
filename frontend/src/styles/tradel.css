@@ -76,6 +76,15 @@ body {
   z-index: 4;
 }
 
+/* Single frosted layer under the intro grid cells — one backdrop-filter
+   instead of one per cell; cell borders stay crisp on top. */
+.bg-cover__blur {
+  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: blur(1rem);
+  inset: 0;
+  position: absolute;
+}
+
 .js-ready .process-section {
   visibility: visible;
 }

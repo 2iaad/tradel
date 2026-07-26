@@ -15,8 +15,8 @@ export function Hero() {
                                 tradel
                             </div>
                             <div id="hero-top" className="flex-h a--top j--between">
-                                <h1 className="p-reg h-1 fw--reg">CREATE AI AGENTS IN ONE CONVO</h1>
-                                <p className="p-reg fw--reg">NO SCRIPTING / ONLY DELEGATION</p>
+                                <h1 className="p-reg h-1 fw--reg">JOURNAL EVERY TRADE YOU TAKE</h1>
+                                <p className="p-reg fw--reg">LOG TRADES / SEE THE ANALYTICS</p>
                             </div>
                         </div>
                         <div className="bg">
@@ -34,7 +34,7 @@ export function Hero() {
                         </div>
                         <img
                             id="hero-img"
-                            alt="Tradel AI agent"
+                            alt="Tradel trading journal"
                             className="home-hero__img"
                             fetchPriority="high"
                             loading="eager"
@@ -72,7 +72,7 @@ export function Hero() {
                             className="new-button_label w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80"
                             scramble-text=""
                         >
-                            {' MEET YOUR AGENT '}
+                            {' START YOUR JOURNAL '}
                         </div>
                     </a>
                     <div id="hero-left" className="large-circle">

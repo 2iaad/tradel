@@ -2,17 +2,11 @@ export function IntroSection() {
     return (
         <section className="section is--intro">
             <div className="bg-cover">
-                {[true, true, false, false, false].map((hasBlur, rowIndex) => (
+                <div className="bg-cover__blur" />
+                {Array.from({ length: 5 }, (_, rowIndex) => (
                     <div key={rowIndex} className="grid-row">
                         {Array.from({ length: 39 }, (_, cellIndex) => (
-                            <div
-                                key={cellIndex}
-                                className={
-                                    hasBlur && cellIndex >= 6 && cellIndex < 32
-                                        ? 'grid-item blur'
-                                        : 'grid-item'
-                                }
-                            />
+                            <div key={cellIndex} className="grid-item" />
                         ))}
                     </div>
                 ))}

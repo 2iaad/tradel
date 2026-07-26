@@ -182,6 +182,12 @@ export function Sidebar() {
     return (
         <aside className="sticky top-0 h-screen w-1/8 box-border flex flex-col bg-[#07090b] border-r border-[#1b2226] pt-7 px-4 pb-5">
             <Logo />
+            <Link
+                href="/dashboard/trades"
+                className="mb-4 flex items-center justify-center rounded-lg bg-[#ffdd3a] px-3.5 py-2.5 text-[13px] font-semibold text-[#231a00] transition-[background] hover:bg-[#ffe867]"
+            >
+                + Log trade
+            </Link>
             <NavLinks />
             <div className="mt-auto flex flex-col gap-6">
                 <AccountPicker />

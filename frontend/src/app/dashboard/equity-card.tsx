@@ -37,10 +37,24 @@ const options: ChartOptions<'line'> = {
         },
     },
     scales: {
-        x: { display: false },
+        x: {
+            grid: { display: false, drawTicks: false },
+            ticks: {
+                color: '#5f6b70',
+                font: { family: 'monospace', size: 10 },
+                maxTicksLimit: 7,
+                maxRotation: 0,
+                padding: 14,
+            },
+        },
         y: {
-            ticks: { color: '#5f6b70', font: { family: 'monospace', size: 10 }, callback: (v) => money(Number(v)) },
-            grid: { color: '#161c20' },
+            ticks: {
+                color: '#5f6b70',
+                font: { family: 'monospace', size: 10 },
+                callback: (v) => money(Number(v)),
+                padding: 14,
+            },
+            grid: { color: '#161c20', drawTicks: false },
         },
     },
     elements: { point: { radius: 0, hoverRadius: 4 } },
@@ -82,11 +96,13 @@ export function EquityCard() {
     }, [accounts, activeId]);
 
     const data = useMemo<ChartData<'line'>>(() => {
-        const { pts, lo, hi } = buildSeries(trades, startingBalance, range);
+        const { pts, dates, lo, hi } = buildSeries(trades, startingBalance, range);
         const span = hi - lo;
         const equity = pts.map((p) => lo + p * span);
         return {
-            labels: equity.map((_, i) => i),
+            labels: dates.map((ms) =>
+                new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            ),
             datasets: [
                 {
                     data: equity,
@@ -111,7 +127,7 @@ export function EquityCard() {
                 </div>
                 <RangePicker range={range} onChange={setRange} />
             </div>
-            <div className="h-[340px]">
+            <div className="h-[400px]">
                 <Line options={options} data={data} />
             </div>
         </div>

@@ -1,0 +1,149 @@
+:root {
+  --color--tradel: #3affa3;
+}
+
+html {
+  background: #050505;
+}
+
+body {
+  overflow-x: clip;
+}
+
+.tradel-logo {
+  color: currentColor;
+  display: block;
+  font-family: "PP Mori", Intervariable, Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.095em;
+  line-height: 0.9;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.tradel-logo--nav {
+  font-size: 1.65rem;
+  line-height: 1;
+  transform: scaleX(1.84);
+  transform-origin: left center;
+}
+
+.tradel-logo--hero,
+.tradel-logo--full {
+  font-size: 24vw;
+  line-height: 0.72;
+  padding-right: 0.055em;
+  text-align: center;
+  transform: scaleX(1.78) scaleY(0.92);
+  transform-origin: center top;
+  width: 100%;
+}
+
+.tradel-logo--hero {
+  transform: translateY(2.5rem) scaleX(1.78) scaleY(0.92);
+}
+
+.home-hero__img-source {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.home-hero__brand-mask {
+  background: #060607;
+  height: 3.1%;
+  left: 18.6%;
+  pointer-events: none;
+  position: absolute;
+  top: 29.35%;
+  transform: rotate(-4deg) skewX(-10deg);
+  width: 5.1%;
+  z-index: 3;
+}
+
+.home-hero__brand-mark {
+  color: #fff;
+  font-family: "PP Mori", Intervariable, Arial, sans-serif;
+  font-size: clamp(4px, 0.72em, 11px);
+  font-weight: 600;
+  left: 18.85%;
+  letter-spacing: -0.08em;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  top: 29.7%;
+  transform: rotate(-4deg) skewX(-10deg);
+  z-index: 4;
+}
+
+.js-ready .process-section {
+  visibility: visible;
+}
+
+.process-section canvas,
+.support-visual canvas {
+  display: block;
+}
+
+.menu-w[aria-hidden="true"] {
+  visibility: hidden;
+}
+
+.menu-w[aria-hidden="false"] {
+  visibility: visible;
+}
+
+.new-button[href="#"],
+.button[href="#"],
+.menu-button[href="#"] {
+  cursor: default;
+}
+
+@media (max-width: 991px) {
+  .tradel-logo--hero,
+  .tradel-logo--full {
+    font-size: 22vw;
+    transform: scaleX(1.885) scaleY(1.02);
+  }
+
+  .tradel-logo--hero {
+    transform: translateY(1.1rem) scaleX(1.885) scaleY(1.02);
+  }
+}
+
+@media (max-width: 767px) {
+  .tradel-logo--nav {
+    font-size: 1rem;
+    transform: scaleX(2.05);
+  }
+
+  .tradel-logo--hero,
+  .tradel-logo--full {
+    font-size: 21vw;
+    letter-spacing: -0.075em;
+    transform: scaleX(1.865) scaleY(1.06);
+  }
+
+  .tradel-logo--hero {
+    transform: translateY(0.6rem) scaleX(1.865) scaleY(1.06);
+  }
+
+  .home-hero__brand-mark {
+    font-size: clamp(3px, 0.8vw, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}

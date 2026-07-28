@@ -7,6 +7,9 @@ import { useAccountStore } from '@/stores/accounts';
 import type { Account } from '@/stores/accounts';
 import { PageHeader } from '../page-header';
 import { AccountModal, DeleteAccountModal } from '../account-modal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 // One account row: name/broker/currency + edit / delete actions.
 function AccountRow({
@@ -23,39 +26,43 @@ function AccountRow({
     const iconCls =
         'bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none transition-colors';
     return (
-        <div className="flex items-center justify-between gap-4 px-5 py-4 border-t border-[#161c20] first:border-t-0">
+        <div className="flex items-center justify-between gap-4 px-5 py-4 border-t border-border-faint first:border-t-0">
             <div className="flex flex-col gap-1 min-w-0">
                 <span className="flex items-center gap-2">
-                    <span className="text-[14.5px] font-medium text-[#e9eef0] truncate">
+                    <span className="text-[14.5px] font-medium text-content truncate">
                         {account.name}
                     </span>
                     {active && (
-                        <span className="font-mono text-[9px] font-medium tracking-[0.12em] text-[#ffdd3a] border border-[#ffdd3a44] rounded px-1.5 py-0.5">
+                        <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-[9px] font-medium tracking-[0.12em] text-primary">
                             ACTIVE
-                        </span>
+                        </Badge>
                     )}
                 </span>
-                <span className="font-mono text-[11px] text-[#5f6b70]">
+                <span className="font-mono text-[11px] text-content-faint">
                     {account.broker || 'No broker'} · {account.currency}
                 </span>
             </div>
             <span className="flex items-center gap-3">
-                <button
+                <Button
                     type="button"
                     onClick={onEdit}
                     title="Edit account"
-                    className={`${iconCls} text-[#5f6b70] hover:text-[#ffdd3a]`}
+                    variant="ghost"
+                    size="icon-sm"
+                    className={`${iconCls} text-content-faint hover:bg-transparent hover:text-primary`}
                 >
                     ✎
-                </button>
-                <button
+                </Button>
+                <Button
                     type="button"
                     onClick={onDelete}
                     title="Delete account"
-                    className={`${iconCls} text-[#5f6b70] hover:text-[#f0554e]`}
+                    variant="ghost"
+                    size="icon-sm"
+                    className={`${iconCls} text-content-faint hover:bg-transparent hover:text-loss`}
                 >
                     ✕
-                </button>
+                </Button>
             </span>
         </div>
     );
@@ -74,33 +81,33 @@ export default function SettingsPage() {
     return (
         <div className="w-full max-w-[820px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="SETTINGS" title="Accounts">
-                <button
+                <Button
                     type="button"
                     onClick={() => setEditing('new')}
-                    className={`${ctaCls} whitespace-nowrap`}
+                    className={`${ctaCls} h-auto whitespace-nowrap`}
                 >
                     + Add account
-                </button>
+                </Button>
             </PageHeader>
 
             {loading ? (
-                <p className="font-mono text-[12px] tracking-[0.14em] text-[#5f6b70] px-1">
+                <p className="font-mono text-[12px] tracking-[0.14em] text-content-faint px-1">
                     LOADING ACCOUNTS…
                 </p>
             ) : accounts.length === 0 ? (
-                <div className={`${cardCls} flex flex-col items-center gap-4 py-16 px-6`}>
-                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-[#5f6b70]">
+                <Card className={`${cardCls} flex flex-col items-center gap-4 py-16 px-6`}>
+                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-content-faint">
                         NO ACCOUNTS YET
                     </span>
-                    <p className="m-0 text-[13px] text-[#8a9995] text-center max-w-[360px]">
+                    <p className="m-0 text-[13px] text-content-dim text-center max-w-[360px]">
                         Create your first trading account to start logging trades and notes.
                     </p>
-                    <button type="button" onClick={() => setEditing('new')} className={ctaCls}>
+                    <Button type="button" onClick={() => setEditing('new')} className={`${ctaCls} h-auto`}>
                         Create your first account
-                    </button>
-                </div>
+                    </Button>
+                </Card>
             ) : (
-                <div className={`${cardCls} overflow-hidden`}>
+                <Card className={`${cardCls} overflow-hidden`}>
                     {accounts.map((a) => (
                         <AccountRow
                             key={a.id}
@@ -110,7 +117,7 @@ export default function SettingsPage() {
                             onDelete={() => setDeleting(a)}
                         />
                     ))}
-                </div>
+                </Card>
             )}
 
             {editing && (

@@ -11,12 +11,14 @@ import {
 } from "chart.js";
 
 import { signedMoney } from "@/lib/format";
-import { cardCls, G, R } from "@/lib/ui";
+import { canvasColors, cardCls, G, monoFontStack, R } from "@/lib/ui";
 import { useAccountStore } from "@/stores/accounts";
 import { useTradesStore } from "@/stores/trades";
 import { toTradeLogRow } from "./trades/use-trade-log";
 import type { TradeLogRow } from "./trades/use-trade-log";
 import { WinRateDonut } from "./win-rate-donut";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
@@ -96,7 +98,7 @@ export function computeTradeStats(rows: TradeLogRow[], startingBalance: number) 
     const chron = [...closed].sort((a, b) => a.ts - b.ts);
     const rChron = chron.filter((t) => t.rv !== null).slice(-20);
     const rBarColors = rChron.map((t) =>
-        (t.pnlv ?? 0) > 0 ? G : (t.pnlv ?? 0) < 0 ? R : "#5f6b70",
+        (t.pnlv ?? 0) > 0 ? G : (t.pnlv ?? 0) < 0 ? R : canvasColors.faint,
     );
     const topTrades = [...closed].sort((a, b) => (b.pnlv ?? 0) - (a.pnlv ?? 0)).slice(0, 5);
 
@@ -166,30 +168,31 @@ function StatCard({
     children: React.ReactNode;
 }) {
     return (
-        <div className={`${cardCls} px-8 py-8 flex flex-col gap-2`}>
+        <Card className={`${cardCls} px-8 py-8 flex flex-col gap-2`}>
             <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
+                <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-content-faint">
                     {label}
                 </span>
                 {/* Always rendered so cards without a chip keep the same header height. */}
-                <span
-                    className={`inline-flex px-2 py-2 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-[#78878a] border border-[#222a2f] ${chip ? "" : "invisible"}`}
+                <Badge
+                    variant="outline"
+                    className={`h-auto rounded px-2 py-2 font-mono text-[9.5px] font-medium tracking-[0.06em] text-muted-foreground ${chip ? "" : "invisible"}`}
                 >
                     {chip ?? "—"}
-                </span>
+                </Badge>
             </div>
             <span
                 className="text-[26px] leading-none font-semibold"
-                style={{ color: valueColor ?? "#eef4f2" }}
+                style={{ color: valueColor ?? "var(--card-foreground)" }}
             >
                 {value}
             </span>
             <div className="flex flex-col gap-0.5 text-[12px]">{children}</div>
-        </div>
+        </Card>
     );
 }
 
-const subCls = "text-[#5f6b70]";
+const subCls = "text-content-faint";
 
 // Tiny axis-less bar chart for the stat cards: green above zero, red below.
 function MiniBars({
@@ -216,7 +219,7 @@ function MiniBars({
                         {
                             data: values,
                             backgroundColor:
-                                colors ?? values.map((v) => (v > 0 ? G : v < 0 ? R : "#5f6b70")),
+                                colors ?? values.map((v) => (v > 0 ? G : v < 0 ? R : canvasColors.faint)),
                             borderRadius: 2,
                         },
                     ],
@@ -238,8 +241,8 @@ function MiniBars({
                             ? {
                                   grid: { display: false, drawTicks: false },
                                   ticks: {
-                                      color: "#5f6b70",
-                                      font: { family: "monospace", size: 9 },
+                                      color: canvasColors.faint,
+                                      font: { family: monoFontStack, size: 9 },
                                       padding: 8,
                                   },
                               }
@@ -264,7 +267,7 @@ export function StatCards({ s }: { s: TradeStats }) {
     return (
         <div className="grid grid-cols-4 gap-4">
             <StatCard label="TOTAL P&L" chip={s.ret} value={s.net} valueColor={netCol}>
-                <span style={{ color: netCol ?? "#5f6b70" }}>Avg {s.avgTrade} per trade</span>
+                <span style={{ color: netCol ?? "var(--content-faint)" }}>Avg {s.avgTrade} per trade</span>
                 <span className={subCls}>{s.count} trades recorded</span>
                 {s.count > 0 && (
                     <MiniBars values={s.dayBars} labels={s.dayLabels} unit="money" showX />

@@ -2,8 +2,10 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import type { CSSProperties } from 'react';
 
 import { Tape, TOP_TICKS } from '@/components/tape';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { Sidebar } from './sidebar';
@@ -27,16 +29,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [status, router]);
 
     return (
-        <div className="flex min-h-screen bg-[#050505]">
+        <SidebarProvider
+            className="min-h-screen bg-background"
+            style={{ '--sidebar-width': '14.5rem' } as CSSProperties}
+        >
             <Sidebar />
-            <main className="flex-1 min-w-0 flex flex-col">
+            <SidebarInset className="min-w-0 bg-background">
                 <Tape
                     items={TOP_TICKS}
                     duration="46s"
-                    className="h-10 border-b border-[#1b2226] flex-none"
+                    className="h-10 border-b border-border-subtle flex-none"
                 />
                 {status === 'user' && children}
-            </main>
-        </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }

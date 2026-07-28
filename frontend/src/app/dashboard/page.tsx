@@ -8,6 +8,8 @@ import { PageHeader } from './page-header';
 import { StatCards, useTradeStats } from './trade-stats';
 import { TradesTable } from './trades-table';
 import { useDashboardData } from './use-dashboard-data';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 // Time-of-day greeting for the signed-in header.
 function greeting() {
@@ -21,32 +23,32 @@ function NotesList() {
     const loading = useNotesStore((s) => s.loading);
 
     return (
-        <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3`}>
+        <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-3`}>
             <div className="flex items-center justify-between">
                 <h2 className={h2Cls}>Notes</h2>
-                <button type="button" className={ghostBtnCls}>
+                <Button type="button" variant="ghost" size="sm" className={`${ghostBtnCls} h-auto px-0 hover:bg-transparent`}>
                     + NEW
-                </button>
+                </Button>
             </div>
             {notes.length === 0 ? (
-                <p className="font-mono text-[11px] tracking-[0.12em] text-[#5f6b70] py-2">
+                <p className="font-mono text-[11px] tracking-[0.12em] text-content-faint py-2">
                     {loading ? 'LOADING…' : 'NO NOTES YET'}
                 </p>
             ) : (
                 <ul className="flex flex-col gap-2">
                     {notes.map((n) => (
                         <li key={n.id} className="flex flex-col gap-0.5">
-                            <span className="text-[13px] font-medium text-[#e9eef0] truncate">
+                            <span className="text-[13px] font-medium text-content truncate">
                                 {n.title}
                             </span>
-                            <span className="text-[12px] text-[#7e8d89] line-clamp-2">
+                            <span className="text-[12px] text-content-soft line-clamp-2">
                                 {n.body}
                             </span>
                         </li>
                     ))}
                 </ul>
             )}
-        </div>
+        </Card>
     );
 }
 

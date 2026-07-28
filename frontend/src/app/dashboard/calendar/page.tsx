@@ -7,6 +7,8 @@ import { cardCls, G, R } from '@/lib/ui';
 import { useCalendarStore } from '@/stores/calendar';
 import type { CalendarDay } from '@/stores/calendar';
 import { PageHeader } from '../page-header';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
@@ -49,10 +51,10 @@ function DayCell({ day }: { day: CalendarDay | null }) {
     const tint = !active ? undefined : pos ? 'rgba(47,213,127,0.12)' : 'rgba(240,85,78,0.12)';
     return (
         <div
-            className="aspect-square rounded-lg border border-[#1b2226] p-2 flex flex-col justify-between"
+            className="aspect-square rounded-lg border border-border-subtle p-2 flex flex-col justify-between"
             style={{ background: tint }}
         >
-            <span className="font-mono text-[14px] text-[#5f6b70]">{dayNum}</span>
+            <span className="font-mono text-[14px] text-content-faint">{dayNum}</span>
             {active && (
                 <span className="flex flex-col gap-0.5">
                     <span
@@ -61,7 +63,7 @@ function DayCell({ day }: { day: CalendarDay | null }) {
                     >
                         {signedMoney(day.pnl)}
                     </span>
-                    <span className="font-mono text-[9.5px] text-[#5f6b70]">
+                    <span className="font-mono text-[9.5px] text-content-faint">
                         {day.trades} {day.trades === 1 ? 'TRADE' : 'TRADES'}
                     </span>
                 </span>
@@ -72,19 +74,17 @@ function DayCell({ day }: { day: CalendarDay | null }) {
 
 // Prev/next month buttons + current month label.
 function MonthNav({ month, onShift }: { month: string; onShift: (n: number) => void }) {
-    const btn =
-        'rounded-lg px-3 py-1.5 bg-[#0a0d0f] border border-[#1b2226] font-mono text-[13px] text-[#c8d2d0] cursor-pointer hover:border-[#2b353b]';
     return (
         <div className="flex items-center gap-3">
-            <button type="button" onClick={() => onShift(-1)} className={btn}>
+            <Button type="button" variant="outline" size="icon-sm" onClick={() => onShift(-1)} className="border-border-subtle bg-muted font-mono text-[13px] text-secondary-foreground hover:bg-accent hover:text-card-foreground">
                 ‹
-            </button>
-            <span className="min-w-[140px] text-center text-[14px] font-medium text-[#eef4f2]">
+            </Button>
+            <span className="min-w-[140px] text-center text-[14px] font-medium text-card-foreground">
                 {monthLabel(month)}
             </span>
-            <button type="button" onClick={() => onShift(1)} className={btn}>
+            <Button type="button" variant="outline" size="icon-sm" onClick={() => onShift(1)} className="border-border-subtle bg-muted font-mono text-[13px] text-secondary-foreground hover:bg-accent hover:text-card-foreground">
                 ›
-            </button>
+            </Button>
         </div>
     );
 }
@@ -109,12 +109,12 @@ export default function CalendarPage() {
             <PageHeader kicker="" title="Daily P&L">
                 <MonthNav month={month} onShift={(n) => load(shiftMonth(month, n))} />
             </PageHeader>
-            <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-4`}>
+            <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-4`}>
                 <div className="grid grid-cols-7 gap-2">
                     {WEEKDAYS.map((w) => (
                         <span
                             key={w}
-                            className="text-center font-mono text-[12px] font-medium tracking-[0.12em] text-[#5f6b70]"
+                            className="text-center font-mono text-[12px] font-medium tracking-[0.12em] text-content-faint"
                         >
                             {w}
                         </span>
@@ -125,15 +125,15 @@ export default function CalendarPage() {
                         <DayCell key={c ? c.date : `pad-${i}`} day={c} />
                     ))}
                 </div>
-                <div className="flex justify-end border-t border-[#161c20] pt-3">
-                    <span className="font-mono text-[12px] text-[#5f6b70]">
+                <div className="flex justify-end border-t border-border-faint pt-3">
+                    <span className="font-mono text-[12px] text-content-faint">
                         MONTH NET&nbsp;
                         <span style={{ color: monthNet >= 0 ? G : R }}>
                             {signedMoney(monthNet)}
                         </span>
                     </span>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

@@ -104,7 +104,7 @@ export function NoteModal({
                     </div>
                     {error && <p className={errorCls}>{error}</p>}
                     <DialogFooter className="mx-0 mt-2 mb-0 rounded-none border-0 bg-transparent p-0">
-                        <Button type="submit" disabled={pending} className="w-full bg-primary text-primary-foreground hover:bg-primary-hover">
+                        <Button type="submit" disabled={pending} className="w-full bg-primary text-black hover:bg-primary-hover">
                             {editing ? 'Save changes' : 'Add note'}
                         </Button>
                     </DialogFooter>

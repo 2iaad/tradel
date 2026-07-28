@@ -38,7 +38,7 @@ function TradeRow({ t }: { t: TradeLogRow }) {
             <SideBadge side={t.side} />
             <span className={numCls}>{t.entry}</span>
             <span className={numCls}>{t.exit ?? "—"}</span>
-            <span className={numCls}>{t.size}</span>
+            <span className={numCls}>{t.lots}</span>
             <span className="font-mono text-[12.5px] font-medium" style={winCol}>
                 {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
             </span>
@@ -60,8 +60,8 @@ function TableHead() {
             <span>SIDE</span>
             <span>ENTRY</span>
             <span>EXIT</span>
-            <span>SIZE</span>
-            <span>R</span>
+            <span>LOTS</span>
+            <span>R:R</span>
             <span className="text-right">P&L</span>
             <span className="text-right">DATE</span>
         </div>

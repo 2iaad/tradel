@@ -1,9 +1,4 @@
-import {
-    Injectable,
-    Logger,
-    OnModuleDestroy,
-    OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
 import { Pool, QueryResult, QueryResultRow } from 'pg';

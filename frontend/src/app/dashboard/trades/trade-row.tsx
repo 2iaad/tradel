@@ -50,7 +50,7 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
         <>
             <span className={numCls}>{t.entry}</span>
             <span className={numCls}>{t.exit ?? "—"}</span>
-            <span className={numCls}>{t.size}</span>
+            <span className={numCls}>{t.lots}</span>
             <span className="font-mono text-[12.5px] font-semibold" style={winCol}>
                 {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
             </span>

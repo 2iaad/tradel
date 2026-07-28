@@ -23,5 +23,5 @@ export class CreateTradeDto {
     exit?: number;
 
     @IsNumber()
-    size!: number;
+    lots!: number;
 }

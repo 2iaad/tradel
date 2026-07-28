@@ -25,9 +25,9 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
         side: f.get("side") as "LONG" | "SHORT",
         entry: num("entry"),
         exit: num("exit"),
-        size: num("size"),
-        // R has no column on create (CreateTradeDto) — edit only.
-        r: prev ? num("r") : undefined,
+        lots: num("lots"),
+        // R:R has no column on create (CreateTradeDto) — edit only.
+        rReward: prev ? num("rReward") : undefined,
     };
 }
 
@@ -44,12 +44,12 @@ function FormCells({ t }: { t: TradeLogRow | null }) {
             </select>
             <input name="entry" type="number" step="any" defaultValue={t?.entry} required placeholder="entry" className={inCls} />
             <input name="exit" type="number" step="any" defaultValue={t?.exit ?? ""} placeholder="—" className={inCls} />
-            <input name="size" type="number" step="any" defaultValue={t?.size} required placeholder="lots" className={inCls} />
+            <input name="lots" type="number" step="any" defaultValue={t?.lots} required placeholder="lots" className={inCls} />
             <span className={dashCls}>
                 {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
             </span>
             {t ? (
-                <input name="r" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
+                <input name="rReward" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
             ) : (
                 <span className={dashCls}>—</span>
             )}

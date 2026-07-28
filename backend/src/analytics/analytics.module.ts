@@ -9,10 +9,8 @@ import { AnalyticsController } from './analytics.controller';
 import { AnalyticsRepository } from './analytics.repository';
 
 @Module({
-    // JwtModule so JwtGuard can inject JwtService here (same config as AuthModule).
-    // AccountsModule exports AccountsRepository for the ownership check.
     imports: [
-        AccountsModule,
+        AccountsModule, // to inject AccountsRepository
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService<Env>) => ({

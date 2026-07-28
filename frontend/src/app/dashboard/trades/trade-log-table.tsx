@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react";
 
-import { cardCls, kickerCls } from "@/lib/ui";
+import { cardCls } from "@/lib/ui";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useNotesStore } from "@/stores/notes";
 import type { TradePayload } from "@/stores/trades";
 import { NoteModal } from "../journal/note-modal";
@@ -25,13 +27,15 @@ function emptyLabel(log: Log) {
 function TableHeader() {
     return (
         <div className="flex items-center justify-between px-[22px] pb-3.5">
-            <h2 className="m-0 text-[17px] font-semibold text-[#eef4f2]">All trades</h2>
-            <button
+            <h2 className="m-0 text-ui-lg font-semibold text-card-foreground">All trades</h2>
+            <Button
                 type="button"
-                className="bg-none border border-[#1b2226] rounded-md px-3 py-1.5 font-mono text-[10.5px] font-medium tracking-[0.1em] text-[#78878a] cursor-pointer transition-colors hover:text-[#c8d2d0] hover:border-[#2b353b] whitespace-nowrap"
+                variant="outline"
+                size="sm"
+                className="h-auto border-border-subtle bg-transparent px-3 py-1.5 font-mono text-ui-xs font-medium tracking-[0.1em] text-muted-foreground hover:bg-transparent hover:text-secondary-foreground hover:border-border-hover whitespace-nowrap"
             >
                 EXPORT CSV
-            </button>
+            </Button>
         </div>
     );
 }
@@ -50,13 +54,15 @@ function SortHead({
 }) {
     const on = log.sortCol === col;
     return (
-        <button
+        <Button
             type="button"
             onClick={() => log.sortBy(col)}
-            className={`bg-none border-none p-0 font-mono text-[10px] font-medium tracking-[0.12em] cursor-pointer hover:text-[#c8d2d0] ${align === "right" ? "text-right" : "text-left"} ${on ? "text-[#c8d2d0]" : "text-[#5f6b70]"}`}
+            variant="ghost"
+            size="xs"
+            className={`h-auto p-0 font-mono text-ui-xs font-medium tracking-[0.12em] hover:bg-transparent hover:text-secondary-foreground ${align === "right" ? "text-right" : "text-left"} ${on ? "text-secondary-foreground" : "text-content-faint"}`}
         >
             {label} {on ? (log.dir === "desc" ? "▼" : "▲") : ""}
-        </button>
+        </Button>
     );
 }
 
@@ -64,7 +70,7 @@ function SortHead({
 function TradeLogHead({ log }: { log: Log }) {
     return (
         <div
-            className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-[#161c20] font-mono text-[10px] font-medium tracking-[0.12em] text-[#5f6b70]`}
+            className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-border-faint font-mono text-ui-xs font-medium tracking-[0.12em] text-content-faint`}
         >
             <SortHead col="date" label="DATE" align="left" log={log} />
             <span>SYMBOL</span>
@@ -94,31 +100,34 @@ function TradeAddRow({
 }) {
     if (active) return <TradeRowForm t={null} onSave={onSave} onCancel={onCancel} />;
     return (
-        <button
+        <Button
             type="button"
             onClick={onActivate}
-            className="w-full h-18 box-border bg-[#090d0e] border-0 border-t border-solid border-[#161c20] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-[#ffdd3a] cursor-pointer transition-colors hover:bg-[#10161a]"
+            variant="ghost"
+            className="h-18 w-full box-border rounded-none border-0 border-t border-solid border-border-faint bg-[#090d0e] py-3 font-mono text-ui-xs font-medium tracking-[0.14em] text-primary hover:bg-accent"
         >
             + ADD TRADE
-        </button>
+        </Button>
     );
 }
 
 // Shown when the table body has no rows; clear-filters only when they hide trades.
 function EmptyState({ label, onClear }: { label: string; onClear?: () => void }) {
     return (
-        <div className="flex flex-col items-center gap-3 py-14 px-[22px] border-t border-[#161c20]">
-            <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-[#5f6b70]">
+        <div className="flex flex-col items-center gap-3 py-14 px-[22px] border-t border-border-faint">
+            <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
                 {label}
             </span>
             {onClear && (
-                <button
+                <Button
                     type="button"
                     onClick={onClear}
-                    className="bg-none border border-[#1b2226] rounded-lg px-4 py-2 font-mono text-[11px] font-medium tracking-[0.1em] text-[#ffdd3a] cursor-pointer transition-colors hover:border-[#ffdd3a44]"
+                    variant="outline"
+                    size="sm"
+                    className="h-auto border-border-subtle bg-transparent px-4 py-2 font-mono text-ui-xs font-medium tracking-[0.1em] text-primary hover:bg-transparent hover:border-primary/25"
                 >
                     CLEAR FILTERS
-                </button>
+                </Button>
             )}
         </div>
     );
@@ -171,7 +180,7 @@ function Rows({
 // Footer with the visible/total counts.
 function TableFooter({ summary }: { summary: Log["summary"] }) {
     return (
-        <div className="flex items-center justify-between px-[22px] py-3 border-t border-[#161c20] bg-[#0c1012] font-mono text-[10.5px] font-medium tracking-[0.1em] text-[#5f6b70]">
+        <div className="flex items-center justify-between px-[22px] py-3 border-t border-border-faint bg-[#0c1012] font-mono text-ui-xs font-medium tracking-[0.1em] text-content-faint">
             <span>
                 SHOWING {summary.count} OF {summary.total} TRADES
             </span>
@@ -181,7 +190,7 @@ function TableFooter({ summary }: { summary: Log["summary"] }) {
 }
 
 const confirmBtn =
-    "flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors";
+    "h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-ui-xs font-semibold tracking-[0.1em] cursor-pointer transition-colors";
 
 // Confirmation card shown before a trade is deleted.
 function ConfirmDeleteModal({
@@ -198,27 +207,29 @@ function ConfirmDeleteModal({
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-[#0e1214] border border-[#222a2f] rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
+                className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-card border border-border rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
             >
-                <h2 className="m-0 text-xl font-semibold text-[#eef4f2]">Delete this trade?</h2>
-                <p className="m-0 text-[13px] text-[#8a9995]">
+                <h2 className="m-0 text-xl font-semibold text-card-foreground">Delete this trade?</h2>
+                <p className="m-0 text-ui-sm text-content-dim">
                     The trade is removed from your journal. This can&apos;t be undone.
                 </p>
                 <div className="flex gap-2.5 mt-1">
-                    <button
+                    <Button
                         type="button"
                         onClick={onCancel}
-                        className={`${confirmBtn} bg-transparent border border-[#222a2f] text-[#78878a] hover:text-[#c8d2d0] hover:border-[#2b353b]`}
+                        variant="outline"
+                        className={`${confirmBtn} border-border bg-transparent text-muted-foreground hover:bg-transparent hover:text-secondary-foreground hover:border-border-hover`}
                     >
                         CANCEL
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
                         onClick={onConfirm}
-                        className={`${confirmBtn} border-none bg-[#f0554e] text-[#140404] hover:bg-[#ff6f68]`}
+                        variant="destructive"
+                        className={`${confirmBtn} bg-loss text-loss-foreground hover:bg-loss-hover`}
                     >
                         DELETE
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -236,7 +247,7 @@ export function TradeLogTable({ log, dense }: TableProps) {
     const [addNoteFor, setAddNoteFor] = useState<string | null>(null);
 
     return (
-        <div className={`${cardCls} pt-5 flex flex-col overflow-hidden`}>
+        <Card className={`${cardCls} pt-5 flex flex-col overflow-hidden`}>
             <TableHeader />
             <div className="overflow-x-auto">
                 <Rows
@@ -259,6 +270,6 @@ export function TradeLogTable({ log, dense }: TableProps) {
             {addNoteFor && (
                 <NoteModal note={null} tradeId={addNoteFor} onClose={() => setAddNoteFor(null)} />
             )}
-        </div>
+        </Card>
     );
 }

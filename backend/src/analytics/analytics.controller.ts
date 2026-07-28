@@ -16,11 +16,7 @@ export class AnalyticsController {
 
     // GET .../analytics/breakdown?by=symbol|side — grouped P&L.
     @Get('breakdown')
-    breakdown(
-        @Param('accountId') accountId: string,
-        @Query('by') by: string,
-        @Req() req: Request,
-    ) {
+    breakdown(@Param('accountId') accountId: string, @Query('by') by: string, @Req() req: Request) {
         return this.analytics.breakdown(accountId, req.user.sub, by);
     }
 

@@ -2,9 +2,27 @@
 
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
-import { btnCls, errorCls, inputCls, kickerCls, labelCls } from '@/lib/ui';
+import { errorCls, inputCls, labelCls } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import type { Account, AccountPayload } from '@/stores/accounts';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP'] as const;
 
@@ -41,32 +59,20 @@ export function AccountModal({
     }, onClose);
 
     return (
-        <div
-            onClick={onClose}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,6,8,0.7)] backdrop-blur-[6px] animate-[tradelFadeIn_0.25s_ease]"
-        >
-            <div
-                onClick={(e) => e.stopPropagation()}
-                className="w-[400px] max-w-[calc(100vw-48px)] box-border bg-[#0e1214] border border-[#222a2f] rounded-xl px-[30px] py-7 flex flex-col gap-[18px] animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
-            >
-                <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-col gap-2.5">
-                        <h2 className="m-0 text-2xl font-semibold tracking-[-0.01em] text-[#eef4f2]">
-                            {editing ? 'Edit account' : 'Add an account'}
-                        </h2>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="bg-transparent border-none p-0.5 text-[#5f6b70] text-lg leading-none cursor-pointer hover:text-[#eef4f2]"
-                    >
-                        ×
-                    </button>
-                </div>
+        <Dialog open onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-[400px] border-border bg-card p-7 text-card-foreground">
+                <DialogHeader>
+                    <DialogTitle className="text-2xl font-semibold tracking-[-0.01em] text-card-foreground">
+                        {editing ? 'Edit account' : 'Add an account'}
+                    </DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                        Keep your trading account details in one place.
+                    </DialogDescription>
+                </DialogHeader>
                 <form onSubmit={onSubmit} className="flex flex-col gap-4">
                     <div>
-                        <label className={labelCls}>Name</label>
-                        <input
+                        <Label className={labelCls}>Name</Label>
+                        <Input
                             name="name"
                             defaultValue={account?.name}
                             required
@@ -76,8 +82,8 @@ export function AccountModal({
                         />
                     </div>
                     <div>
-                        <label className={labelCls}>Broker (optional)</label>
-                        <input
+                        <Label className={labelCls}>Broker (optional)</Label>
+                        <Input
                             name="broker"
                             defaultValue={account?.broker ?? ''}
                             maxLength={60}
@@ -86,20 +92,24 @@ export function AccountModal({
                         />
                     </div>
                     <div>
-                        <label className={labelCls}>Currency</label>
-                        <select
+                        <Label className={labelCls}>Currency</Label>
+                        <Select
                             name="currency"
                             defaultValue={account?.currency ?? 'USD'}
-                            className={`${inputCls} [color-scheme:dark]`}
                         >
-                            {CURRENCIES.map((c) => (
-                                <option key={c}>{c}</option>
-                            ))}
-                        </select>
+                            <SelectTrigger className={`${inputCls} h-auto [color-scheme:dark]`}>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {CURRENCIES.map((c) => (
+                                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div>
-                        <label className={labelCls}>Starting balance</label>
-                        <input
+                        <Label className={labelCls}>Starting balance</Label>
+                        <Input
                             name="startingBalance"
                             type="number"
                             min={0}
@@ -111,12 +121,14 @@ export function AccountModal({
                         />
                     </div>
                     {error && <p className={errorCls}>{error}</p>}
-                    <button type="submit" disabled={pending} className={btnCls}>
-                        {editing ? 'Save changes' : 'Create account'}
-                    </button>
+                    <DialogFooter className="mx-0 mt-2 mb-0 rounded-none border-0 bg-transparent p-0">
+                        <Button type="submit" disabled={pending} className="w-full bg-primary text-primary-foreground hover:bg-primary-hover">
+                            {editing ? 'Save changes' : 'Create account'}
+                        </Button>
+                    </DialogFooter>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -137,43 +149,27 @@ export function DeleteAccountModal({
         }
     }, onClose);
 
-    const btn =
-        'flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors';
-
     return (
-        <div
-            onClick={onClose}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,6,8,0.7)] backdrop-blur-[6px] animate-[tradelFadeIn_0.25s_ease]"
-        >
-            <form
-                onSubmit={onSubmit}
-                onClick={(e) => e.stopPropagation()}
-                className="w-[380px] max-w-[calc(100vw-48px)] box-border bg-[#0e1214] border border-[#222a2f] rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
-            >
-                <h2 className="m-0 text-xl font-semibold text-[#eef4f2]">
-                    Delete “{account.name}”?
-                </h2>
-                <p className="m-0 text-[13px] text-[#8a9995]">
-                    Every trade and note in this account is removed too. This can&apos;t be undone.
-                </p>
+        <Dialog open onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-[380px] border-border bg-card p-7 text-card-foreground">
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-semibold text-card-foreground">
+                        Delete “{account.name}”?
+                    </DialogTitle>
+                    <DialogDescription className="text-ui-sm text-content-dim">
+                        Every trade and note in this account is removed too. This can&apos;t be undone.
+                    </DialogDescription>
+                </DialogHeader>
                 {error && <p className={errorCls}>{error}</p>}
-                <div className="flex gap-2.5 mt-1">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className={`${btn} bg-transparent border border-[#222a2f] text-[#78878a] hover:text-[#c8d2d0] hover:border-[#2b353b]`}
-                    >
+                <form onSubmit={onSubmit} className="flex gap-2.5 pt-1">
+                    <Button type="button" variant="outline" onClick={onClose} className="flex-1 border-border text-muted-foreground hover:border-border-hover hover:bg-transparent hover:text-secondary-foreground">
                         CANCEL
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={pending}
-                        className={`${btn} border-none bg-[#f0554e] text-[#140404] hover:bg-[#ff6f68] disabled:opacity-50`}
-                    >
+                    </Button>
+                    <Button type="submit" disabled={pending} variant="destructive" className="flex-1 bg-loss text-loss-foreground hover:bg-loss-hover">
                         DELETE
-                    </button>
-                </div>
-            </form>
-        </div>
+                    </Button>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 }

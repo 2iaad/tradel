@@ -19,6 +19,12 @@ export interface Series {
     dates: number[];
     lo: number;
     hi: number;
+    startEquity: number;
+    /** P&L for each segment after the seed point, used for win/loss colors. */
+    tradePnls: number[];
+    bestDay: number | null;
+    worstDay: number | null;
+    avgDay: number | null;
 }
 
 // Window start (ms) for a range key, relative to now. ALL → 0 (everything).
@@ -54,10 +60,16 @@ export function buildSeries(
         running += parseFloat(closed[i].pnl!);
 
     const equity = [running]; // seed at pre-window running equity
+    const tradePnls: number[] = [];
+    const dailyPnls = new Map<string, number>();
     // Seed date: window start, or the first in-window trade (ALL has start 0).
     const dates = [start > 0 ? start : (closed[i] ? closedTime(closed[i]) : Date.now())];
     for (; i < closed.length; i++) {
-        running += parseFloat(closed[i].pnl!);
+        const pnl = parseFloat(closed[i].pnl!);
+        running += pnl;
+        tradePnls.push(pnl);
+        const day = new Date(closedTime(closed[i])).toDateString();
+        dailyPnls.set(day, (dailyPnls.get(day) ?? 0) + pnl);
         equity.push(running);
         dates.push(closedTime(closed[i]));
     }
@@ -78,5 +90,16 @@ export function buildSeries(
     }
     const span = hi - lo;
     const pts = equity.map((v) => (v - lo) / span);
-    return { pts, dates, lo, hi };
+    const dayValues = [...dailyPnls.values()];
+    return {
+        pts,
+        dates,
+        lo,
+        hi,
+        startEquity: equity[0],
+        tradePnls,
+        bestDay: dayValues.length ? Math.max(...dayValues) : null,
+        worstDay: dayValues.length ? Math.min(...dayValues) : null,
+        avgDay: dayValues.length ? dayValues.reduce((sum, value) => sum + value, 0) / dayValues.length : null,
+    };
 }

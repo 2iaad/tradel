@@ -12,12 +12,16 @@ import {
     Tooltip,
     type ChartData,
     type ChartOptions,
+    type Plugin,
+    type ScriptableLineSegmentContext,
 } from 'chart.js';
 
-import { A, cardCls, h2Cls } from '@/lib/ui';
+import { canvasColors, G, R, cardCls, h2Cls, monoFontStack } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
 import { RANGES, RangeKey, buildSeries } from './equity-chart.lib';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip);
 
@@ -25,6 +29,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, 
 const Line = dynamic(() => import('react-chartjs-2').then((m) => m.Line), { ssr: false });
 
 const money = (v: number) => '$' + Math.round(v).toLocaleString('en-US');
+const signedDayMoney = (v: number | null) =>
+    v === null ? '—' : `${v >= 0 ? '+' : '-'}$${Math.round(Math.abs(v)).toLocaleString('en-US')}`;
 
 const options: ChartOptions<'line'> = {
     responsive: true,
@@ -40,8 +46,8 @@ const options: ChartOptions<'line'> = {
         x: {
             grid: { display: false, drawTicks: false },
             ticks: {
-                color: '#5f6b70',
-                font: { family: 'monospace', size: 10 },
+                color: canvasColors.faint,
+                font: { family: monoFontStack, size: 10 },
                 maxTicksLimit: 7,
                 maxRotation: 0,
                 padding: 14,
@@ -49,12 +55,12 @@ const options: ChartOptions<'line'> = {
         },
         y: {
             ticks: {
-                color: '#5f6b70',
-                font: { family: 'monospace', size: 10 },
+                color: canvasColors.faint,
+                font: { family: monoFontStack, size: 10 },
                 callback: (v) => money(Number(v)),
                 padding: 14,
             },
-            grid: { color: '#161c20', drawTicks: false },
+            grid: { color: canvasColors.borderFaint, drawTicks: false },
         },
     },
     elements: { point: { radius: 0, hoverRadius: 4 } },
@@ -63,20 +69,22 @@ const options: ChartOptions<'line'> = {
 // Same 30D/90D/YTD/ALL toggle as the canvas card, minus the reveal wiring.
 function RangePicker({ range, onChange }: { range: RangeKey; onChange: (k: RangeKey) => void }) {
     return (
-        <div className="flex gap-1 bg-[#0a0d0f] border border-[#1b2226] rounded-lg p-[3px]">
+        <div className="flex gap-1 bg-muted border border-border-subtle rounded-lg p-[3px]">
             {(Object.keys(RANGES) as RangeKey[]).map((key) => (
-                <button
+                <Button
                     key={key}
                     type="button"
                     onClick={() => onChange(key)}
-                    className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${
+                    variant={key === range ? 'default' : 'ghost'}
+                    size="sm"
+                    className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs font-semibold tracking-[0.08em] ${
                         key === range
-                            ? 'bg-[#ffdd3a] text-[#231a00]'
-                            : 'bg-transparent text-[#5f6b70]'
+                            ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                            : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'
                     }`}
                 >
                     {key}
-                </button>
+                </Button>
             ))}
         </div>
     );
@@ -95,41 +103,136 @@ export function EquityCard() {
         return acc ? parseFloat(acc.starting_balance) : 0;
     }, [accounts, activeId]);
 
+    const series = useMemo(
+        () => buildSeries(trades, startingBalance, range),
+        [trades, startingBalance, range],
+    );
+    const equityFillPlugin = useMemo<Plugin<'line'>>(
+        () => ({
+            id: 'equityFill',
+            beforeDatasetsDraw(chart) {
+                const meta = chart.getDatasetMeta(0);
+                const points = meta.data as Array<
+                    PointElement & { cp1x?: number; cp1y?: number; cp2x?: number; cp2y?: number }
+                >;
+                const baseline = chart.scales.y.getPixelForValue(series.startEquity);
+                chart.ctx.save();
+                for (let i = 1; i < points.length; i++) {
+                    const p0 = points[i - 1];
+                    const p1 = points[i];
+                    const below = p0.y > baseline || p1.y > baseline;
+                    chart.ctx.fillStyle = below ? 'rgba(240,85,78,0.10)' : 'rgba(47,213,127,0.10)';
+                    chart.ctx.beginPath();
+                    chart.ctx.moveTo(p0.x, p0.y);
+                    chart.ctx.bezierCurveTo(
+                        p0.cp2x ?? p0.x,
+                        p0.cp2y ?? p0.y,
+                        p1.cp1x ?? p1.x,
+                        p1.cp1y ?? p1.y,
+                        p1.x,
+                        p1.y,
+                    );
+                    chart.ctx.lineTo(p1.x, baseline);
+                    chart.ctx.lineTo(p0.x, baseline);
+                    chart.ctx.closePath();
+                    chart.ctx.fill();
+                }
+                chart.ctx.restore();
+            },
+        }),
+        [series.startEquity],
+    );
+
     const data = useMemo<ChartData<'line'>>(() => {
-        const { pts, dates, lo, hi } = buildSeries(trades, startingBalance, range);
+        const { pts, dates, lo, hi, startEquity } = series;
         const span = hi - lo;
         const equity = pts.map((p) => lo + p * span);
+        const curveEquity = [equity[0]];
+        const curveDates = [dates[0]];
+        for (let i = 1; i < equity.length; i++) {
+            const previous = equity[i - 1];
+            const current = equity[i];
+            if ((previous < startEquity && current > startEquity) || (previous > startEquity && current < startEquity)) {
+                const fraction = (startEquity - previous) / (current - previous);
+                curveEquity.push(startEquity);
+                curveDates.push(dates[i - 1] + (dates[i] - dates[i - 1]) * fraction);
+            }
+            curveEquity.push(current);
+            curveDates.push(dates[i]);
+        }
         return {
-            labels: dates.map((ms) =>
+            labels: curveDates.map((ms) =>
                 new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             ),
             datasets: [
                 {
-                    data: equity,
-                    borderColor: A,
-                    backgroundColor: 'rgba(255,221,58,0.08)',
+                    data: curveEquity,
+                    borderColor: G,
                     borderWidth: 2,
-                    fill: true,
+                    fill: false,
                     tension: 0.25,
+                    segment: {
+                        borderColor: (ctx: ScriptableLineSegmentContext) => {
+                            const p0 = ctx.p0.parsed.y ?? startEquity;
+                            const p1 = ctx.p1.parsed.y ?? startEquity;
+                            return p0 < startEquity || p1 < startEquity ? R : G;
+                        },
+                    },
                 },
             ],
         };
-    }, [trades, startingBalance, range]);
+    }, [series]);
+
+    const dailyStats = useMemo(() => {
+        const { bestDay, worstDay, avgDay } = series;
+        return { bestDay, worstDay, avgDay };
+    }, [series]);
 
     return (
-        <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
+        <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex flex-col gap-[5px]">
                     <h2 className={h2Cls}>Equity curve</h2>
-                    <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
+                    <span className="font-mono text-ui-xs font-medium tracking-[0.14em] text-content-faint">
                         NET LIQ ($) × TRADES LOGGED
                     </span>
                 </div>
                 <RangePicker range={range} onChange={setRange} />
             </div>
-            <div className="h-[400px]">
-                <Line options={options} data={data} />
+            <div className="flex flex-col gap-4 pt-1 pb-1">
+                <h3 className="m-0 text-ui-lg font-medium text-[#a59f96]">
+                    Profit and loss for each trading day
+                </h3>
+                <div className="grid grid-cols-3">
+                    <div className="flex flex-col gap-1">
+                        <span className="font-mono text-ui-xs tracking-[0.14em] text-[#a59f96]">
+                            BEST DAY
+                        </span>
+                        <span className={`text-display-md leading-none font-semibold ${dailyStats.bestDay !== null && dailyStats.bestDay < 0 ? 'text-loss' : 'text-profit'}`}>
+                            {signedDayMoney(dailyStats.bestDay)}
+                        </span>
+                    </div>
+                    <div className="flex flex-col gap-1 border-l border-[#292725] pl-11">
+                        <span className="font-mono text-ui-xs tracking-[0.14em] text-[#a59f96]">
+                            WORST DAY
+                        </span>
+                        <span className={`text-display-md leading-none font-semibold ${dailyStats.worstDay !== null && dailyStats.worstDay >= 0 ? 'text-profit' : 'text-loss'}`}>
+                            {signedDayMoney(dailyStats.worstDay)}
+                        </span>
+                    </div>
+                    <div className="flex flex-col gap-1 border-l border-[#292725] pl-11">
+                        <span className="font-mono text-ui-xs tracking-[0.14em] text-[#a59f96]">
+                            AVG / DAY
+                        </span>
+                        <span className={`text-display-md leading-none font-semibold ${dailyStats.avgDay !== null && dailyStats.avgDay < 0 ? 'text-loss' : 'text-profit'}`}>
+                            {signedDayMoney(dailyStats.avgDay)}
+                        </span>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div className="h-[400px]">
+                <Line options={options} data={data} plugins={[equityFillPlugin]} />
+            </div>
+        </Card>
     );
 }

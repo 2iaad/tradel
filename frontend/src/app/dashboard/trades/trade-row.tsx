@@ -4,16 +4,18 @@ import { useNotesStore } from "@/stores/notes";
 import type { ApiNote } from "@/stores/notes";
 import { LOG_GRID } from "./use-trade-log";
 import type { TradeLogRow } from "./use-trade-log";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const sideStyle = (long: boolean) => ({
     color: long ? G : R,
     background: long ? "rgba(47,213,127,.08)" : "rgba(240,85,78,.08)",
     borderColor: long ? "rgba(47,213,127,.25)" : "rgba(240,85,78,.25)",
 });
-const numCls = "font-mono text-[12.5px] text-[#93a09d]";
-const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] tracking-[0.06em] border";
+const numCls = "font-mono text-ui-sm text-content-muted";
+const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-ui-xs tracking-[0.06em] border";
 const tagCls =
-    "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-[#78878a] border border-[#222a2f]";
+    "inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border";
 
 // Date (stacked date + time), symbol, and side pill (the three leading
 // cells). A green dot by the symbol marks trades that carry at least one note.
@@ -21,22 +23,23 @@ function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
     return (
         <>
             <span className="flex flex-col gap-0.5">
-                <span className="font-mono text-[12px] text-[#c8d2d0]">{t.date}</span>
-                <span className="font-mono text-[10px] text-[#5f6b70]">{t.clock}</span>
+                <span className="font-mono text-ui-sm text-secondary-foreground">{t.date}</span>
+                <span className="font-mono text-ui-xs text-content-faint">{t.clock}</span>
             </span>
-            <span className="flex items-center gap-1.5 font-mono text-[12.5px] font-semibold text-[#e9eef0]">
+            <span className="flex items-center gap-1.5 font-mono text-ui-sm font-semibold text-content">
                 {hasNotes && (
-                    <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-[#ffdd3a]" />
+                    <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-primary" />
                 )}
                 {t.sym}
             </span>
             <span>
-                <span
-                    className={`${badgeCls} font-semibold tracking-[0.08em]`}
+                    <Badge
+                    variant="outline"
+                    className={`${badgeCls} h-auto font-semibold tracking-[0.08em]`}
                     style={sideStyle(t.side === "LONG")}
                 >
                     {t.side}
-                </span>
+                </Badge>
             </span>
         </>
     );
@@ -50,15 +53,15 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
         <>
             <span className={numCls}>{t.entry}</span>
             <span className={numCls}>{t.exit ?? "—"}</span>
-            <span className={numCls}>{t.size}</span>
-            <span className="font-mono text-[12.5px] font-semibold" style={winCol}>
+            <span className={numCls}>{t.lots}</span>
+            <span className="font-mono text-ui-sm font-semibold" style={winCol}>
                 {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
             </span>
-            <span className="font-mono text-[12.5px] font-medium" style={winCol}>
+            <span className="font-mono text-ui-sm font-medium" style={winCol}>
                 {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
             </span>
             <span
-                className="font-mono text-[11px] text-[#5f6b70] text-center inline-block transition-transform"
+                className="font-mono text-ui-xs text-content-faint text-center inline-block transition-transform"
                 style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
             >
                 ▾
@@ -69,25 +72,29 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
 
 // Edit (✎) / delete (✕) icon buttons in the trailing cell.
 function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
-    const cls = "bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none transition-colors";
+    const cls = "bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors";
     return (
         <span className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-            <button
+            <Button
                 type="button"
                 onClick={onEdit}
                 title="Edit trade"
-                className={`${cls} text-[#5f6b70] hover:text-[#ffdd3a]`}
+                variant="ghost"
+                size="icon-sm"
+                className={`${cls} text-content-faint hover:bg-transparent hover:text-primary`}
             >
                 ✎
-            </button>
-            <button
+            </Button>
+            <Button
                 type="button"
                 onClick={onDelete}
                 title="Delete trade"
-                className={`${cls} text-[#5f6b70] hover:text-[#f0554e]`}
+                variant="ghost"
+                size="icon-sm"
+                className={`${cls} text-content-faint hover:bg-transparent hover:text-loss`}
             >
                 ✕
-            </button>
+            </Button>
         </span>
     );
 }
@@ -96,30 +103,27 @@ function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => vo
 function NoNote({ onAddNote }: { onAddNote: () => void }) {
     return (
         <div className="flex items-center gap-3.5">
-            <span className="text-[12.5px] text-[#5f6b70]">
+            <span className="text-ui-sm text-content-faint">
                 No note attached to this trade.
             </span>
-            <button
+            <Button
                 type="button"
                 onClick={onAddNote}
-                className="bg-none border-none p-0 font-mono text-[11px] font-medium tracking-[0.1em] text-[#ffdd3a] cursor-pointer hover:text-[#ffe867]"
+                variant="link"
+                className="h-auto p-0 font-mono text-ui-xs font-medium tracking-[0.1em] text-primary no-underline hover:text-primary-hover"
             >
                 + ADD NOTE
-            </button>
+            </Button>
         </div>
     );
 }
 
 // One attached note rendered inside the expanded panel.
 function NoteBlock({ note }: { note: ApiNote }) {
-    const date = new Date(note.created_at).toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-    });
     return (
         <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-2.5">
-                <span className="text-[14.5px] font-semibold text-[#e9eef0]">{note.title}</span>
+                <span className="text-ui-md font-semibold text-content">{note.title}</span>
                 {note.tags.length > 0 && (
                     <span className="flex flex-wrap items-center gap-1.5">
                         {note.tags.map((tag) => (
@@ -130,7 +134,7 @@ function NoteBlock({ note }: { note: ApiNote }) {
                     </span>
                 )}
             </div>
-            <span className="text-[13px] leading-[1.6] text-[#8a9995] max-w-[720px]">
+            <span className="text-ui-sm leading-[1.6] text-content-dim max-w-[720px]">
                 {note.body}
             </span>
         </div>
@@ -143,7 +147,7 @@ function NotePanel({ t, onAddNote }: { t: TradeLogRow; onAddNote: () => void }) 
     const notes = useNotesStore((s) => s.notes);
     const tradeNotes = notes.filter((n) => n.trade_id === t.id);
     return (
-        <div className="bg-[#0a0d0f] border-t border-[#161c20] px-[22px] pt-4 pb-[18px] flex flex-col gap-3.5">
+        <div className="bg-muted border-t border-border-faint px-[22px] pt-4 pb-[18px] flex flex-col gap-3.5">
             {tradeNotes.length > 0 ? (
                 tradeNotes.map((n) => <NoteBlock key={n.id} note={n} />)
             ) : (
@@ -180,7 +184,7 @@ export function TradeRow({
         <div>
             <div
                 onClick={onToggle}
-                className={`${LOG_GRID} items-center px-[22px] ${dense ? "py-[7px]" : "py-[11px]"} border-t border-[#161c20] transition-colors cursor-pointer hover:bg-[#10161a] ${open ? "bg-[#10161a]" : ""}`}
+                className={`${LOG_GRID} items-center px-[22px] ${dense ? "py-[7px]" : "py-[11px]"} border-t border-border-faint transition-colors cursor-pointer hover:bg-accent ${open ? "bg-accent" : ""}`}
             >
                 <LeadCells t={t} hasNotes={hasNotes} />
                 <TailCells t={t} open={open} />

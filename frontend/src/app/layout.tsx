@@ -1,16 +1,13 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Sora } from 'next/font/google';
 import { ReactScan } from '@/components/react-scan';
 import './globals.css';
 
-const spaceGrotesk = Space_Grotesk({
-    variable: '--font-space-grotesk',
+const sora = Sora({
+    variable: '--font-sora',
     subsets: ['latin'],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-    variable: '--font-jetbrains-mono',
-    subsets: ['latin'],
+    weight: ['400', '600', '700'],
+    display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -26,10 +23,13 @@ export default function RootLayout({
     return (
         <html
             lang="en"
-            className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
+            className={`${sora.variable} h-full antialiased`}
+            suppressHydrationWarning
         >
-            <ReactScan />
-            <body className="min-h-full flex flex-col">{children}</body>
+            <body className="min-h-full flex flex-col">
+                <ReactScan />
+                {children}
+            </body>
         </html>
     );
 }

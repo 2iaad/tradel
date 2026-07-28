@@ -10,6 +10,7 @@ import { useTradesStore } from '@/stores/trades';
 import { EquityCard } from '../equity-card';
 import { PageHeader } from '../page-header';
 import { StatCards, useTradeStats } from '../trade-stats';
+import { Card } from '@/components/ui/card';
 
 const pct = (v: number | null) => (v === null ? '—' : `${(v * 100).toFixed(1)}%`);
 
@@ -19,20 +20,20 @@ function BreakdownRow({ row, max }: { row: BreakdownEntry; max: number }) {
     const pos = row.net >= 0;
     return (
         <div className="flex items-center gap-3">
-            <span className="w-20 shrink-0 truncate text-[13px] text-[#c8d2d0]">{row.label}</span>
-            <div className="flex-1 h-2 rounded-full bg-[#0a0d0f] overflow-hidden">
+            <span className="w-20 shrink-0 truncate text-ui-sm text-secondary-foreground">{row.label}</span>
+            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                 <div
                     className="h-full rounded-full"
                     style={{ width: `${w}%`, background: pos ? G : R }}
                 />
             </div>
             <span
-                className="w-24 shrink-0 text-right font-mono text-[12px]"
+                className="w-24 shrink-0 text-right font-mono text-ui-sm"
                 style={{ color: pos ? G : R }}
             >
                 {signedMoney(row.net)}
             </span>
-            <span className="w-16 shrink-0 text-right font-mono text-[11px] text-[#5f6b70]">
+            <span className="w-16 shrink-0 text-right font-mono text-ui-xs text-content-faint">
                 {pct(row.winRate)}
             </span>
         </div>
@@ -43,10 +44,10 @@ function BreakdownRow({ row, max }: { row: BreakdownEntry; max: number }) {
 function BreakdownCard({ title, rows }: { title: string; rows: BreakdownEntry[] }) {
     const max = Math.max(0, ...rows.map((r) => Math.abs(r.net)));
     return (
-        <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
+        <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
             <h2 className={h2Cls}>{title}</h2>
             {rows.length === 0 ? (
-                <p className="font-mono text-[11px] tracking-[0.12em] text-[#5f6b70] py-2">
+                <p className="font-mono text-ui-xs tracking-[0.12em] text-content-faint py-2">
                     NO CLOSED TRADES
                 </p>
             ) : (
@@ -56,7 +57,7 @@ function BreakdownCard({ title, rows }: { title: string; rows: BreakdownEntry[] 
                     ))}
                 </div>
             )}
-        </div>
+        </Card>
     );
 }
 
@@ -78,7 +79,7 @@ export default function AnalyticsPage() {
         <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
             <PageHeader kicker="" title="Performance" />
             {loading && !summary ? (
-                <p className="font-mono text-[13px] tracking-[0.22em] text-[#7e8d89] py-10 text-center">
+                <p className="font-mono text-ui-sm tracking-[0.22em] text-content-soft py-10 text-center">
                     {'/// LOADING'}
                 </p>
             ) : (

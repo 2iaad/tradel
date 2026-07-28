@@ -12,9 +12,11 @@ import {
     Tooltip,
     type ChartData,
     type ChartOptions,
+    type Plugin,
+    type ScriptableLineSegmentContext,
 } from 'chart.js';
 
-import { A, cardCls, h2Cls } from '@/lib/ui';
+import { G, R, cardCls, h2Cls } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
 import { RANGES, RangeKey, buildSeries } from './equity-chart.lib';
@@ -25,6 +27,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, 
 const Line = dynamic(() => import('react-chartjs-2').then((m) => m.Line), { ssr: false });
 
 const money = (v: number) => '$' + Math.round(v).toLocaleString('en-US');
+const signedDayMoney = (v: number | null) =>
+    v === null ? '—' : `${v >= 0 ? '+' : '-'}$${Math.round(Math.abs(v)).toLocaleString('en-US')}`;
 
 const options: ChartOptions<'line'> = {
     responsive: true,
@@ -95,26 +99,90 @@ export function EquityCard() {
         return acc ? parseFloat(acc.starting_balance) : 0;
     }, [accounts, activeId]);
 
+    const series = useMemo(
+        () => buildSeries(trades, startingBalance, range),
+        [trades, startingBalance, range],
+    );
+    const equityFillPlugin = useMemo<Plugin<'line'>>(
+        () => ({
+            id: 'equityFill',
+            beforeDatasetsDraw(chart) {
+                const meta = chart.getDatasetMeta(0);
+                const points = meta.data as Array<
+                    PointElement & { cp1x?: number; cp1y?: number; cp2x?: number; cp2y?: number }
+                >;
+                const baseline = chart.scales.y.getPixelForValue(series.startEquity);
+                chart.ctx.save();
+                for (let i = 1; i < points.length; i++) {
+                    const p0 = points[i - 1];
+                    const p1 = points[i];
+                    const below = p0.y > baseline || p1.y > baseline;
+                    chart.ctx.fillStyle = below ? 'rgba(240,85,78,0.10)' : 'rgba(47,213,127,0.10)';
+                    chart.ctx.beginPath();
+                    chart.ctx.moveTo(p0.x, p0.y);
+                    chart.ctx.bezierCurveTo(
+                        p0.cp2x ?? p0.x,
+                        p0.cp2y ?? p0.y,
+                        p1.cp1x ?? p1.x,
+                        p1.cp1y ?? p1.y,
+                        p1.x,
+                        p1.y,
+                    );
+                    chart.ctx.lineTo(p1.x, baseline);
+                    chart.ctx.lineTo(p0.x, baseline);
+                    chart.ctx.closePath();
+                    chart.ctx.fill();
+                }
+                chart.ctx.restore();
+            },
+        }),
+        [series.startEquity],
+    );
+
     const data = useMemo<ChartData<'line'>>(() => {
-        const { pts, dates, lo, hi } = buildSeries(trades, startingBalance, range);
+        const { pts, dates, lo, hi, startEquity } = series;
         const span = hi - lo;
         const equity = pts.map((p) => lo + p * span);
+        const curveEquity = [equity[0]];
+        const curveDates = [dates[0]];
+        for (let i = 1; i < equity.length; i++) {
+            const previous = equity[i - 1];
+            const current = equity[i];
+            if ((previous < startEquity && current > startEquity) || (previous > startEquity && current < startEquity)) {
+                const fraction = (startEquity - previous) / (current - previous);
+                curveEquity.push(startEquity);
+                curveDates.push(dates[i - 1] + (dates[i] - dates[i - 1]) * fraction);
+            }
+            curveEquity.push(current);
+            curveDates.push(dates[i]);
+        }
         return {
-            labels: dates.map((ms) =>
+            labels: curveDates.map((ms) =>
                 new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             ),
             datasets: [
                 {
-                    data: equity,
-                    borderColor: A,
-                    backgroundColor: 'rgba(255,221,58,0.08)',
+                    data: curveEquity,
+                    borderColor: G,
                     borderWidth: 2,
-                    fill: true,
+                    fill: false,
                     tension: 0.25,
+                    segment: {
+                        borderColor: (ctx: ScriptableLineSegmentContext) => {
+                            const p0 = ctx.p0.parsed.y ?? startEquity;
+                            const p1 = ctx.p1.parsed.y ?? startEquity;
+                            return p0 < startEquity || p1 < startEquity ? R : G;
+                        },
+                    },
                 },
             ],
         };
-    }, [trades, startingBalance, range]);
+    }, [series]);
+
+    const dailyStats = useMemo(() => {
+        const { bestDay, worstDay, avgDay } = series;
+        return { bestDay, worstDay, avgDay };
+    }, [series]);
 
     return (
         <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
@@ -127,8 +195,39 @@ export function EquityCard() {
                 </div>
                 <RangePicker range={range} onChange={setRange} />
             </div>
+            <div className="flex flex-col gap-4 pt-1 pb-1">
+                <h3 className="m-0 text-[18px] font-medium text-[#a59f96]">
+                    Profit and loss for each trading day
+                </h3>
+                <div className="grid grid-cols-3">
+                    <div className="flex flex-col gap-1">
+                        <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
+                            BEST DAY
+                        </span>
+                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.bestDay !== null && dailyStats.bestDay < 0 ? 'text-[#f0444d]' : 'text-[#00c98b]'}`}>
+                            {signedDayMoney(dailyStats.bestDay)}
+                        </span>
+                    </div>
+                    <div className="flex flex-col gap-1 border-l border-[#292725] pl-11">
+                        <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
+                            WORST DAY
+                        </span>
+                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.worstDay !== null && dailyStats.worstDay >= 0 ? 'text-[#00c98b]' : 'text-[#f0444d]'}`}>
+                            {signedDayMoney(dailyStats.worstDay)}
+                        </span>
+                    </div>
+                    <div className="flex flex-col gap-1 border-l border-[#292725] pl-11">
+                        <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
+                            AVG / DAY
+                        </span>
+                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.avgDay !== null && dailyStats.avgDay < 0 ? 'text-[#f0444d]' : 'text-[#00c98b]'}`}>
+                            {signedDayMoney(dailyStats.avgDay)}
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div className="h-[400px]">
-                <Line options={options} data={data} />
+                <Line options={options} data={data} plugins={[equityFillPlugin]} />
             </div>
         </div>
     );

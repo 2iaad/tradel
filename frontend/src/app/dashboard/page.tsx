@@ -31,17 +31,17 @@ function NotesList() {
                 </Button>
             </div>
             {notes.length === 0 ? (
-                <p className="font-mono text-[11px] tracking-[0.12em] text-content-faint py-2">
+                <p className="font-mono text-ui-xs tracking-[0.12em] text-content-faint py-2">
                     {loading ? 'LOADING…' : 'NO NOTES YET'}
                 </p>
             ) : (
                 <ul className="flex flex-col gap-2">
                     {notes.map((n) => (
                         <li key={n.id} className="flex flex-col gap-0.5">
-                            <span className="text-[13px] font-medium text-content truncate">
+                            <span className="text-ui-sm font-medium text-content truncate">
                                 {n.title}
                             </span>
-                            <span className="text-[12px] text-content-soft line-clamp-2">
+                            <span className="text-ui-sm text-content-soft line-clamp-2">
                                 {n.body}
                             </span>
                         </li>

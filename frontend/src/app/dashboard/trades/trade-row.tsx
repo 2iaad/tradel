@@ -12,10 +12,10 @@ const sideStyle = (long: boolean) => ({
     background: long ? "rgba(47,213,127,.08)" : "rgba(240,85,78,.08)",
     borderColor: long ? "rgba(47,213,127,.25)" : "rgba(240,85,78,.25)",
 });
-const numCls = "font-mono text-[12.5px] text-content-muted";
-const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] tracking-[0.06em] border";
+const numCls = "font-mono text-ui-sm text-content-muted";
+const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-ui-xs tracking-[0.06em] border";
 const tagCls =
-    "inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-muted-foreground border border-border";
+    "inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border";
 
 // Date (stacked date + time), symbol, and side pill (the three leading
 // cells). A green dot by the symbol marks trades that carry at least one note.
@@ -23,10 +23,10 @@ function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
     return (
         <>
             <span className="flex flex-col gap-0.5">
-                <span className="font-mono text-[12px] text-secondary-foreground">{t.date}</span>
-                <span className="font-mono text-[10px] text-content-faint">{t.clock}</span>
+                <span className="font-mono text-ui-sm text-secondary-foreground">{t.date}</span>
+                <span className="font-mono text-ui-xs text-content-faint">{t.clock}</span>
             </span>
-            <span className="flex items-center gap-1.5 font-mono text-[12.5px] font-semibold text-content">
+            <span className="flex items-center gap-1.5 font-mono text-ui-sm font-semibold text-content">
                 {hasNotes && (
                     <span title="Has notes" className="w-1.5 h-1.5 rounded-full bg-primary" />
                 )}
@@ -54,14 +54,14 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
             <span className={numCls}>{t.entry}</span>
             <span className={numCls}>{t.exit ?? "—"}</span>
             <span className={numCls}>{t.lots}</span>
-            <span className="font-mono text-[12.5px] font-semibold" style={winCol}>
+            <span className="font-mono text-ui-sm font-semibold" style={winCol}>
                 {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
             </span>
-            <span className="font-mono text-[12.5px] font-medium" style={winCol}>
+            <span className="font-mono text-ui-sm font-medium" style={winCol}>
                 {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
             </span>
             <span
-                className="font-mono text-[11px] text-content-faint text-center inline-block transition-transform"
+                className="font-mono text-ui-xs text-content-faint text-center inline-block transition-transform"
                 style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
             >
                 ▾
@@ -72,7 +72,7 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
 
 // Edit (✎) / delete (✕) icon buttons in the trailing cell.
 function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
-    const cls = "bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none transition-colors";
+    const cls = "bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors";
     return (
         <span className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
@@ -103,14 +103,14 @@ function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => vo
 function NoNote({ onAddNote }: { onAddNote: () => void }) {
     return (
         <div className="flex items-center gap-3.5">
-            <span className="text-[12.5px] text-content-faint">
+            <span className="text-ui-sm text-content-faint">
                 No note attached to this trade.
             </span>
             <Button
                 type="button"
                 onClick={onAddNote}
                 variant="link"
-                className="h-auto p-0 font-mono text-[11px] font-medium tracking-[0.1em] text-primary no-underline hover:text-primary-hover"
+                className="h-auto p-0 font-mono text-ui-xs font-medium tracking-[0.1em] text-primary no-underline hover:text-primary-hover"
             >
                 + ADD NOTE
             </Button>
@@ -123,7 +123,7 @@ function NoteBlock({ note }: { note: ApiNote }) {
     return (
         <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-2.5">
-                <span className="text-[14.5px] font-semibold text-content">{note.title}</span>
+                <span className="text-ui-md font-semibold text-content">{note.title}</span>
                 {note.tags.length > 0 && (
                     <span className="flex flex-wrap items-center gap-1.5">
                         {note.tags.map((tag) => (
@@ -134,7 +134,7 @@ function NoteBlock({ note }: { note: ApiNote }) {
                     </span>
                 )}
             </div>
-            <span className="text-[13px] leading-[1.6] text-content-dim max-w-[720px]">
+            <span className="text-ui-sm leading-[1.6] text-content-dim max-w-[720px]">
                 {note.body}
             </span>
         </div>

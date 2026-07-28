@@ -77,7 +77,7 @@ function RangePicker({ range, onChange }: { range: RangeKey; onChange: (k: Range
                     onClick={() => onChange(key)}
                     variant={key === range ? 'default' : 'ghost'}
                     size="sm"
-                    className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] ${
+                    className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs font-semibold tracking-[0.08em] ${
                         key === range
                             ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
                             : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'
@@ -193,38 +193,38 @@ export function EquityCard() {
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex flex-col gap-[5px]">
                     <h2 className={h2Cls}>Equity curve</h2>
-                    <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-content-faint">
+                    <span className="font-mono text-ui-xs font-medium tracking-[0.14em] text-content-faint">
                         NET LIQ ($) × TRADES LOGGED
                     </span>
                 </div>
                 <RangePicker range={range} onChange={setRange} />
             </div>
             <div className="flex flex-col gap-4 pt-1 pb-1">
-                <h3 className="m-0 text-[18px] font-medium text-[#a59f96]">
+                <h3 className="m-0 text-ui-lg font-medium text-[#a59f96]">
                     Profit and loss for each trading day
                 </h3>
                 <div className="grid grid-cols-3">
                     <div className="flex flex-col gap-1">
-                        <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
+                        <span className="font-mono text-ui-xs tracking-[0.14em] text-[#a59f96]">
                             BEST DAY
                         </span>
-                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.bestDay !== null && dailyStats.bestDay < 0 ? 'text-loss' : 'text-profit'}`}>
+                        <span className={`text-display-md leading-none font-semibold ${dailyStats.bestDay !== null && dailyStats.bestDay < 0 ? 'text-loss' : 'text-profit'}`}>
                             {signedDayMoney(dailyStats.bestDay)}
                         </span>
                     </div>
                     <div className="flex flex-col gap-1 border-l border-[#292725] pl-11">
-                        <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
+                        <span className="font-mono text-ui-xs tracking-[0.14em] text-[#a59f96]">
                             WORST DAY
                         </span>
-                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.worstDay !== null && dailyStats.worstDay >= 0 ? 'text-profit' : 'text-loss'}`}>
+                        <span className={`text-display-md leading-none font-semibold ${dailyStats.worstDay !== null && dailyStats.worstDay >= 0 ? 'text-profit' : 'text-loss'}`}>
                             {signedDayMoney(dailyStats.worstDay)}
                         </span>
                     </div>
                     <div className="flex flex-col gap-1 border-l border-[#292725] pl-11">
-                        <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
+                        <span className="font-mono text-ui-xs tracking-[0.14em] text-[#a59f96]">
                             AVG / DAY
                         </span>
-                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.avgDay !== null && dailyStats.avgDay < 0 ? 'text-loss' : 'text-profit'}`}>
+                        <span className={`text-display-md leading-none font-semibold ${dailyStats.avgDay !== null && dailyStats.avgDay < 0 ? 'text-loss' : 'text-profit'}`}>
                             {signedDayMoney(dailyStats.avgDay)}
                         </span>
                     </div>

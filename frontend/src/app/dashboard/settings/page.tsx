@@ -24,21 +24,21 @@ function AccountRow({
     onDelete: () => void;
 }) {
     const iconCls =
-        'bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none transition-colors';
+        'bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors';
     return (
         <div className="flex items-center justify-between gap-4 px-5 py-4 border-t border-border-faint first:border-t-0">
             <div className="flex flex-col gap-1 min-w-0">
                 <span className="flex items-center gap-2">
-                    <span className="text-[14.5px] font-medium text-content truncate">
+                    <span className="text-ui-md font-medium text-content truncate">
                         {account.name}
                     </span>
                     {active && (
-                        <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-[9px] font-medium tracking-[0.12em] text-primary">
+                        <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-medium tracking-[0.12em] text-primary">
                             ACTIVE
                         </Badge>
                     )}
                 </span>
-                <span className="font-mono text-[11px] text-content-faint">
+                <span className="font-mono text-ui-xs text-content-faint">
                     {account.broker || 'No broker'} · {account.currency}
                 </span>
             </div>
@@ -91,15 +91,15 @@ export default function SettingsPage() {
             </PageHeader>
 
             {loading ? (
-                <p className="font-mono text-[12px] tracking-[0.14em] text-content-faint px-1">
+                <p className="font-mono text-ui-sm tracking-[0.14em] text-content-faint px-1">
                     LOADING ACCOUNTS…
                 </p>
             ) : accounts.length === 0 ? (
                 <Card className={`${cardCls} flex flex-col items-center gap-4 py-16 px-6`}>
-                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-content-faint">
+                    <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
                         NO ACCOUNTS YET
                     </span>
-                    <p className="m-0 text-[13px] text-content-dim text-center max-w-[360px]">
+                    <p className="m-0 text-ui-sm text-content-dim text-center max-w-[360px]">
                         Create your first trading account to start logging trades and notes.
                     </p>
                     <Button type="button" onClick={() => setEditing('new')} className={`${ctaCls} h-auto`}>

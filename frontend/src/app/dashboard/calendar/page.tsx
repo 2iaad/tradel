@@ -54,16 +54,16 @@ function DayCell({ day }: { day: CalendarDay | null }) {
             className="aspect-square rounded-lg border border-border-subtle p-2 flex flex-col justify-between"
             style={{ background: tint }}
         >
-            <span className="font-mono text-[14px] text-content-faint">{dayNum}</span>
+            <span className="font-mono text-ui-md text-content-faint">{dayNum}</span>
             {active && (
                 <span className="flex flex-col gap-0.5">
                     <span
-                        className="font-mono text-[12px] font-semibold"
+                        className="font-mono text-ui-sm font-semibold"
                         style={{ color: pos ? G : R }}
                     >
                         {signedMoney(day.pnl)}
                     </span>
-                    <span className="font-mono text-[9.5px] text-content-faint">
+                    <span className="font-mono text-ui-xs text-content-faint">
                         {day.trades} {day.trades === 1 ? 'TRADE' : 'TRADES'}
                     </span>
                 </span>
@@ -76,13 +76,13 @@ function DayCell({ day }: { day: CalendarDay | null }) {
 function MonthNav({ month, onShift }: { month: string; onShift: (n: number) => void }) {
     return (
         <div className="flex items-center gap-3">
-            <Button type="button" variant="outline" size="icon-sm" onClick={() => onShift(-1)} className="border-border-subtle bg-muted font-mono text-[13px] text-secondary-foreground hover:bg-accent hover:text-card-foreground">
+            <Button type="button" variant="outline" size="icon-sm" onClick={() => onShift(-1)} className="border-border-subtle bg-muted font-mono text-ui-sm text-secondary-foreground hover:bg-accent hover:text-card-foreground">
                 ‹
             </Button>
-            <span className="min-w-[140px] text-center text-[14px] font-medium text-card-foreground">
+            <span className="min-w-[140px] text-center text-ui-md font-medium text-card-foreground">
                 {monthLabel(month)}
             </span>
-            <Button type="button" variant="outline" size="icon-sm" onClick={() => onShift(1)} className="border-border-subtle bg-muted font-mono text-[13px] text-secondary-foreground hover:bg-accent hover:text-card-foreground">
+            <Button type="button" variant="outline" size="icon-sm" onClick={() => onShift(1)} className="border-border-subtle bg-muted font-mono text-ui-sm text-secondary-foreground hover:bg-accent hover:text-card-foreground">
                 ›
             </Button>
         </div>
@@ -114,7 +114,7 @@ export default function CalendarPage() {
                     {WEEKDAYS.map((w) => (
                         <span
                             key={w}
-                            className="text-center font-mono text-[12px] font-medium tracking-[0.12em] text-content-faint"
+                            className="text-center font-mono text-ui-sm font-medium tracking-[0.12em] text-content-faint"
                         >
                             {w}
                         </span>
@@ -126,7 +126,7 @@ export default function CalendarPage() {
                     ))}
                 </div>
                 <div className="flex justify-end border-t border-border-faint pt-3">
-                    <span className="font-mono text-[12px] text-content-faint">
+                    <span className="font-mono text-ui-sm text-content-faint">
                         MONTH NET&nbsp;
                         <span style={{ color: monthNet >= 0 ? G : R }}>
                             {signedMoney(monthNet)}

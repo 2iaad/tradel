@@ -156,7 +156,7 @@ export function DeleteAccountModal({
                     <DialogTitle className="text-xl font-semibold text-card-foreground">
                         Delete “{account.name}”?
                     </DialogTitle>
-                    <DialogDescription className="text-[13px] text-content-dim">
+                    <DialogDescription className="text-ui-sm text-content-dim">
                         Every trade and note in this account is removed too. This can&apos;t be undone.
                     </DialogDescription>
                 </DialogHeader>

@@ -168,26 +168,26 @@ function StatCard({
     children: React.ReactNode;
 }) {
     return (
-        <Card className={`${cardCls} px-8 py-8 flex flex-col gap-2`}>
+        <Card className={`${cardCls} px-6 py-4 flex flex-col gap-2`}>
             <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-content-faint">
+                <span className="font-mono text-ui-xs font-medium tracking-[0.14em] text-content-faint">
                     {label}
                 </span>
                 {/* Always rendered so cards without a chip keep the same header height. */}
                 <Badge
                     variant="outline"
-                    className={`h-auto rounded px-2 py-2 font-mono text-[9.5px] font-medium tracking-[0.06em] text-muted-foreground ${chip ? "" : "invisible"}`}
+                    className={`h-auto rounded px-2 py-2 font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground ${chip ? "" : "invisible"}`}
                 >
                     {chip ?? "—"}
                 </Badge>
             </div>
             <span
-                className="text-[26px] leading-none font-semibold"
+                className="text-display-sm leading-none font-semibold"
                 style={{ color: valueColor ?? "var(--card-foreground)" }}
             >
                 {value}
             </span>
-            <div className="flex flex-col gap-0.5 text-[12px]">{children}</div>
+            <div className="flex flex-col gap-0.5 text-ui-sm">{children}</div>
         </Card>
     );
 }

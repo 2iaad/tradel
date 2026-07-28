@@ -7,10 +7,13 @@ import { errorCls } from "@/lib/ui";
 import type { TradePayload } from "@/stores/trades";
 import { LOG_GRID } from "./use-trade-log";
 import type { TradeLogRow } from "./use-trade-log";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const inCls =
-    "w-full box-border bg-[#0a0d0f] border border-[#222a2f] rounded px-2 py-1.5 font-mono text-[12px] text-[#e9eef0] outline-none focus:border-[#ffdd3a66] [color-scheme:dark]";
-const dashCls = "font-mono text-[12px] text-[#4d5a5f]";
+    "w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]";
+const dashCls = "font-mono text-ui-sm text-content-placeholder";
 
 // Inline form fields → trades API payload; empty optional fields stay undefined.
 // The trade date is created_at (set server-side), so there's no date field.
@@ -25,9 +28,9 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
         side: f.get("side") as "LONG" | "SHORT",
         entry: num("entry"),
         exit: num("exit"),
-        size: num("size"),
-        // R has no column on create (CreateTradeDto) — edit only.
-        r: prev ? num("r") : undefined,
+        lots: num("lots"),
+        // R:R has no column on create (CreateTradeDto) — edit only.
+        rReward: prev ? num("rReward") : undefined,
     };
 }
 
@@ -37,19 +40,22 @@ function FormCells({ t }: { t: TradeLogRow | null }) {
         <>
             {/* date column: created_at, set server-side — shown after save */}
             <span className={dashCls}>{t?.date ?? "—"}</span>
-            <input name="symbol" defaultValue={t?.sym} required maxLength={20} placeholder="SYM" className={inCls} />
-            <select name="side" defaultValue={t?.side ?? "LONG"} className={inCls}>
-                <option>LONG</option>
-                <option>SHORT</option>
-            </select>
-            <input name="entry" type="number" step="any" defaultValue={t?.entry} required placeholder="entry" className={inCls} />
-            <input name="exit" type="number" step="any" defaultValue={t?.exit ?? ""} placeholder="—" className={inCls} />
-            <input name="size" type="number" step="any" defaultValue={t?.size} required placeholder="lots" className={inCls} />
+            <Input name="symbol" defaultValue={t?.sym} required maxLength={20} placeholder="SYM" className={inCls} />
+            <Select name="side" defaultValue={t?.side ?? "LONG"}>
+                <SelectTrigger className={inCls}><SelectValue /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="LONG">LONG</SelectItem>
+                    <SelectItem value="SHORT">SHORT</SelectItem>
+                </SelectContent>
+            </Select>
+            <Input name="entry" type="number" step="any" defaultValue={t?.entry} required placeholder="entry" className={inCls} />
+            <Input name="exit" type="number" step="any" defaultValue={t?.exit ?? ""} placeholder="—" className={inCls} />
+            <Input name="lots" type="number" step="any" defaultValue={t?.lots} required placeholder="lots" className={inCls} />
             <span className={dashCls}>
                 {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
             </span>
             {t ? (
-                <input name="r" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
+                <Input name="rReward" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
             ) : (
                 <span className={dashCls}>—</span>
             )}
@@ -59,15 +65,15 @@ function FormCells({ t }: { t: TradeLogRow | null }) {
 
 // Save (✓) / cancel (✕) buttons in the trailing cell.
 function FormIcons({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
-    const cls = "bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none";
+    const cls = "bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none";
     return (
         <span className="flex items-center justify-end gap-2">
-            <button type="submit" disabled={pending} title="Save" className={`${cls} text-[#ffdd3a] hover:text-[#ffe867] disabled:opacity-50`}>
+            <Button type="submit" disabled={pending} title="Save" variant="ghost" size="icon-xs" className={`${cls} text-primary hover:bg-transparent hover:text-primary-hover`}>
                 ✓
-            </button>
-            <button type="button" onClick={onCancel} title="Cancel" className={`${cls} text-[#5f6b70] hover:text-[#c8d2d0]`}>
+            </Button>
+            <Button type="button" onClick={onCancel} title="Cancel" variant="ghost" size="icon-xs" className={`${cls} text-content-faint hover:bg-transparent hover:text-secondary-foreground`}>
                 ✕
-            </button>
+            </Button>
         </span>
     );
 }
@@ -90,13 +96,13 @@ export function TradeRowForm({
         }
     }, onCancel);
     return (
-        <form onSubmit={onSubmit} className="border-t border-[#161c20] bg-[#10161a]">
+        <form onSubmit={onSubmit} className="border-t border-border-faint bg-accent">
             <div className={`${LOG_GRID} items-center px-[22px] py-[7px]`}>
                 <FormCells t={t} />
                 <span />
                 <FormIcons pending={pending} onCancel={onCancel} />
             </div>
-            {error && <p className={`${errorCls} px-[22px] pb-2 font-mono text-[11px]`}>{error}</p>}
+            {error && <p className={`${errorCls} px-[22px] pb-2 font-mono text-ui-xs`}>{error}</p>}
         </form>
     );
 }

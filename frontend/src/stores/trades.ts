@@ -14,8 +14,8 @@ export interface ApiTrade {
     side: 'LONG' | 'SHORT';
     entry: string;
     exit: string | null;
-    size: string;
-    r: string | null;
+    lots: string;
+    risk_reward: string | null;
     pnl: string | null;
     created_at: string;
 }
@@ -26,8 +26,8 @@ export interface TradePayload {
     side?: 'LONG' | 'SHORT';
     entry?: number;
     exit?: number;
-    size?: number;
-    r?: number;
+    lots?: number;
+    rReward?: number;
 }
 
 interface TradesStore {

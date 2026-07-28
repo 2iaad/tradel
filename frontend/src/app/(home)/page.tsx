@@ -17,23 +17,23 @@ function StatsStrip() {
     return (
         <section className="section">
             <div className="main-c p-pad">
-                <div className="grid grid-cols-2 lg:grid-cols-4 border-y border-[#1b2226]">
+                <div className="grid grid-cols-2 lg:grid-cols-4 border-y border-border-subtle">
                     {STATS.map((stat, i) => (
                         <div
                             key={stat.label}
-                            className={`flex flex-col gap-2 px-6 py-10 lg:px-10 ${i > 0 ? 'lg:border-l lg:border-[#1b2226]' : ''} ${i % 2 === 1 ? 'border-l border-[#1b2226] lg:border-l' : ''}`}
+                            className={`flex flex-col gap-2 px-6 py-10 lg:px-10 ${i > 0 ? 'lg:border-l lg:border-border-subtle' : ''} ${i % 2 === 1 ? 'border-l border-border-subtle lg:border-l' : ''}`}
                         >
                             <div className="flex items-baseline gap-2.5">
-                                <span className="text-[clamp(30px,3vw,46px)] font-semibold leading-none tracking-[-0.02em] text-[#eef4f2]">
+                                <span className="text-[clamp(30px,3vw,46px)] font-semibold leading-none tracking-[-0.02em] text-card-foreground">
                                     {stat.value}
                                 </span>
                                 {stat.stars && (
-                                    <span className="text-[15px] tracking-[0.1em] text-[#ffdd3a]">
+                                    <span className="text-ui-md tracking-[0.1em] text-primary">
                                         ★★★★★
                                     </span>
                                 )}
                             </div>
-                            <span className="font-mono text-[10.5px] font-medium tracking-[0.16em] text-[#5f6b70] uppercase">
+                            <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint uppercase">
                                 {stat.label}
                             </span>
                         </div>

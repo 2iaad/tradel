@@ -9,7 +9,7 @@ import {
     type ChartOptions,
 } from 'chart.js';
 
-import { G, R } from '@/lib/ui';
+import { canvasColors, G, R } from '@/lib/ui';
 
 ChartJS.register(ArcElement, Tooltip);
 
@@ -18,7 +18,7 @@ const Doughnut = dynamic(() => import('react-chartjs-2').then((m) => m.Doughnut)
     ssr: false,
 });
 
-const BE = '#5f6b70'; // breakeven grey
+const BE = canvasColors.faint; // breakeven grey
 
 const options: ChartOptions<'doughnut'> = {
     responsive: true,
@@ -43,7 +43,7 @@ export function WinRateDonut({
             {
                 data: [wins, losses, breakevens],
                 backgroundColor: [G, R, BE],
-                borderColor: '#0e1214',
+                borderColor: canvasColors.card,
                 borderWidth: 2,
             },
         ],
@@ -62,7 +62,7 @@ export function WinRateDonut({
             </div>
             <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
                 {legend.map(([label, color, n]) => (
-                    <span key={label} className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-[#c8d2d0]">
+                    <span key={label} className="inline-flex items-center gap-1.5 font-mono text-ui-xs text-secondary-foreground">
                         <span className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
                         {label} {n}
                     </span>

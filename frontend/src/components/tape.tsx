@@ -30,10 +30,10 @@ function TickRow({ items }: { items: Ticks }) {
             {items.map(([sym, pct]) => (
                 <span
                     key={sym}
-                    className="inline-flex gap-2 px-6 font-mono text-[12.5px] font-medium text-[#78878a] whitespace-nowrap"
+                    className="inline-flex gap-2 px-6 font-mono text-ui-sm font-medium text-muted-foreground whitespace-nowrap"
                 >
                     {sym}
-                    <span className={pct >= 0 ? 'text-[#2fd57f]' : 'text-[#f0554e]'}>
+                    <span className={pct >= 0 ? 'text-profit' : 'text-loss'}>
                         {pct >= 0 ? '▲' : '▼'} {Math.abs(pct).toFixed(2)}%
                     </span>
                 </span>

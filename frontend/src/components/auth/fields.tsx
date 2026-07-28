@@ -2,17 +2,21 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { inputCls, labelCls } from '@/lib/ui';
 
 // Labeled form input styled to the Carbon Terminal theme.
 function Field({
     label,
+    className,
     ...input
 }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
     return (
         <div>
-            <label className={labelCls}>{label}</label>
-            <input {...input} className={inputCls} />
+            <Label className={labelCls}>{label}</Label>
+            <Input {...input} className={`${inputCls} ${className ?? ''}`} />
         </div>
     );
 }
@@ -67,13 +71,15 @@ export function PasswordField({ strong = false }: { strong?: boolean }) {
                 required
                 {...rules}
             />
-            <button
+            <Button
                 type="button"
                 onClick={() => setVisible((v) => !v)}
-                className="absolute right-5 top-[40px] bg-transparent border-none p-0 text-[10.5px] font-mono tracking-[0.1em] text-[#5f6b70] cursor-pointer hover:text-[#93a09d]"
+                variant="ghost"
+                size="xs"
+                className="absolute right-3 top-[37px] h-6 bg-transparent px-1.5 font-mono text-ui-xs tracking-[0.1em] text-content-faint hover:bg-transparent hover:text-content-muted"
             >
                 {visible ? 'HIDE' : 'SHOW'}
-            </button>
+            </Button>
         </div>
     );
 }

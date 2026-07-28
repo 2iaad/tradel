@@ -6,5 +6,5 @@ export class UpdateTradeDto extends PartialType(CreateTradeDto) {
     // Not derivable yet (no risk/stop column) — trader supplies it on close.
     @IsOptional()
     @IsNumber()
-    r?: number;
+    rReward?: number;
 }

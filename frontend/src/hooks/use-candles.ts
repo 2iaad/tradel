@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 import { clientSize } from '@/lib/canvas-size';
+import { G, R } from '@/lib/ui';
 
 // Deterministic hash noise in [0,1) — keeps candles stable as they scroll.
 const rand = (i: number) => {
@@ -56,7 +57,7 @@ function drawCandles(canvas: HTMLCanvasElement, t: number) {
         const c = price(i + 0.7);
         const hi = Math.max(o, c) + 0.02 + 0.05 * rand(i * 3.1);
         const lo = Math.min(o, c) - 0.02 - 0.05 * rand(i * 7.3);
-        const col = c >= o ? '#2fd57f' : '#f0554e';
+        const col = c >= o ? G : R;
         ctx.globalAlpha = 0.85;
         ctx.strokeStyle = col;
         ctx.lineWidth = 1.5;

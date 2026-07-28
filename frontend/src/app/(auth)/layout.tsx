@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useRef } from 'react';
 
 import { EmailField, PasswordField, UsernameField } from '@/components/auth/fields';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tape, TOP_TICKS, BOTTOM_TICKS } from '@/components/tape';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
@@ -43,7 +45,7 @@ function FormHeading({ kicker, title }: { kicker: string; title: string }) {
     return (
         <div className="mb-2">
             <div className={`${kickerCls} mb-3`}>{kicker}</div>
-            <h2 className="m-0 text-[clamp(26px,2.4vw,34px)] font-semibold tracking-[-0.01em] text-[#eef4f2]">
+            <h2 className="m-0 text-[clamp(26px,2.4vw,34px)] font-semibold tracking-[-0.01em] text-card-foreground">
                 {title}
             </h2>
         </div>
@@ -61,11 +63,11 @@ function SwitchLine({
     onClick: () => void;
 }) {
     return (
-        <p className="mt-1 mb-0 text-[13.5px] text-[#6b7a76] text-center">
+        <p className="mt-1 mb-0 text-ui-md text-[#6b7a76] text-center">
             {text && <>{text} </>}
-            <button type="button" onClick={onClick} className={`${linkCls} text-[13.5px]`}>
+            <Button type="button" variant="link" onClick={onClick} className={`${linkCls} h-auto text-ui-md`}>
                 {label}
-            </button>
+            </Button>
         </p>
     );
 }
@@ -74,13 +76,13 @@ function SwitchLine({
 function RememberRow({ onReset }: { onReset: () => void }) {
     return (
         <div className="flex justify-between items-center">
-            <label className="flex items-center gap-2 text-[13px] text-[#93a09d] cursor-pointer">
-                <input type="checkbox" className="accent-[#ffdd3a] w-[15px] h-[15px] m-0 [color-scheme:dark]" />
+            <label htmlFor="remember-me" className="flex items-center gap-2 text-ui-sm text-content-muted cursor-pointer">
+                <Checkbox id="remember-me" name="remember" />
                 Remember me
             </label>
-            <button type="button" onClick={onReset} className={`${linkCls} text-[13px]`}>
+            <Button type="button" variant="link" onClick={onReset} className={`${linkCls} h-auto text-ui-sm`}>
                 Forgot password?
-            </button>
+            </Button>
         </div>
     );
 }
@@ -108,9 +110,9 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             <PasswordField />
             <RememberRow onReset={() => onSwitch('reset')} />
             {error && <p className={errorCls}>{error}</p>}
-            <button type="submit" disabled={pending} className={btnCls}>
+            <Button type="submit" disabled={pending} className={btnCls}>
                 Sign in
-            </button>
+            </Button>
             <SwitchLine
                 text="New to Tradel?"
                 label="Create an account"
@@ -147,9 +149,9 @@ function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             <EmailField />
             <PasswordField strong />
             {error && <p className={errorCls}>{error}</p>}
-            <button type="submit" disabled={pending} className={btnCls}>
+            <Button type="submit" disabled={pending} className={btnCls}>
                 Create account
-            </button>
+            </Button>
             <SwitchLine
                 text="Already have an account?"
                 label="Sign in"
@@ -167,13 +169,13 @@ function ResetForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     return (
         <form onSubmit={noSubmit} className={formCls}>
             <FormHeading kicker="" title="Recover access" />
-            <p className="m-0 text-sm leading-[1.55] text-[#78878a]">
+            <p className="m-0 text-sm leading-[1.55] text-muted-foreground">
                 Enter the email tied to your account and we&rsquo;ll send a secure reset link.
             </p>
             <EmailField />
-            <button type="submit" className={btnCls}>
+            <Button type="submit" className={btnCls}>
                 Send reset link
-            </button>
+            </Button>
             <SwitchLine label="← Back to sign in" onClick={() => onSwitch('login')} />
         </form>
     );
@@ -184,19 +186,19 @@ function HeroCopy() {
     return (
         <div className="absolute inset-0 flex flex-col justify-between box-border px-[52px] py-11">
             <div className="flex items-center gap-2.5">
-                <span className="w-[9px] h-[9px] rounded-full bg-[#ffdd3a] animate-[tradelPulse_2.2s_ease-out_infinite]" />
-                <span className="font-mono text-[13px] font-semibold tracking-[0.22em] text-[#e8efec]">
+                <span className="w-[9px] h-[9px] rounded-full bg-primary animate-[tradelPulse_2.2s_ease-out_infinite]" />
+                <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
                     TRADEL
                 </span>
             </div>
             <div className="flex flex-col gap-3.5">
-                <h1 className="m-0 text-6xl! font-semibold leading-[1.05] tracking-[-0.02em] text-[#eef4f1]">
+                <h1 className="m-0 text-6xl! font-semibold leading-[1.05] tracking-[-0.02em] text-card-foreground">
                     Every trade,
                     <br />
                     on the record.
-                    <span className="inline-block w-[13px] h-[0.9em] bg-[#ffdd3a] ml-[9px] align-[-2px] animate-[tradelBlink_1.1s_steps(1)_infinite]" />
+                    <span className="inline-block w-[13px] h-[0.9em] bg-primary ml-[9px] align-[-2px] animate-[tradelBlink_1.1s_steps(1)_infinite]" />
                 </h1>
-                <p className="m-0 text-[15px] leading-[1.5] text-[#7e8d89] max-w-[360px]">
+                <p className="m-0 text-ui-md leading-[1.5] text-content-soft max-w-[360px]">
                     Log entries, exits, and the reasoning between them.
                 </p>
             </div>
@@ -214,7 +216,7 @@ function HeroPanel({ shifted }: { shifted: boolean }) {
 
     return (
         <div
-            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-[#07090b] z-[1] ${paneEase}`}
+            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-sidebar z-[1] ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '100%' : '0%'})` }}
         >
             <canvas
@@ -235,7 +237,7 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
     const shifted = mode !== 'login';
     return (
         <div
-            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-[#0e1214] border-l border-[#1b2226] z-[2] ${paneEase}`}
+            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-card border-l border-border-subtle z-[2] ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '-100%' : '0%'})` }}
         >
             <div
@@ -254,11 +256,11 @@ export default function AuthLayout() {
     const [mode, setMode] = useAuthMode();
 
     return (
-        <div className="relative w-full h-screen min-h-[640px] bg-[#050505] overflow-hidden">
+        <div className="relative w-full h-screen min-h-[640px] bg-background overflow-hidden">
             <Tape
                 items={TOP_TICKS}
                 duration="46s"
-                className="absolute top-0 left-0 right-0 h-11 border-b border-[#1b2226]"
+                className="absolute top-0 left-0 right-0 h-11 border-b border-border-subtle"
             />
             {/* middle band holds the two sliding panels, between the tapes */}
             <div className="absolute top-[45px] bottom-[45px] left-0 right-0 overflow-hidden">
@@ -273,7 +275,7 @@ export default function AuthLayout() {
                 items={BOTTOM_TICKS}
                 duration="58s"
                 reverse
-                className="absolute bottom-0 left-0 right-0 h-11 border-t border-[#1b2226]"
+                className="absolute bottom-0 left-0 right-0 h-11 border-t border-border-subtle"
             />
         </div>
     );

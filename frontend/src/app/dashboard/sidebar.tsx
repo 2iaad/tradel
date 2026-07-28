@@ -1,29 +1,42 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { AccountModal } from './account-modal';
+import { Button } from '@/components/ui/button';
+import { Avatar as ShadcnAvatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+    Sidebar as ShadcnSidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 
 const NAV = [
-    ['Dashboard', '/dashboard'],
-    ['Trades', '/dashboard/trades'],
-    ['Analytics', '/dashboard/analytics'],
-    ['Calendar', '/dashboard/calendar'],
-    ['Journal', '/dashboard/journal'],
-    ['Settings', '/dashboard/settings'],
+    ['Dashboard', '/dashboard', '/icons/sidebar/dashboard.png'],
+    ['Trades', '/dashboard/trades', '/icons/sidebar/trades.png'],
+    ['Analytics', '/dashboard/analytics', '/icons/sidebar/analytics.png'],
+    ['Calendar', '/dashboard/calendar', '/icons/sidebar/calendar.png'],
+    ['Journal', '/dashboard/journal', '/icons/sidebar/journal.png'],
+    ['Settings', '/dashboard/settings', '/icons/sidebar/settings.png'],
 ] as const;
 
-const itemCls = 'flex items-center gap-3 w-full box-border rounded-lg px-3.5 py-2.5 text-[13.5px]';
+const itemCls = 'flex items-center my-0.5 w-full box-border rounded-lg px-8 py-5 text-ui-sm';
 
 // TRADEL wordmark with the pulsing dot.
 function Logo() {
     return (
         <div className="flex items-center gap-2.5 px-2.5 pb-[26px]">
-            <span className="font-mono text-[13px] font-semibold tracking-[0.22em] text-[#e8efec]">
+            <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
                 TRADEL
             </span>
         </div>
@@ -35,17 +48,34 @@ type NavItem = (typeof NAV)[number];
 const linkCls = (active: boolean) =>
     `${itemCls} ${
         active
-            ? 'bg-[#10161a] shadow-[inset_2px_0_0_#ffdd3a] text-[#eef4f2 font-medium'
-            : 'text-[#93a09d] transition-colors hover:bg-[#0d1215] hover:text-[#c8d2d0]'
+            ? 'bg-accent shadow-[inset_2px_0_0_var(--primary)] text-card-foreground font-medium'
+            : 'text-content-muted transition-colors hover:bg-surface-subtle hover:text-secondary-foreground'
     }`;
 
 // Nav row linking to a dashboard section; highlights the active route.
 function NavLink({ item, active }: { item: NavItem; active: boolean }) {
-    const [label, href] = item;
+    const [label, href, icon] = item;
     return (
-        <Link href={href} className={linkCls(active)}>
-            {label}
-        </Link>
+        <SidebarMenuItem>
+            <SidebarMenuButton
+                render={<Link href={href} />}
+                isActive={active}
+                className={linkCls(active)}
+            >
+                <Image
+                    src={icon}
+                    alt=""
+                    width={20}
+                    height={20}
+                    aria-hidden="true"
+                    draggable={false}
+                    className={`size-5 shrink-0 object-contain transition-[filter,opacity] ${
+                        active ? 'opacity-100' : 'grayscale opacity-60'
+                    }`}
+                />
+                {label}
+            </SidebarMenuButton>
+        </SidebarMenuItem>
     );
 }
 
@@ -54,31 +84,33 @@ function NavLinks() {
     const pathname = usePathname();
 
     return (
-        <nav className="flex flex-col gap-0.5">
+        <SidebarMenu>
             {NAV.map((item) => (
                 <NavLink key={item[1]} item={item} active={pathname === item[1]} />
             ))}
-        </nav>
+        </SidebarMenu>
     );
 }
 
 // Round initials avatar.
 function Avatar({ initials }: { initials: string }) {
     return (
-        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#10161a] border border-[#222a2f] font-mono text-xs font-semibold text-[#ffdd3a] uppercase">
-            {initials}
-        </span>
+        <ShadcnAvatar className="size-8 rounded-full border border-border bg-accent">
+            <AvatarFallback className="bg-transparent font-mono text-ui-xs font-semibold text-primary uppercase">
+                {initials}
+            </AvatarFallback>
+        </ShadcnAvatar>
     );
 }
 
 // Avatar + name/sub line at the bottom of the sidebar.
 function UserBadge({ initials, name, sub }: { initials: string; name: string; sub: string }) {
     return (
-        <div className="flex items-center gap-2.5 px-2.5 py-3 border-t border-[#161c20]">
+        <div className="flex items-center gap-2.5 px-2.5 py-1">
             <Avatar initials={initials} />
             <span className="flex flex-col gap-px min-w-0">
-                <span className="text-[13px] font-medium text-[#e9eef0]">{name}</span>
-                <span className="font-mono text-[10.5px] text-[#5f6b70] overflow-hidden text-ellipsis">
+                <span className="text-ui-sm font-medium text-content">{name}</span>
+                <span className="font-mono text-ui-xs text-content-faint overflow-hidden text-ellipsis">
                     {sub}
                 </span>
             </span>
@@ -99,53 +131,56 @@ function AccountPicker() {
 
     return (
         <div className="relative">
-            <button
+            <Button
                 type="button"
                 onClick={() => setOpen((o) => !o)}
-                className="flex items-center justify-between gap-2 w-full box-border rounded-lg px-3 py-2.5 bg-[#0a0d0f] border border-[#1b2226] cursor-pointer transition-colors hover:border-[#2b353b]"
+                variant="outline"
+                className="h-auto flex w-full items-center justify-between gap-2 rounded-lg border-border-subtle bg-muted px-3 py-2.5 text-left hover:bg-muted hover:border-border-hover"
             >
                 <span className="flex flex-col items-start gap-0.5 min-w-0">
-                    <span className="font-mono text-[9px] font-medium tracking-[0.16em] text-[#5f6b70]">
+                    <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
                         ACCOUNT
                     </span>
-                    <span className="text-[13px] font-medium text-[#e9eef0] truncate max-w-[150px]">
+                    <span className="text-ui-sm font-medium text-content truncate max-w-[150px]">
                         {active ? active.name : 'No account'}
                     </span>
                 </span>
-                <span className="font-mono text-[10px] text-[#5f6b70]">▾</span>
-            </button>
+                <span className="font-mono text-ui-xs text-content-faint">▾</span>
+            </Button>
             {open && (
-                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-[#0e1214] border border-[#222a2f] rounded-lg p-1.5 flex flex-col gap-0.5 shadow-[0_8px_28px_rgba(0,0,0,0.5)] z-40">
+                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-card border border-border rounded-lg p-1.5 flex flex-col gap-0.5 shadow-[0_8px_28px_rgba(0,0,0,0.5)] z-40">
                     {accounts.map((a) => (
-                        <button
+                        <Button
                             key={a.id}
                             type="button"
                             onClick={() => {
                                 setActive(a.id);
                                 setOpen(false);
                             }}
-                            className={`flex items-center justify-between gap-2 rounded-md px-2.5 py-2 text-[13px] text-left cursor-pointer border-none transition-colors ${
+                            variant="ghost"
+                            className={`h-auto flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-ui-sm text-left transition-colors ${
                                 a.id === activeId
-                                    ? 'bg-[#10161a] text-[#eef4f2]'
-                                    : 'bg-transparent text-[#93a09d] hover:bg-[#0d1215] hover:text-[#c8d2d0]'
+                                    ? 'bg-accent text-card-foreground'
+                                    : 'bg-transparent text-content-muted hover:bg-surface-subtle hover:text-secondary-foreground'
                             }`}
                         >
                             <span className="truncate">{a.name}</span>
                             {a.id === activeId && (
-                                <span className="text-[#ffdd3a] text-[11px]">●</span>
+                                <span className="text-primary text-ui-xs">●</span>
                             )}
-                        </button>
+                        </Button>
                     ))}
-                    <button
+                    <Button
                         type="button"
                         onClick={() => {
                             setCreating(true);
                             setOpen(false);
                         }}
-                        className="rounded-md px-2.5 py-2 mt-0.5 border-t border-[#161c20] bg-transparent font-mono text-[11px] font-medium tracking-[0.1em] text-[#ffdd3a] text-left cursor-pointer hover:bg-[#0d1215]"
+                        variant="ghost"
+                        className="h-auto mt-0.5 rounded-md border-t border-border-faint bg-transparent px-2.5 py-2 text-left font-mono text-ui-sm font-medium tracking-[0.1em] text-primary hover:bg-surface-subtle"
                     >
                         + NEW ACCOUNT
-                    </button>
+                    </Button>
                 </div>
             )}
             {creating && <AccountModal account={null} onClose={() => setCreating(false)} />}
@@ -163,13 +198,14 @@ function AuthAction() {
     };
 
     return (
-        <button
+        <Button
             type="button"
             onClick={signOut}
-            className="block w-full text-center font-mono text-[11px] font-medium tracking-[0.12em] text-[#5f6b70] p-2 bg-transparent border border-[#1b2226] rounded-lg cursor-pointer transition-colors hover:text-[#f0554e] hover:border-[#f0554e44]"
+            variant="outline"
+            className="h-auto block w-full border-border-subtle bg-transparent p-2 text-center font-mono text-ui-sm font-medium tracking-[0.12em] text-content-faint hover:bg-transparent hover:text-loss hover:border-loss/25"
         >
             SIGN OUT
-        </button>
+        </Button>
     );
 }
 
@@ -180,16 +216,26 @@ export function Sidebar() {
     if (session.status !== 'user') return null;
 
     return (
-        <aside className="sticky top-0 h-screen w-1/8 box-border flex flex-col bg-[#07090b] border-r border-[#1b2226] pt-7 px-4 pb-5">
-            <Logo />
-            <Link
-                href="/dashboard/trades"
-                className="mb-4 flex items-center justify-center rounded-lg bg-[#ffdd3a] px-3.5 py-2.5 text-[13px] font-semibold text-[#231a00] transition-[background] hover:bg-[#ffe867]"
-            >
-                + Log trade
-            </Link>
-            <NavLinks />
-            <div className="mt-auto flex flex-col gap-6">
+        <ShadcnSidebar
+            collapsible="offcanvas"
+            className="border-border-subtle bg-sidebar text-content"
+        >
+            <SidebarHeader className="gap-0 p-4 pt-7">
+                <Logo />
+                <Button
+                    nativeButton={false}
+                    render={<Link href="/dashboard/trades" />}
+                    className="h-auto rounded-lg bg-primary px-3.5 py-2.5 text-ui-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+                >
+                    + Log trade
+                </Button>
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup className="px-4 py-0">
+                    <NavLinks />
+                </SidebarGroup>
+            </SidebarContent>
+            <SidebarFooter className="gap-4 border-t border-border-faint p-4">
                 <AccountPicker />
                 <UserBadge
                     initials={session.email.slice(0, 2)}
@@ -197,7 +243,7 @@ export function Sidebar() {
                     sub={session.email}
                 />
                 <AuthAction />
-            </div>
-        </aside>
+            </SidebarFooter>
+        </ShadcnSidebar>
     );
 }

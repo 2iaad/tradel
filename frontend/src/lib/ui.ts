@@ -2,11 +2,11 @@
 // Palette: the global `primary` token is the single UI accent.
 // Green/red are reserved for win/loss (P&L) signals only — see G/R below.
 export const inputCls =
-    'w-full box-border bg-muted border border-border rounded-lg px-3.5 py-[13px] text-content text-sm outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary focus:ring-3 focus:ring-primary/15';
+    'w-full h-10 min-h-10 box-border bg-muted border border-border rounded-lg px-3.5 py-3 text-content text-sm outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary focus:ring-3 focus:ring-primary/15';
 export const labelCls =
     'block font-mono text-ui-xs font-medium tracking-[0.14em] uppercase text-content-faint mb-[7px]';
 export const btnCls =
-    'w-full border-none rounded-lg p-3.5 mt-1 bg-primary text-primary-foreground font-semibold text-ui-md cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.985] disabled:opacity-60 disabled:cursor-default';
+    'w-full h-10 min-h-10 border-none rounded-lg p-0 mt-1 bg-primary font-semibold text-ui-md text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.985] disabled:opacity-60 disabled:cursor-default';
 export const linkCls =
     'bg-transparent border-none p-0 text-primary font-medium cursor-pointer hover:text-primary-hover';
 export const kickerCls = 'font-mono text-ui-xs font-medium tracking-[0.2em] text-primary';
@@ -30,6 +30,6 @@ export const monoFontStack =
 export const cardCls = 'bg-card border border-border-subtle rounded-[10px]';
 export const h2Cls = 'm-0 text-ui-lg font-semibold text-card-foreground';
 export const ctaCls =
-    'border-none rounded-lg px-[18px] py-[11px] bg-primary text-primary-foreground font-semibold text-ui-md cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.97]';
+    'border-none rounded-lg px-[18px] py-[11px] bg-primary text-ui-md text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.97]';
 export const ghostBtnCls =
     'bg-transparent border-none p-0 font-mono text-ui-xs font-medium tracking-[0.1em] text-primary cursor-pointer hover:text-primary-hover';

@@ -212,7 +212,7 @@ input:-webkit-autofill:focus {
     /* shadcn tokens mapped to Tradel's existing Carbon Terminal palette. */
     --brand: #ffdd3a;
     --brand-hover: #ffe867;
-    --brand-foreground: #231a00;
+    --brand-foreground: #050505;
     --background: #050505;
     --foreground: #ededed;
     --card: #0e1214;
@@ -275,5 +275,14 @@ input:-webkit-autofill:focus {
     }
   html {
     @apply font-sans;
+    }
+}
+
+/* `tailwind-merge` can mistake the custom `text-ui-*` font-size utilities for
+   color utilities and drop a neighboring `text-black` class. Keep the
+   foreground of every yellow primary button explicit at the cascade level. */
+@layer utilities {
+    [data-slot='button'].bg-primary {
+        color: #050505;
     }
 }

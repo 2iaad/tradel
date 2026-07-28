@@ -225,7 +225,7 @@ export function Sidebar() {
                 <Button
                     nativeButton={false}
                     render={<Link href="/dashboard/trades" />}
-                    className="h-auto rounded-lg bg-primary px-3.5 py-2.5 text-ui-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+                    className="h-10 rounded-lg bg-primary px-3.5 py-2.5 text-ui-sm font-semibold text-black hover:bg-primary-hover"
                 >
                     + Log trade
                 </Button>

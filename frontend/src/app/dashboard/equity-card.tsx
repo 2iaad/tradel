@@ -77,9 +77,9 @@ function RangePicker({ range, onChange }: { range: RangeKey; onChange: (k: Range
                     onClick={() => onChange(key)}
                     variant={key === range ? 'default' : 'ghost'}
                     size="sm"
-                    className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs font-semibold tracking-[0.08em] ${
+                    className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs ${
                         key === range
-                            ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                            ? 'bg-primary text-black hover:bg-primary-hover'
                             : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'
                     }`}
                 >

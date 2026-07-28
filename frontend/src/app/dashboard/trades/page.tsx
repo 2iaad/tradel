@@ -35,7 +35,7 @@ function SegmentedTabs<T extends string>({
                         onClick={() => onChange(opt)}
                         variant={on ? 'default' : 'ghost'}
                         size="sm"
-                        className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs font-semibold tracking-[0.08em] ${on ? 'bg-primary text-primary-foreground hover:bg-primary-hover' : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'}`}
+                        className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs ${on ? 'bg-primary text-black hover:bg-primary-hover' : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'}`}
                     >
                         {opt}
                     </Button>
@@ -99,7 +99,7 @@ export default function TradesPage() {
                 <Button
                     type="button"
                     onClick={() => log.startEdit('new')}
-                    className={`${ctaCls} h-auto whitespace-nowrap`}
+                    className={`${ctaCls} text-black h-10 whitespace-nowrap`}
                 >
                     + Log trade
                 </Button>

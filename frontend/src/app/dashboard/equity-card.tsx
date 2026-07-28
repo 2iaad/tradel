@@ -16,10 +16,12 @@ import {
     type ScriptableLineSegmentContext,
 } from 'chart.js';
 
-import { G, R, cardCls, h2Cls } from '@/lib/ui';
+import { canvasColors, G, R, cardCls, h2Cls, monoFontStack } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
 import { RANGES, RangeKey, buildSeries } from './equity-chart.lib';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip);
 
@@ -44,8 +46,8 @@ const options: ChartOptions<'line'> = {
         x: {
             grid: { display: false, drawTicks: false },
             ticks: {
-                color: '#5f6b70',
-                font: { family: 'monospace', size: 10 },
+                color: canvasColors.faint,
+                font: { family: monoFontStack, size: 10 },
                 maxTicksLimit: 7,
                 maxRotation: 0,
                 padding: 14,
@@ -53,12 +55,12 @@ const options: ChartOptions<'line'> = {
         },
         y: {
             ticks: {
-                color: '#5f6b70',
-                font: { family: 'monospace', size: 10 },
+                color: canvasColors.faint,
+                font: { family: monoFontStack, size: 10 },
                 callback: (v) => money(Number(v)),
                 padding: 14,
             },
-            grid: { color: '#161c20', drawTicks: false },
+            grid: { color: canvasColors.borderFaint, drawTicks: false },
         },
     },
     elements: { point: { radius: 0, hoverRadius: 4 } },
@@ -67,20 +69,22 @@ const options: ChartOptions<'line'> = {
 // Same 30D/90D/YTD/ALL toggle as the canvas card, minus the reveal wiring.
 function RangePicker({ range, onChange }: { range: RangeKey; onChange: (k: RangeKey) => void }) {
     return (
-        <div className="flex gap-1 bg-[#0a0d0f] border border-[#1b2226] rounded-lg p-[3px]">
+        <div className="flex gap-1 bg-muted border border-border-subtle rounded-lg p-[3px]">
             {(Object.keys(RANGES) as RangeKey[]).map((key) => (
-                <button
+                <Button
                     key={key}
                     type="button"
                     onClick={() => onChange(key)}
-                    className={`border-none cursor-pointer rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] transition-colors ${
+                    variant={key === range ? 'default' : 'ghost'}
+                    size="sm"
+                    className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] ${
                         key === range
-                            ? 'bg-[#ffdd3a] text-[#231a00]'
-                            : 'bg-transparent text-[#5f6b70]'
+                            ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                            : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'
                     }`}
                 >
                     {key}
-                </button>
+                </Button>
             ))}
         </div>
     );
@@ -185,11 +189,11 @@ export function EquityCard() {
     }, [series]);
 
     return (
-        <div className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
+        <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-3.5`}>
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex flex-col gap-[5px]">
                     <h2 className={h2Cls}>Equity curve</h2>
-                    <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-[#5f6b70]">
+                    <span className="font-mono text-[10.5px] font-medium tracking-[0.14em] text-content-faint">
                         NET LIQ ($) × TRADES LOGGED
                     </span>
                 </div>
@@ -204,7 +208,7 @@ export function EquityCard() {
                         <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
                             BEST DAY
                         </span>
-                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.bestDay !== null && dailyStats.bestDay < 0 ? 'text-[#f0444d]' : 'text-[#00c98b]'}`}>
+                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.bestDay !== null && dailyStats.bestDay < 0 ? 'text-loss' : 'text-profit'}`}>
                             {signedDayMoney(dailyStats.bestDay)}
                         </span>
                     </div>
@@ -212,7 +216,7 @@ export function EquityCard() {
                         <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
                             WORST DAY
                         </span>
-                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.worstDay !== null && dailyStats.worstDay >= 0 ? 'text-[#00c98b]' : 'text-[#f0444d]'}`}>
+                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.worstDay !== null && dailyStats.worstDay >= 0 ? 'text-profit' : 'text-loss'}`}>
                             {signedDayMoney(dailyStats.worstDay)}
                         </span>
                     </div>
@@ -220,7 +224,7 @@ export function EquityCard() {
                         <span className="font-mono text-[10px] tracking-[0.14em] text-[#a59f96]">
                             AVG / DAY
                         </span>
-                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.avgDay !== null && dailyStats.avgDay < 0 ? 'text-[#f0444d]' : 'text-[#00c98b]'}`}>
+                        <span className={`text-[28px] leading-none font-semibold ${dailyStats.avgDay !== null && dailyStats.avgDay < 0 ? 'text-loss' : 'text-profit'}`}>
                             {signedDayMoney(dailyStats.avgDay)}
                         </span>
                     </div>
@@ -229,6 +233,6 @@ export function EquityCard() {
             <div className="h-[400px]">
                 <Line options={options} data={data} plugins={[equityFillPlugin]} />
             </div>
-        </div>
+        </Card>
     );
 }

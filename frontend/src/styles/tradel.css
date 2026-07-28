@@ -82,18 +82,35 @@ body {
    and nothing unlayered targets .page-w. */
 .page-w {
   color: var(--color--white);
-  font-family: Intervariable, Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   line-height: 20px;
+}
+
+/* Match the application typography on the cloned landing page too. The
+   imported Webflow theme contains several legacy font declarations; these
+   ensure the reference UI stack is consistent across every route. */
+.page-w * {
+  font-family: inherit;
+}
+
+.page-w h1,
+.page-w h2,
+.page-w h3,
+.page-w h4,
+.page-w h5,
+.page-w h6,
+.page-w .tradel-logo {
+  font-family: var(--font-heading);
 }
 
 /* Landing accent: yellow instead of the cloned theme's green.
    Overrides the site.css vars; every section (cells, buttons, cubes,
    glows, selection) keys off these. */
 :root {
-  --color--tradel: #ffdd3a;
-  --color--tradel-15: #ffdd3a26;
-  --color--tradel-45: #ffdd3a73;
+  --color--tradel: var(--brand);
+  --color--tradel-15: color-mix(in srgb, var(--brand) 15%, transparent);
+  --color--tradel-45: color-mix(in srgb, var(--brand) 45%, transparent);
 }
 
 /* Lighthouse media (viz video, phone screens) have the green baked into

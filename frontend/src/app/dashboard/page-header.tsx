@@ -15,12 +15,12 @@ export function PageHeader({
         <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-1.5">
                 <div className={kickerCls}>{kicker}</div>
-                <h1 className="m-0 text-[26px] font-semibold tracking-[-0.01em] text-[#eef4f2]">
+                <h1 className="m-0 text-[26px] font-semibold tracking-[-0.01em] text-card-foreground">
                     {title}
                 </h1>
             </div>
             <div className="flex items-center gap-3.5">
-                <span className="font-mono text-[11px] font-medium tracking-[0.1em] text-[#5f6b70]">
+                <span className="font-mono text-[11px] font-medium tracking-[0.1em] text-content-faint">
                     {dateStamp()}
                 </span>
                 {children}

@@ -8,9 +8,14 @@ import type { ApiNote } from '@/stores/notes';
 import { useTradesStore } from '@/stores/trades';
 import { PageHeader } from '../page-header';
 import { NoteModal } from './note-modal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const tagChip =
-    'inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-[#78878a] border border-[#222a2f]';
+    'inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-muted-foreground border border-border';
 
 // One note card: title, body preview, linked trade symbol, tags, edit/delete.
 function NoteCard({
@@ -32,35 +37,39 @@ function NoteCard({
         year: 'numeric',
     });
     return (
-        <div className={`${cardCls} p-5 flex flex-col gap-2.5`}>
+        <Card className={`${cardCls} p-5 flex flex-col gap-2.5`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="font-mono text-[10px] font-semibold tracking-[0.08em] text-[#ffdd3a] border border-[#ffdd3a33] rounded px-1.5 py-0.5 whitespace-nowrap">
+                    <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.08em] text-primary whitespace-nowrap">
                         {symbol}
-                    </span>
-                    <span className="font-mono text-[10px] text-[#4d5a5f]">{date}</span>
+                    </Badge>
+                    <span className="font-mono text-[10px] text-content-placeholder">{date}</span>
                 </div>
                 <span className="flex items-center gap-3 shrink-0">
-                    <button
+                    <Button
                         type="button"
                         onClick={onEdit}
                         title="Edit note"
-                        className={`${iconCls} text-[#5f6b70] hover:text-[#ffdd3a]`}
+                        variant="ghost"
+                        size="icon-sm"
+                        className={`${iconCls} text-content-faint hover:bg-transparent hover:text-primary`}
                     >
                         ✎
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
                         onClick={onDelete}
                         title="Delete note"
-                        className={`${iconCls} text-[#5f6b70] hover:text-[#f0554e]`}
+                        variant="ghost"
+                        size="icon-sm"
+                        className={`${iconCls} text-content-faint hover:bg-transparent hover:text-loss`}
                     >
                         ✕
-                    </button>
+                    </Button>
                 </span>
             </div>
-            <span className="text-[15px] font-semibold text-[#e9eef0]">{note.title}</span>
-            <span className="text-[13px] leading-[1.6] text-[#8a9995]">{note.body}</span>
+            <span className="text-[15px] font-semibold text-content">{note.title}</span>
+            <span className="text-[13px] leading-[1.6] text-content-dim">{note.body}</span>
             {note.tags.length > 0 && (
                 <span className="flex flex-wrap items-center gap-1.5 mt-0.5">
                     {note.tags.map((t) => (
@@ -70,14 +79,14 @@ function NoteCard({
                     ))}
                 </span>
             )}
-        </div>
+        </Card>
     );
 }
 
 // Confirmation card shown before a note is deleted.
 function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
     const btn =
-        'flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors';
+        'h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors';
     return (
         <div
             onClick={onCancel}
@@ -85,26 +94,28 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
         >
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-[#0e1214] border border-[#222a2f] rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
+                className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-card border border-border rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
             >
                 {/* <span className={kickerCls}>{'/// DELETE NOTE'}</span> */}
-                <h2 className="m-0 text-xl font-semibold text-[#eef4f2]">Delete this note?</h2>
-                <p className="m-0 text-[13px] text-[#8a9995]">This can&apos;t be undone.</p>
+                <h2 className="m-0 text-xl font-semibold text-card-foreground">Delete this note?</h2>
+                <p className="m-0 text-[13px] text-content-dim">This can&apos;t be undone.</p>
                 <div className="flex gap-2.5 mt-1">
-                    <button
+                    <Button
                         type="button"
                         onClick={onCancel}
-                        className={`${btn} bg-transparent border border-[#222a2f] text-[#78878a] hover:text-[#c8d2d0] hover:border-[#2b353b]`}
+                        variant="outline"
+                        className={`${btn} border-border bg-transparent text-muted-foreground hover:bg-transparent hover:text-secondary-foreground hover:border-border-hover`}
                     >
                         CANCEL
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
                         onClick={onConfirm}
-                        className={`${btn} border-none bg-[#f0554e] text-[#140404] hover:bg-[#ff6f68]`}
+                        variant="destructive"
+                        className={`${btn} bg-loss text-loss-foreground hover:bg-loss-hover`}
                     >
                         DELETE
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
@@ -163,45 +174,44 @@ export default function JournalPage() {
             <PageHeader kicker="" title="Trade notes" />
 
             <div className="flex items-center gap-3 flex-wrap">
-                <input
+            <Input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search notes…"
-                    className="flex-1 min-w-[200px] max-w-[320px] box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3.5 py-2.5 text-[#e9eef0] font-mono text-[12.5px] outline-none transition-colors focus:border-[#ffdd3a66] placeholder:text-[#4d5a5f]"
-                />
-                <select
-                    value={tag}
-                    onChange={(e) => setTag(e.target.value)}
-                    className="box-border bg-[#0a0d0f] border border-[#1b2226] rounded-lg px-3 py-2.5 text-[#c8d2d0] font-mono text-[12px] outline-none focus:border-[#ffdd3a66] [color-scheme:dark]"
-                >
-                    {allTags.map((t) => (
-                        <option key={t} value={t}>
-                            {t === 'ALL' ? 'ALL TAGS' : t}
-                        </option>
-                    ))}
-                </select>
+                className="h-auto flex-1 min-w-[200px] max-w-[320px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-[12.5px] text-content placeholder:text-content-placeholder"
+            />
+                <Select value={tag} onValueChange={(value) => value && setTag(value)}>
+                    <SelectTrigger className="h-auto min-w-[130px] border-border-subtle bg-muted px-3 py-2.5 font-mono text-[12px] text-secondary-foreground hover:bg-muted">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {allTags.map((t) => (
+                            <SelectItem key={t} value={t}>{t === 'ALL' ? 'ALL TAGS' : t}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             {loading ? (
-                <p className="font-mono text-[12px] tracking-[0.14em] text-[#5f6b70] px-1">
+                <p className="font-mono text-[12px] tracking-[0.14em] text-content-faint px-1">
                     LOADING NOTES…
                 </p>
             ) : error ? (
-                <p className="font-mono text-[12px] tracking-[0.14em] text-[#f0554e] px-1">
+                <p className="font-mono text-[12px] tracking-[0.14em] text-loss px-1">
                     {error.toUpperCase()}
                 </p>
             ) : rows.length === 0 ? (
-                <div className={`${cardCls} flex flex-col items-center gap-4 py-16 px-6`}>
-                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-[#5f6b70]">
+                <Card className={`${cardCls} flex flex-col items-center gap-4 py-16 px-6`}>
+                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-content-faint">
                         {notes.length === 0 ? 'NO NOTES YET' : 'NO NOTES MATCH YOUR FILTERS'}
                     </span>
                     {notes.length === 0 && (
-                        <p className="m-0 text-[13px] text-[#8a9995] text-center max-w-[380px]">
+                        <p className="m-0 text-[13px] text-content-dim text-center max-w-[380px]">
                             Attach a note to a trade to record what you saw, what you did, and what
                             you learned.
                         </p>
                     )}
-                </div>
+                </Card>
             ) : (
                 <div className="grid grid-cols-2 gap-6 max-[720px]:grid-cols-1">
                     {rows.map((n) => (

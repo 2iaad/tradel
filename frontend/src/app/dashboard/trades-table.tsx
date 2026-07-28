@@ -16,7 +16,7 @@ function SideBadge({ side }: { side: string }) {
         <span>
             <Badge
                 variant="outline"
-                className="h-auto rounded px-2 py-0.5 font-mono text-[9.5px] font-semibold tracking-[0.08em]"
+                className="h-auto rounded px-2 py-0.5 font-mono text-ui-xs font-semibold tracking-[0.08em]"
                 style={{
                     color: long ? G : R,
                     background: long ? "rgba(47,213,127,.08)" : "rgba(240,85,78,.08)",
@@ -29,7 +29,7 @@ function SideBadge({ side }: { side: string }) {
     );
 }
 
-const numCls = "font-mono text-[12.5px] text-content-muted";
+const numCls = "font-mono text-ui-sm text-content-muted";
 
 // One row of the recent-trades table.
 function TradeRow({ t }: { t: TradeLogRow }) {
@@ -38,18 +38,18 @@ function TradeRow({ t }: { t: TradeLogRow }) {
         <div
             className={`${tableGrid} items-center px-[22px] py-[11px] border-t border-border-faint transition-colors cursor-default hover:bg-accent`}
         >
-            <span className="font-mono text-[12.5px] font-semibold text-content">{t.sym}</span>
+            <span className="font-mono text-ui-sm font-semibold text-content">{t.sym}</span>
             <SideBadge side={t.side} />
             <span className={numCls}>{t.entry}</span>
             <span className={numCls}>{t.exit ?? "—"}</span>
             <span className={numCls}>{t.lots}</span>
-            <span className="font-mono text-[12.5px] font-medium" style={winCol}>
+            <span className="font-mono text-ui-sm font-medium" style={winCol}>
                 {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
             </span>
-            <span className="font-mono text-[12.5px] font-semibold text-right" style={winCol}>
+            <span className="font-mono text-ui-sm font-semibold text-right" style={winCol}>
                 {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
             </span>
-            <span className="font-mono text-[10.5px] text-content-faint text-right">{t.date}</span>
+            <span className="font-mono text-ui-xs text-content-faint text-right">{t.date}</span>
         </div>
     );
 }
@@ -58,7 +58,7 @@ function TradeRow({ t }: { t: TradeLogRow }) {
 function TableHead() {
     return (
         <div
-            className={`${tableGrid} px-[22px] py-2 border-t border-border-faint font-mono text-[10px] font-medium tracking-[0.12em] text-content-faint`}
+            className={`${tableGrid} px-[22px] py-2 border-t border-border-faint font-mono text-ui-xs font-medium tracking-[0.12em] text-content-faint`}
         >
             <span>SYMBOL</span>
             <span>SIDE</span>
@@ -75,7 +75,7 @@ function TableHead() {
 // Centered placeholder shown while loading or when the log is empty.
 function EmptyRows({ loading }: { loading: boolean }) {
     return (
-        <div className="px-[22px] py-8 border-t border-border-faint text-center font-mono text-[11px] tracking-[0.12em] text-content-faint">
+        <div className="px-[22px] py-8 border-t border-border-faint text-center font-mono text-ui-xs tracking-[0.12em] text-content-faint">
             {loading ? "LOADING…" : "NO TRADES YET — LOG YOUR FIRST ONE"}
         </div>
     );

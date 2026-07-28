@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const tagChip =
-    'inline-flex px-2 py-0.5 rounded font-mono text-[9.5px] font-medium tracking-[0.06em] text-muted-foreground border border-border';
+    'inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border';
 
 // One note card: title, body preview, linked trade symbol, tags, edit/delete.
 function NoteCard({
@@ -30,7 +30,7 @@ function NoteCard({
     onDelete: () => void;
 }) {
     const iconCls =
-        'bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none transition-colors';
+        'bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors';
     const date = new Date(note.created_at).toLocaleDateString('en-US', {
         month: 'short',
         day: '2-digit',
@@ -40,10 +40,10 @@ function NoteCard({
         <Card className={`${cardCls} p-5 flex flex-col gap-2.5`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.08em] text-primary whitespace-nowrap">
+                    <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-semibold tracking-[0.08em] text-primary whitespace-nowrap">
                         {symbol}
                     </Badge>
-                    <span className="font-mono text-[10px] text-content-placeholder">{date}</span>
+                    <span className="font-mono text-ui-xs text-content-placeholder">{date}</span>
                 </div>
                 <span className="flex items-center gap-3 shrink-0">
                     <Button
@@ -68,8 +68,8 @@ function NoteCard({
                     </Button>
                 </span>
             </div>
-            <span className="text-[15px] font-semibold text-content">{note.title}</span>
-            <span className="text-[13px] leading-[1.6] text-content-dim">{note.body}</span>
+            <span className="text-ui-md font-semibold text-content">{note.title}</span>
+            <span className="text-ui-sm leading-[1.6] text-content-dim">{note.body}</span>
             {note.tags.length > 0 && (
                 <span className="flex flex-wrap items-center gap-1.5 mt-0.5">
                     {note.tags.map((t) => (
@@ -86,7 +86,7 @@ function NoteCard({
 // Confirmation card shown before a note is deleted.
 function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
     const btn =
-        'h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors';
+        'h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-ui-xs font-semibold tracking-[0.1em] cursor-pointer transition-colors';
     return (
         <div
             onClick={onCancel}
@@ -98,7 +98,7 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
             >
                 {/* <span className={kickerCls}>{'/// DELETE NOTE'}</span> */}
                 <h2 className="m-0 text-xl font-semibold text-card-foreground">Delete this note?</h2>
-                <p className="m-0 text-[13px] text-content-dim">This can&apos;t be undone.</p>
+                <p className="m-0 text-ui-sm text-content-dim">This can&apos;t be undone.</p>
                 <div className="flex gap-2.5 mt-1">
                     <Button
                         type="button"
@@ -178,10 +178,10 @@ export default function JournalPage() {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search notes…"
-                className="h-auto flex-1 min-w-[200px] max-w-[320px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-[12.5px] text-content placeholder:text-content-placeholder"
+                className="h-auto flex-1 min-w-[200px] max-w-[320px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder"
             />
                 <Select value={tag} onValueChange={(value) => value && setTag(value)}>
-                    <SelectTrigger className="h-auto min-w-[130px] border-border-subtle bg-muted px-3 py-2.5 font-mono text-[12px] text-secondary-foreground hover:bg-muted">
+                    <SelectTrigger className="h-auto min-w-[130px] border-border-subtle bg-muted px-3 py-2.5 font-mono text-ui-sm text-secondary-foreground hover:bg-muted">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -193,20 +193,20 @@ export default function JournalPage() {
             </div>
 
             {loading ? (
-                <p className="font-mono text-[12px] tracking-[0.14em] text-content-faint px-1">
+                <p className="font-mono text-ui-sm tracking-[0.14em] text-content-faint px-1">
                     LOADING NOTES…
                 </p>
             ) : error ? (
-                <p className="font-mono text-[12px] tracking-[0.14em] text-loss px-1">
+                <p className="font-mono text-ui-sm tracking-[0.14em] text-loss px-1">
                     {error.toUpperCase()}
                 </p>
             ) : rows.length === 0 ? (
                 <Card className={`${cardCls} flex flex-col items-center gap-4 py-16 px-6`}>
-                    <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-content-faint">
+                    <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
                         {notes.length === 0 ? 'NO NOTES YET' : 'NO NOTES MATCH YOUR FILTERS'}
                     </span>
                     {notes.length === 0 && (
-                        <p className="m-0 text-[13px] text-content-dim text-center max-w-[380px]">
+                        <p className="m-0 text-ui-sm text-content-dim text-center max-w-[380px]">
                             Attach a note to a trade to record what you saw, what you did, and what
                             you learned.
                         </p>

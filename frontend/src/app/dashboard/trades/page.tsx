@@ -35,7 +35,7 @@ function SegmentedTabs<T extends string>({
                         onClick={() => onChange(opt)}
                         variant={on ? 'default' : 'ghost'}
                         size="sm"
-                        className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-[11px] font-semibold tracking-[0.08em] ${on ? 'bg-primary text-primary-foreground hover:bg-primary-hover' : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'}`}
+                        className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs font-semibold tracking-[0.08em] ${on ? 'bg-primary text-primary-foreground hover:bg-primary-hover' : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'}`}
                     >
                         {opt}
                     </Button>
@@ -53,7 +53,7 @@ function FilterToolbar({ log }: { log: Log }) {
                 value={log.q}
                 onChange={(e) => log.setQ(e.target.value)}
                 placeholder="Search symbol or setup…"
-                className="h-auto flex-1 min-w-[200px] max-w-[300px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-[12.5px] text-content placeholder:text-content-placeholder"
+                className="h-auto flex-1 min-w-[200px] max-w-[300px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder"
             />
             <SegmentedTabs options={SIDES} active={log.side} onChange={log.setSide} />
             <SegmentedTabs options={OUTCOMES} active={log.outcome} onChange={log.setOutcome} />
@@ -64,7 +64,7 @@ function FilterToolbar({ log }: { log: Log }) {
 // One label+value pill in the quick-stats strip.
 function Chip({ label, value, color }: { label: string; value: string; color?: string }) {
     return (
-        <span className="inline-flex items-center gap-1.5 bg-muted border border-border-subtle rounded-full px-3.5 py-1.5 font-mono text-[11px] font-medium tracking-[0.04em] text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5 bg-muted border border-border-subtle rounded-full px-3.5 py-1.5 font-mono text-ui-xs font-medium tracking-[0.04em] text-muted-foreground">
             {label && <span>{label}</span>}
             <span style={{ color: color ?? 'var(--secondary-foreground)' }}>{value}</span>
         </span>

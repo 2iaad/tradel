@@ -28,12 +28,12 @@ function StatsStrip() {
                                     {stat.value}
                                 </span>
                                 {stat.stars && (
-                                    <span className="text-[15px] tracking-[0.1em] text-primary">
+                                    <span className="text-ui-md tracking-[0.1em] text-primary">
                                         ★★★★★
                                     </span>
                                 )}
                             </div>
-                            <span className="font-mono text-[10.5px] font-medium tracking-[0.16em] text-content-faint uppercase">
+                            <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint uppercase">
                                 {stat.label}
                             </span>
                         </div>

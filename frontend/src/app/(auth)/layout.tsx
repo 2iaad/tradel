@@ -63,9 +63,9 @@ function SwitchLine({
     onClick: () => void;
 }) {
     return (
-        <p className="mt-1 mb-0 text-[13.5px] text-[#6b7a76] text-center">
+        <p className="mt-1 mb-0 text-ui-md text-[#6b7a76] text-center">
             {text && <>{text} </>}
-            <Button type="button" variant="link" onClick={onClick} className={`${linkCls} h-auto text-[13.5px]`}>
+            <Button type="button" variant="link" onClick={onClick} className={`${linkCls} h-auto text-ui-md`}>
                 {label}
             </Button>
         </p>
@@ -76,11 +76,11 @@ function SwitchLine({
 function RememberRow({ onReset }: { onReset: () => void }) {
     return (
         <div className="flex justify-between items-center">
-            <label htmlFor="remember-me" className="flex items-center gap-2 text-[13px] text-content-muted cursor-pointer">
+            <label htmlFor="remember-me" className="flex items-center gap-2 text-ui-sm text-content-muted cursor-pointer">
                 <Checkbox id="remember-me" name="remember" />
                 Remember me
             </label>
-            <Button type="button" variant="link" onClick={onReset} className={`${linkCls} h-auto text-[13px]`}>
+            <Button type="button" variant="link" onClick={onReset} className={`${linkCls} h-auto text-ui-sm`}>
                 Forgot password?
             </Button>
         </div>
@@ -187,7 +187,7 @@ function HeroCopy() {
         <div className="absolute inset-0 flex flex-col justify-between box-border px-[52px] py-11">
             <div className="flex items-center gap-2.5">
                 <span className="w-[9px] h-[9px] rounded-full bg-primary animate-[tradelPulse_2.2s_ease-out_infinite]" />
-                <span className="font-mono text-[13px] font-semibold tracking-[0.22em] text-card-foreground">
+                <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
                     TRADEL
                 </span>
             </div>
@@ -198,7 +198,7 @@ function HeroCopy() {
                     on the record.
                     <span className="inline-block w-[13px] h-[0.9em] bg-primary ml-[9px] align-[-2px] animate-[tradelBlink_1.1s_steps(1)_infinite]" />
                 </h1>
-                <p className="m-0 text-[15px] leading-[1.5] text-content-soft max-w-[360px]">
+                <p className="m-0 text-ui-md leading-[1.5] text-content-soft max-w-[360px]">
                     Log entries, exits, and the reasoning between them.
                 </p>
             </div>

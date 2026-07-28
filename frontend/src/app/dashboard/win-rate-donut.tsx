@@ -62,7 +62,7 @@ export function WinRateDonut({
             </div>
             <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
                 {legend.map(([label, color, n]) => (
-                    <span key={label} className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-secondary-foreground">
+                    <span key={label} className="inline-flex items-center gap-1.5 font-mono text-ui-xs text-secondary-foreground">
                         <span className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
                         {label} {n}
                     </span>

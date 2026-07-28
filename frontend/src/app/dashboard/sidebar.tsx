@@ -30,13 +30,13 @@ const NAV = [
     ['Settings', '/dashboard/settings', '/icons/sidebar/settings.png'],
 ] as const;
 
-const itemCls = 'flex items-center my-0.5 w-full box-border rounded-lg px-8 py-5 text-[14px]';
+const itemCls = 'flex items-center my-0.5 w-full box-border rounded-lg px-8 py-5 text-ui-sm';
 
 // TRADEL wordmark with the pulsing dot.
 function Logo() {
     return (
         <div className="flex items-center gap-2.5 px-2.5 pb-[26px]">
-            <span className="font-mono text-[13px] font-semibold tracking-[0.22em] text-card-foreground">
+            <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
                 TRADEL
             </span>
         </div>
@@ -96,7 +96,7 @@ function NavLinks() {
 function Avatar({ initials }: { initials: string }) {
     return (
         <ShadcnAvatar className="size-8 rounded-full border border-border bg-accent">
-            <AvatarFallback className="bg-transparent font-mono text-xs font-semibold text-primary uppercase">
+            <AvatarFallback className="bg-transparent font-mono text-ui-xs font-semibold text-primary uppercase">
                 {initials}
             </AvatarFallback>
         </ShadcnAvatar>
@@ -109,8 +109,8 @@ function UserBadge({ initials, name, sub }: { initials: string; name: string; su
         <div className="flex items-center gap-2.5 px-2.5 py-1">
             <Avatar initials={initials} />
             <span className="flex flex-col gap-px min-w-0">
-                <span className="text-[13px] font-medium text-content">{name}</span>
-                <span className="font-mono text-[10.5px] text-content-faint overflow-hidden text-ellipsis">
+                <span className="text-ui-sm font-medium text-content">{name}</span>
+                <span className="font-mono text-ui-xs text-content-faint overflow-hidden text-ellipsis">
                     {sub}
                 </span>
             </span>
@@ -138,14 +138,14 @@ function AccountPicker() {
                 className="h-auto flex w-full items-center justify-between gap-2 rounded-lg border-border-subtle bg-muted px-3 py-2.5 text-left hover:bg-muted hover:border-border-hover"
             >
                 <span className="flex flex-col items-start gap-0.5 min-w-0">
-                    <span className="font-mono text-[9px] font-medium tracking-[0.16em] text-content-faint">
+                    <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
                         ACCOUNT
                     </span>
-                    <span className="text-[13px] font-medium text-content truncate max-w-[150px]">
+                    <span className="text-ui-sm font-medium text-content truncate max-w-[150px]">
                         {active ? active.name : 'No account'}
                     </span>
                 </span>
-                <span className="font-mono text-[10px] text-content-faint">▾</span>
+                <span className="font-mono text-ui-xs text-content-faint">▾</span>
             </Button>
             {open && (
                 <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-card border border-border rounded-lg p-1.5 flex flex-col gap-0.5 shadow-[0_8px_28px_rgba(0,0,0,0.5)] z-40">
@@ -158,7 +158,7 @@ function AccountPicker() {
                                 setOpen(false);
                             }}
                             variant="ghost"
-                            className={`h-auto flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-[13px] text-left transition-colors ${
+                            className={`h-auto flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-ui-sm text-left transition-colors ${
                                 a.id === activeId
                                     ? 'bg-accent text-card-foreground'
                                     : 'bg-transparent text-content-muted hover:bg-surface-subtle hover:text-secondary-foreground'
@@ -166,7 +166,7 @@ function AccountPicker() {
                         >
                             <span className="truncate">{a.name}</span>
                             {a.id === activeId && (
-                                <span className="text-primary text-[11px]">●</span>
+                                <span className="text-primary text-ui-xs">●</span>
                             )}
                         </Button>
                     ))}
@@ -177,7 +177,7 @@ function AccountPicker() {
                             setOpen(false);
                         }}
                         variant="ghost"
-                        className="h-auto mt-0.5 rounded-md border-t border-border-faint bg-transparent px-2.5 py-2 text-left font-mono text-[11px] font-medium tracking-[0.1em] text-primary hover:bg-surface-subtle"
+                        className="h-auto mt-0.5 rounded-md border-t border-border-faint bg-transparent px-2.5 py-2 text-left font-mono text-ui-sm font-medium tracking-[0.1em] text-primary hover:bg-surface-subtle"
                     >
                         + NEW ACCOUNT
                     </Button>
@@ -202,7 +202,7 @@ function AuthAction() {
             type="button"
             onClick={signOut}
             variant="outline"
-            className="h-auto block w-full border-border-subtle bg-transparent p-2 text-center font-mono text-[11px] font-medium tracking-[0.12em] text-content-faint hover:bg-transparent hover:text-loss hover:border-loss/25"
+            className="h-auto block w-full border-border-subtle bg-transparent p-2 text-center font-mono text-ui-sm font-medium tracking-[0.12em] text-content-faint hover:bg-transparent hover:text-loss hover:border-loss/25"
         >
             SIGN OUT
         </Button>
@@ -225,7 +225,7 @@ export function Sidebar() {
                 <Button
                     nativeButton={false}
                     render={<Link href="/dashboard/trades" />}
-                    className="h-auto rounded-lg bg-primary px-3.5 py-2.5 text-[14px] font-semibold text-primary-foreground hover:bg-primary-hover"
+                    className="h-auto rounded-lg bg-primary px-3.5 py-2.5 text-ui-sm font-semibold text-primary-foreground hover:bg-primary-hover"
                 >
                     + Log trade
                 </Button>

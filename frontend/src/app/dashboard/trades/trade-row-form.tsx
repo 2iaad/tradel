@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const inCls =
-    "w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-[12px] text-content outline-none focus:border-primary/40 [color-scheme:dark]";
-const dashCls = "font-mono text-[12px] text-content-placeholder";
+    "w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]";
+const dashCls = "font-mono text-ui-sm text-content-placeholder";
 
 // Inline form fields → trades API payload; empty optional fields stay undefined.
 // The trade date is created_at (set server-side), so there's no date field.
@@ -65,7 +65,7 @@ function FormCells({ t }: { t: TradeLogRow | null }) {
 
 // Save (✓) / cancel (✕) buttons in the trailing cell.
 function FormIcons({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
-    const cls = "bg-transparent border-none p-0 cursor-pointer text-[13px] leading-none";
+    const cls = "bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none";
     return (
         <span className="flex items-center justify-end gap-2">
             <Button type="submit" disabled={pending} title="Save" variant="ghost" size="icon-xs" className={`${cls} text-primary hover:bg-transparent hover:text-primary-hover`}>
@@ -102,7 +102,7 @@ export function TradeRowForm({
                 <span />
                 <FormIcons pending={pending} onCancel={onCancel} />
             </div>
-            {error && <p className={`${errorCls} px-[22px] pb-2 font-mono text-[11px]`}>{error}</p>}
+            {error && <p className={`${errorCls} px-[22px] pb-2 font-mono text-ui-xs`}>{error}</p>}
         </form>
     );
 }

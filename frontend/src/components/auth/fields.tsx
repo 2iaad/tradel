@@ -76,7 +76,7 @@ export function PasswordField({ strong = false }: { strong?: boolean }) {
                 onClick={() => setVisible((v) => !v)}
                 variant="ghost"
                 size="xs"
-                className="absolute right-3 top-[37px] h-6 bg-transparent px-1.5 font-mono text-[10.5px] tracking-[0.1em] text-content-faint hover:bg-transparent hover:text-content-muted"
+                className="absolute right-3 top-[37px] h-6 bg-transparent px-1.5 font-mono text-ui-xs tracking-[0.1em] text-content-faint hover:bg-transparent hover:text-content-muted"
             >
                 {visible ? 'HIDE' : 'SHOW'}
             </Button>

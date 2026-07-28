@@ -27,12 +27,12 @@ function emptyLabel(log: Log) {
 function TableHeader() {
     return (
         <div className="flex items-center justify-between px-[22px] pb-3.5">
-            <h2 className="m-0 text-[17px] font-semibold text-card-foreground">All trades</h2>
+            <h2 className="m-0 text-ui-lg font-semibold text-card-foreground">All trades</h2>
             <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-auto border-border-subtle bg-transparent px-3 py-1.5 font-mono text-[10.5px] font-medium tracking-[0.1em] text-muted-foreground hover:bg-transparent hover:text-secondary-foreground hover:border-border-hover whitespace-nowrap"
+                className="h-auto border-border-subtle bg-transparent px-3 py-1.5 font-mono text-ui-xs font-medium tracking-[0.1em] text-muted-foreground hover:bg-transparent hover:text-secondary-foreground hover:border-border-hover whitespace-nowrap"
             >
                 EXPORT CSV
             </Button>
@@ -59,7 +59,7 @@ function SortHead({
             onClick={() => log.sortBy(col)}
             variant="ghost"
             size="xs"
-            className={`h-auto p-0 font-mono text-[10px] font-medium tracking-[0.12em] hover:bg-transparent hover:text-secondary-foreground ${align === "right" ? "text-right" : "text-left"} ${on ? "text-secondary-foreground" : "text-content-faint"}`}
+            className={`h-auto p-0 font-mono text-ui-xs font-medium tracking-[0.12em] hover:bg-transparent hover:text-secondary-foreground ${align === "right" ? "text-right" : "text-left"} ${on ? "text-secondary-foreground" : "text-content-faint"}`}
         >
             {label} {on ? (log.dir === "desc" ? "▼" : "▲") : ""}
         </Button>
@@ -70,7 +70,7 @@ function SortHead({
 function TradeLogHead({ log }: { log: Log }) {
     return (
         <div
-            className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-border-faint font-mono text-[10px] font-medium tracking-[0.12em] text-content-faint`}
+            className={`${LOG_GRID} items-center px-[22px] py-2 border-t border-border-faint font-mono text-ui-xs font-medium tracking-[0.12em] text-content-faint`}
         >
             <SortHead col="date" label="DATE" align="left" log={log} />
             <span>SYMBOL</span>
@@ -104,7 +104,7 @@ function TradeAddRow({
             type="button"
             onClick={onActivate}
             variant="ghost"
-            className="h-18 w-full box-border rounded-none border-0 border-t border-solid border-border-faint bg-[#090d0e] py-3 font-mono text-[11px] font-medium tracking-[0.14em] text-primary hover:bg-accent"
+            className="h-18 w-full box-border rounded-none border-0 border-t border-solid border-border-faint bg-[#090d0e] py-3 font-mono text-ui-xs font-medium tracking-[0.14em] text-primary hover:bg-accent"
         >
             + ADD TRADE
         </Button>
@@ -115,7 +115,7 @@ function TradeAddRow({
 function EmptyState({ label, onClear }: { label: string; onClear?: () => void }) {
     return (
         <div className="flex flex-col items-center gap-3 py-14 px-[22px] border-t border-border-faint">
-            <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-content-faint">
+            <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
                 {label}
             </span>
             {onClear && (
@@ -124,7 +124,7 @@ function EmptyState({ label, onClear }: { label: string; onClear?: () => void })
                     onClick={onClear}
                     variant="outline"
                     size="sm"
-                    className="h-auto border-border-subtle bg-transparent px-4 py-2 font-mono text-[11px] font-medium tracking-[0.1em] text-primary hover:bg-transparent hover:border-primary/25"
+                    className="h-auto border-border-subtle bg-transparent px-4 py-2 font-mono text-ui-xs font-medium tracking-[0.1em] text-primary hover:bg-transparent hover:border-primary/25"
                 >
                     CLEAR FILTERS
                 </Button>
@@ -180,7 +180,7 @@ function Rows({
 // Footer with the visible/total counts.
 function TableFooter({ summary }: { summary: Log["summary"] }) {
     return (
-        <div className="flex items-center justify-between px-[22px] py-3 border-t border-border-faint bg-[#0c1012] font-mono text-[10.5px] font-medium tracking-[0.1em] text-content-faint">
+        <div className="flex items-center justify-between px-[22px] py-3 border-t border-border-faint bg-[#0c1012] font-mono text-ui-xs font-medium tracking-[0.1em] text-content-faint">
             <span>
                 SHOWING {summary.count} OF {summary.total} TRADES
             </span>
@@ -190,7 +190,7 @@ function TableFooter({ summary }: { summary: Log["summary"] }) {
 }
 
 const confirmBtn =
-    "h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-[11px] font-semibold tracking-[0.1em] cursor-pointer transition-colors";
+    "h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-ui-xs font-semibold tracking-[0.1em] cursor-pointer transition-colors";
 
 // Confirmation card shown before a trade is deleted.
 function ConfirmDeleteModal({
@@ -210,7 +210,7 @@ function ConfirmDeleteModal({
                 className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-card border border-border rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
             >
                 <h2 className="m-0 text-xl font-semibold text-card-foreground">Delete this trade?</h2>
-                <p className="m-0 text-[13px] text-content-dim">
+                <p className="m-0 text-ui-sm text-content-dim">
                     The trade is removed from your journal. This can&apos;t be undone.
                 </p>
                 <div className="flex gap-2.5 mt-1">

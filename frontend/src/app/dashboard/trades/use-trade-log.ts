@@ -1,27 +1,26 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { useAccountStore } from "@/stores/accounts";
-import { useNotesStore } from "@/stores/notes";
-import { computeTradeStats } from "../trade-stats";
-import { useTradesStore } from "@/stores/trades";
-import type { ApiTrade } from "@/stores/trades";
+import { useEffect, useMemo, useState } from 'react';
+import { useAccountStore } from '@/stores/accounts';
+import { useNotesStore } from '@/stores/notes';
+import { computeTradeStats } from '../trade-stats';
+import { useTradesStore } from '@/stores/trades';
+import type { ApiTrade } from '@/stores/trades';
 
 // Shared column template for the trade-log header + rows (must match exactly).
 // DATE · SYMBOL · SIDE · ENTRY · EXIT · LOTS · P&L · R:R · chevron · icons.
-export const LOG_GRID =
-    "grid grid-cols-[104px_1fr_80px_88px_88px_64px_100px_64px_14px_44px] gap-2";
+export const LOG_GRID = 'grid grid-cols-[104px_1fr_80px_88px_88px_64px_100px_64px_14px_44px] gap-2';
 
 // Display row for the trade log table, derived from an API trade.
 export interface TradeLogRow {
     id: string;
     ts: number;
     sym: string;
-    side: "LONG" | "SHORT";
+    side: 'LONG' | 'SHORT';
     setup: string;
     entry: string;
     exit: string | null;
-    size: string;
+    lots: string;
     rv: number | null;
     pnlv: number | null;
     date: string;
@@ -34,14 +33,14 @@ export interface TradeLogRow {
 
 // "JUL 01"-style stamp.
 const day = (d: Date) =>
-    d.toLocaleDateString("en-US", { month: "short", day: "2-digit" }).toUpperCase();
+    d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
 
 // Maps an API trade to the shape the log table renders.
 export function toTradeLogRow(t: ApiTrade): TradeLogRow {
     const created = new Date(t.created_at);
-    const clock = created.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
+    const clock = created.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: false,
     });
     return {
@@ -49,26 +48,26 @@ export function toTradeLogRow(t: ApiTrade): TradeLogRow {
         ts: created.getTime(),
         sym: t.symbol,
         side: t.side,
-        setup: "",
+        setup: '',
         entry: t.entry,
         exit: t.exit,
-        size: t.size,
-        rv: t.r === null ? null : parseFloat(t.r),
+        lots: t.lots,
+        rv: t.risk_reward === null ? null : parseFloat(t.risk_reward),
         pnlv: t.pnl === null ? null : parseFloat(t.pnl),
         date: day(created),
         clock,
         time: `${day(created)} · ${clock}`,
-        noteTitle: "",
-        noteBody: "",
-        tags: ["", ""],
+        noteTitle: '',
+        noteBody: '',
+        tags: ['', ''],
     };
 }
 
-export type SortCol = "date" | "pnl" | "r";
-type SideFilter = "ALL" | "LONG" | "SHORT";
-type OutcomeFilter = "ALL" | "WINS" | "LOSSES";
+export type SortCol = 'date' | 'pnl' | 'r';
+type SideFilter = 'ALL' | 'LONG' | 'SHORT';
+type OutcomeFilter = 'ALL' | 'WINS' | 'LOSSES';
 
-const SORT_KEY: Record<SortCol, "ts" | "pnlv" | "rv"> = { date: "ts", pnl: "pnlv", r: "rv" };
+const SORT_KEY: Record<SortCol, 'ts' | 'pnlv' | 'rv'> = { date: 'ts', pnl: 'pnlv', r: 'rv' };
 
 // Filters, sorts, and summarizes the trade log; owns all table interaction state.
 // Server state (fetch + mutations) lives in the trades store.
@@ -90,18 +89,18 @@ export function useTradeLog() {
     }, [load, loadNotes]);
 
     const trades = useMemo(() => apiTrades.map(toTradeLogRow), [apiTrades]);
-    const [q, setQ] = useState("");
-    const [side, setSide] = useState<SideFilter>("ALL");
-    const [outcome, setOutcome] = useState<OutcomeFilter>("ALL");
-    const [sortCol, setSortCol] = useState<SortCol>("date");
-    const [dir, setDir] = useState<"asc" | "desc">("desc");
+    const [q, setQ] = useState('');
+    const [side, setSide] = useState<SideFilter>('ALL');
+    const [outcome, setOutcome] = useState<OutcomeFilter>('ALL');
+    const [sortCol, setSortCol] = useState<SortCol>('date');
+    const [dir, setDir] = useState<'asc' | 'desc'>('desc');
     const [openId, setOpenId] = useState<string | null>(null);
     // Inline-edit target: a trade id, "new" for the add row, or null (idle).
-    const [editingId, setEditingId] = useState<string | "new" | null>(null);
+    const [editingId, setEditingId] = useState<string | 'new' | null>(null);
     // Trade awaiting delete confirmation.
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    const startEdit = (id: string | "new") => setEditingId(id);
+    const startEdit = (id: string | 'new') => setEditingId(id);
     const cancelEdit = () => setEditingId(null);
     const askDelete = (id: string) => setDeletingId(id);
     const cancelDelete = () => setDeletingId(null);
@@ -117,60 +116,83 @@ export function useTradeLog() {
     };
 
     const sortBy = (col: SortCol) => {
-        if (col === sortCol) setDir((d) => (d === "desc" ? "asc" : "desc"));
+        if (col === sortCol) setDir((d) => (d === 'desc' ? 'asc' : 'desc'));
         else {
             setSortCol(col);
-            setDir("desc");
+            setDir('desc');
         }
     };
     const clearFilters = () => {
-        setQ("");
-        setSide("ALL");
-        setOutcome("ALL");
+        setQ('');
+        setSide('ALL');
+        setOutcome('ALL');
     };
     const toggleOpen = (id: string) => setOpenId((cur) => (cur === id ? null : id));
 
     const rows = useMemo(() => {
         const needle = q.trim().toLowerCase();
         const filtered = trades.filter((t) => {
-            if (needle && !t.sym.toLowerCase().includes(needle) && !t.setup.toLowerCase().includes(needle))
+            if (
+                needle &&
+                !t.sym.toLowerCase().includes(needle) &&
+                !t.setup.toLowerCase().includes(needle)
+            )
                 return false;
-            if (side !== "ALL" && t.side !== side) return false;
-            if (outcome === "WINS" && (t.pnlv ?? 0) <= 0) return false;
-            if (outcome === "LOSSES" && (t.pnlv ?? 0) >= 0) return false;
+            if (side !== 'ALL' && t.side !== side) return false;
+            if (outcome === 'WINS' && (t.pnlv ?? 0) <= 0) return false;
+            if (outcome === 'LOSSES' && (t.pnlv ?? 0) >= 0) return false;
             return true;
         });
         const key = SORT_KEY[sortCol];
         const val = (t: TradeLogRow) => t[key] ?? -1e15; // null R/P&L sorts last on desc
-        return [...filtered].sort((a, b) => (dir === "desc" ? val(b) - val(a) : val(a) - val(b)));
+        return [...filtered].sort((a, b) => (dir === 'desc' ? val(b) - val(a) : val(a) - val(b)));
     }, [trades, q, side, outcome, sortCol, dir]);
 
     // Shared stats over the FILTERED rows (drives the chip strip + footer);
     // the headline cards use useTradeStats (all trades) instead.
     const summary = useMemo(() => {
-        const sb = parseFloat(accounts.find((a) => a.id === activeId)?.starting_balance ?? "0");
+        const sb = parseFloat(accounts.find((a) => a.id === activeId)?.starting_balance ?? '0');
         const notedIds = new Set(notes.map((n) => n.trade_id));
         const noted = trades.filter((t) => notedIds.has(t.id)).length;
         return {
             ...computeTradeStats(rows, sb),
             total: trades.length,
-            notedPct: trades.length ? `${Math.round((noted / trades.length) * 100)}%` : "0%",
+            notedPct: trades.length ? `${Math.round((noted / trades.length) * 100)}%` : '0%',
         };
     }, [rows, trades, notes, accounts, activeId]);
 
     // Oldest — newest stamp for the toolbar, from the unfiltered log.
     const range = useMemo(() => {
-        if (!trades.length) return "—";
+        if (!trades.length) return '—';
         const byTs = [...trades].sort((a, b) => a.ts - b.ts);
         return `${byTs[0].date} — ${byTs[byTs.length - 1].date}`;
     }, [trades]);
 
     return {
-        q, setQ, side, setSide, outcome, setOutcome,
-        sortCol, dir, sortBy, clearFilters,
-        openId, toggleOpen, rows, summary, range,
-        loading, error, saveTrade,
-        editingId, startEdit, cancelEdit,
-        deletingId, askDelete, cancelDelete, confirmDelete,
+        q,
+        setQ,
+        side,
+        setSide,
+        outcome,
+        setOutcome,
+        sortCol,
+        dir,
+        sortBy,
+        clearFilters,
+        openId,
+        toggleOpen,
+        rows,
+        summary,
+        range,
+        loading,
+        error,
+        saveTrade,
+        editingId,
+        startEdit,
+        cancelEdit,
+        deletingId,
+        askDelete,
+        cancelDelete,
+        confirmDelete,
     };
 }

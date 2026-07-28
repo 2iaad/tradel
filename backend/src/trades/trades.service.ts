@@ -20,13 +20,13 @@ export class TradesService {
 
     async create(accountId: string, userId: string, dto: CreateTradeDto) {
         await this.verifyAccountOwnership(accountId, userId);
-        const pnl = this.computePnl(dto.side, dto.entry, dto.exit, dto.size);
+        const pnl = this.computePnl(dto.side, dto.entry, dto.exit, dto.lots);
         return this.trades.create(accountId, {
             symbol: dto.symbol,
             side: dto.side,
             entry: dto.entry,
             exit: dto.exit,
-            size: dto.size,
+            lots: dto.lots,
             pnl,
         });
     }
@@ -49,15 +49,15 @@ export class TradesService {
         await this.verifyAccountOwnership(accountId, userId);
         const pnl =
             dto.exit !== undefined
-                ? this.computePnl(dto.side, dto.entry, dto.exit, dto.size)
+                ? this.computePnl(dto.side, dto.entry, dto.exit, dto.lots)
                 : undefined;
         const trade = await this.trades.update(id, accountId, {
             symbol: dto.symbol,
             side: dto.side,
             entry: dto.entry,
             exit: dto.exit,
-            size: dto.size,
-            r: dto.r,
+            lots: dto.lots,
+            risk_reward: dto.rReward,
             pnl,
         });
         if (!trade) {
@@ -79,11 +79,11 @@ export class TradesService {
         side: string | undefined,
         entry: number | undefined,
         exit: number | undefined,
-        size: number | undefined,
+        lots: number | undefined,
     ): number | undefined {
-        if (entry === undefined || exit === undefined || size === undefined) return undefined;
+        if (entry === undefined || exit === undefined || lots === undefined) return undefined;
         const direction = side === 'SHORT' ? -1 : 1;
         // round to cents — money value, avoid binary-float drift into the NUMERIC column
-        return Math.round((exit - entry) * size * direction * 100) / 100;
+        return Math.round((exit - entry) * lots * direction * 100) / 100;
     }
 }

@@ -10,7 +10,7 @@ export interface SummaryRow {
     net: string | null; // sum(pnl)
     gross_win: string | null; // sum(pnl) where pnl > 0
     gross_loss: string | null; // sum(pnl) where pnl < 0 (negative)
-    avg_r: string | null; // avg(r) where r not null
+    avg_r: string | null; // avg(risk_reward) where risk_reward not null
 }
 
 export interface BreakdownRow {
@@ -21,7 +21,7 @@ export interface BreakdownRow {
 }
 
 export interface CalendarRow {
-    day: string; // 'YYYY-MM-DD'
+    day: string;
     pnl: string | null;
     trades: string;
 }
@@ -39,7 +39,7 @@ export class AnalyticsRepository {
                 SUM(pnl)                                         AS net,
                 SUM(pnl) FILTER (WHERE pnl > 0)                  AS gross_win,
                 SUM(pnl) FILTER (WHERE pnl < 0)                  AS gross_loss,
-                AVG(r)   FILTER (WHERE r IS NOT NULL)            AS avg_r
+                AVG(risk_reward) FILTER (WHERE risk_reward IS NOT NULL) AS avg_r
             FROM trades
             WHERE account_id = $1`,
             [accountId],
@@ -47,8 +47,7 @@ export class AnalyticsRepository {
         return rows[0];
     }
 
-    // Grouped P&L by symbol or side. Column name is validated in the service —
-    // never interpolate raw user input here.
+    // Grouped P&L by symbol or side. Column name is validated in the service
     async breakdown(accountId: string, column: 'symbol' | 'side'): Promise<BreakdownRow[]> {
         const { rows } = await this.db.query<BreakdownRow>(
             `SELECT

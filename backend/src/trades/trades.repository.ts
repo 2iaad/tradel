@@ -8,8 +8,8 @@ export interface Trade {
     side: string;
     entry: string;
     exit: string | null;
-    size: string;
-    r: string | null;
+    lots: string;
+    risk_reward: string | null;
     pnl: string | null;
     created_at: Date;
 }
@@ -19,8 +19,8 @@ export interface CreateTradeFields {
     side: string;
     entry: number;
     exit?: number | null;
-    size: number;
-    r?: number | null;
+    lots: number;
+    risk_reward?: number | null;
     pnl?: number | null;
 }
 
@@ -29,8 +29,8 @@ export interface UpdateTradeFields {
     side?: string;
     entry?: number;
     exit?: number | null;
-    size?: number;
-    r?: number | null;
+    lots?: number;
+    risk_reward?: number | null;
     pnl?: number | null;
 }
 
@@ -40,7 +40,7 @@ export class TradesRepository {
 
     async create(account_id: string, fields: CreateTradeFields): Promise<Trade> {
         const { rows } = await this.db.query<Trade>(
-            `INSERT INTO trades (account_id, symbol, side, entry, exit, size, r, pnl)
+            `INSERT INTO trades (account_id, symbol, side, entry, exit, lots, risk_reward, pnl)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *`,
             [
@@ -49,8 +49,8 @@ export class TradesRepository {
                 fields.side,
                 fields.entry,
                 fields.exit ?? null,
-                fields.size,
-                fields.r ?? null,
+                fields.lots,
+                fields.risk_reward ?? null,
                 fields.pnl ?? null,
             ],
         );
@@ -85,8 +85,8 @@ export class TradesRepository {
             'side',
             'entry',
             'exit',
-            'size',
-            'r',
+            'lots',
+            'risk_reward',
             'pnl',
         ] as const) {
             if (fields[key] !== undefined) {

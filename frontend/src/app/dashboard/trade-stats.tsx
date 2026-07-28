@@ -95,6 +95,9 @@ export function computeTradeStats(rows: TradeLogRow[], startingBalance: number) 
     }
     const chron = [...closed].sort((a, b) => a.ts - b.ts);
     const rChron = chron.filter((t) => t.rv !== null).slice(-20);
+    const rBarColors = rChron.map((t) =>
+        (t.pnlv ?? 0) > 0 ? G : (t.pnlv ?? 0) < 0 ? R : "#5f6b70",
+    );
     const topTrades = [...closed].sort((a, b) => (b.pnlv ?? 0) - (a.pnlv ?? 0)).slice(0, 5);
 
     return {
@@ -102,6 +105,7 @@ export function computeTradeStats(rows: TradeLogRow[], startingBalance: number) 
         dayLabels,
         rBars: rChron.map((t) => t.rv ?? 0),
         rBarLabels: rChron.map((t) => t.sym),
+        rBarColors,
         topBars: topTrades.map((t) => t.pnlv ?? 0),
         topBarLabels: topTrades.map((t) => t.sym),
         count: n,
@@ -193,11 +197,13 @@ function MiniBars({
     labels,
     unit,
     showX = false,
+    colors,
 }: {
     values: number[];
     labels: string[];
     unit: "money" | "r";
     showX?: boolean;
+    colors?: string[];
 }) {
     const fmt = (v: number) =>
         unit === "money" ? signedMoney(v) : `${v > 0 ? "+" : ""}${v.toFixed(2)}R`;
@@ -209,7 +215,8 @@ function MiniBars({
                     datasets: [
                         {
                             data: values,
-                            backgroundColor: values.map((v) => (v > 0 ? G : v < 0 ? R : "#5f6b70")),
+                            backgroundColor:
+                                colors ?? values.map((v) => (v > 0 ? G : v < 0 ? R : "#5f6b70")),
                             borderRadius: 2,
                         },
                     ],
@@ -293,7 +300,13 @@ export function StatCards({ s }: { s: TradeStats }) {
                 <span className={subCls}>PF: {s.pf === "—" ? "—" : `${s.pf}x`}</span>
                 <span className={subCls}>{s.rCount} trades with R:R data</span>
                 {s.rBars.length > 0 && (
-                    <MiniBars values={s.rBars} labels={s.rBarLabels} unit="r" showX />
+                    <MiniBars
+                        values={s.rBars}
+                        labels={s.rBarLabels}
+                        unit="r"
+                        showX
+                        colors={s.rBarColors}
+                    />
                 )}
             </StatCard>
         </div>

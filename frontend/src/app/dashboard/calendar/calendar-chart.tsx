@@ -16,7 +16,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 import { signedMoney } from '@/lib/format';
 import { canvasColors, monoFontStack } from '@/lib/ui';
-import type { CalendarDay } from '@/stores/calendar';
+import type { CalendarDay, CalendarTrade } from '@/stores/calendar';
 
 echarts.use([
     CalendarComponent,
@@ -27,7 +27,11 @@ echarts.use([
     CanvasRenderer,
 ]);
 
-type CalendarDatum = [date: string, pnl: number, trades: number];
+type CalendarValue = [date: string, pnl: number, trades: number];
+type CalendarDatum = {
+    value: CalendarValue;
+    items: CalendarTrade[];
+};
 type ChartOption = ComposeOption<
     | CalendarComponentOption
     | HeatmapSeriesOption
@@ -54,7 +58,10 @@ function buildMonthData(month: string, days: CalendarDay[]): CalendarDatum[] {
     return Array.from({ length: daysInMonth }, (_, index) => {
         const date = `${month}-${String(index + 1).padStart(2, '0')}`;
         const day = byDate.get(date);
-        return [date, day?.pnl ?? 0, day?.trades ?? 0];
+        return {
+            value: [date, day?.pnl ?? 0, day?.trades ?? 0],
+            items: day?.items ?? [],
+        };
     });
 }
 
@@ -75,39 +82,89 @@ function dateLabel(date: string): string {
     });
 }
 
+function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (char) => {
+        const entities: Record<string, string> = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+        };
+        return entities[char] ?? char;
+    });
+}
+
 function datumFrom(params: unknown): CalendarDatum | null {
     const value = (params as { value?: unknown })?.value;
     if (!Array.isArray(value) || typeof value[0] !== 'string') return null;
-    return value as CalendarDatum;
+    const data = (params as { data?: unknown })?.data;
+    const items =
+        data && typeof data === 'object' && Array.isArray((data as { items?: unknown }).items)
+            ? ((data as { items: CalendarTrade[] }).items)
+            : [];
+    return { value: value as CalendarValue, items };
+}
+
+function tradeRows(items: CalendarTrade[]): string {
+    if (items.length === 0) return '';
+
+    const rows = items
+        .map((item) => {
+            const tradeValue = item.pnl === null ? 'OPEN' : signedMoney(item.pnl);
+            let pnlColor: string = canvasColors.faint;
+            if (item.pnl !== null) pnlColor = item.pnl >= 0 ? canvasColors.profit : canvasColors.loss;
+
+            return [
+                '<div style="display:flex;justify-content:space-between;gap:18px;align-items:center;">',
+                `<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c8d2d0;">${escapeHtml(item.symbol)}</span>`,
+                `<span style="color:${pnlColor};font-weight:700;white-space:nowrap;">${escapeHtml(tradeValue)}</span>`,
+                '</div>',
+            ].join('');
+        })
+        .join('');
+
+    return [
+        '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #22303a;">',
+        '<div style="margin-bottom:6px;color:#78878a;font-size:10px;letter-spacing:.12em;">PAIR / P&amp;L</div>',
+        '<div style="display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;padding-right:2px;">',
+        rows,
+        '</div>',
+        '</div>',
+    ].join('');
 }
 
 function tooltip(params: unknown): string {
-    const value = datumFrom(params);
-    if (!value) return '';
+    const datum = datumFrom(params);
+    if (!datum) return '';
 
-    const [date, pnl, trades] = value;
+    const [date, pnl, trades] = datum.value;
     const pnlColor = pnl >= 0 ? canvasColors.profit : canvasColors.loss;
     const tradeLabel = trades === 1 ? 'trade' : 'trades';
 
     return [
-        `<div style="min-width:168px;font-family:${monoFontStack};">`,
-        `<div style="margin-bottom:9px;color:#eef4f2;font-weight:700;">${dateLabel(date)}</div>`,
+        `<div style="min-width:220px;max-width:300px;font-family:${monoFontStack};">`,
+        `<div style="margin-bottom:9px;color:#eef4f2;font-weight:700;">${escapeHtml(dateLabel(date))}</div>`,
         '<div style="display:flex;justify-content:space-between;gap:20px;color:#78878a;">',
         `<span>NET P&amp;L</span><span style="color:${pnlColor};font-weight:700;">${signedMoney(pnl)}</span>`,
         '</div>',
         '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:5px;color:#78878a;">',
         `<span>ACTIVITY</span><span style="color:#c8d2d0;">${trades} ${tradeLabel}</span>`,
         '</div>',
+        tradeRows(datum.items),
         '</div>',
     ].join('');
 }
 
 function buildOption(month: string, data: CalendarDatum[]): ChartOption {
-    const largestResult = Math.max(1, ...data.map(([, pnl]) => Math.abs(pnl)));
+    const largestResult = Math.max(1, ...data.map(({ value: [, pnl] }) => Math.abs(pnl)));
 
     return {
         animationDuration: 420,
         animationDurationUpdate: 280,
+        stateAnimation: {
+            duration: 0,
+        },
         tooltip: {
             trigger: 'item',
             confine: true,
@@ -182,7 +239,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                     formatter: (params) => {
                         const value = datumFrom(params);
                         if (!value) return '';
-                        const [date, pnl, trades] = value;
+                        const [date, pnl, trades] = value.value;
                         const resultStyle = pnl >= 0 ? 'profit' : 'loss';
                         const result = trades > 0 ? signedMoney(pnl) : 'NO TRADES';
                         return `{date|${Number(date.slice(-2))}}\n{${trades > 0 ? resultStyle : 'empty'}|${result}}`;
@@ -232,8 +289,8 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                     offset: [0, 25],
                     formatter: (params) => {
                         const value = datumFrom(params);
-                        if (!value || value[2] === 0) return '';
-                        const trades = value[2];
+                        if (!value || value.value[2] === 0) return '';
+                        const trades = value.value[2];
                         return `{trades|${trades} ${trades === 1 ? 'TRADE' : 'TRADES'}}`;
                     },
                     rich: {

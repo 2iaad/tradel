@@ -1,14 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useMemo, useRef } from "react";
+import { BarChart, type BarSeriesOption } from "echarts/charts";
 import {
-    BarElement,
-    CategoryScale,
-    Chart as ChartJS,
-    LinearScale,
-    Tooltip,
-} from "chart.js";
+    GridComponent,
+    type GridComponentOption,
+    TooltipComponent,
+    type TooltipComponentOption,
+} from "echarts/components";
+import * as echarts from "echarts/core";
+import type { ComposeOption, EChartsType } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
 
 import { signedMoney } from "@/lib/format";
 import { canvasColors, cardCls, G, monoFontStack, R } from "@/lib/ui";
@@ -20,10 +22,9 @@ import { WinRateDonut } from "./win-rate-donut";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
+echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
-// Chart.js touches `window` at import — client-only, no SSR pass.
-const Bar = dynamic(() => import("react-chartjs-2").then((m) => m.Bar), { ssr: false });
+type MiniBarOption = ComposeOption<BarSeriesOption | GridComponentOption | TooltipComponentOption>;
 
 // Headline trade stats shared by the dashboard, trades, and analytics pages
 // (cards + chip strip). Pure — pages pass whichever rows they want summarized.
@@ -194,7 +195,126 @@ function StatCard({
 
 const subCls = "text-content-faint";
 
-// Tiny axis-less bar chart for the stat cards: green above zero, red below.
+function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (char) => {
+        const entities: Record<string, string> = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+        };
+        return entities[char] ?? char;
+    });
+}
+
+function buildMiniBarOption({
+    values,
+    labels,
+    unit,
+    showX,
+    colors,
+}: {
+    values: number[];
+    labels: string[];
+    unit: "money" | "r";
+    showX: boolean;
+    colors?: string[];
+}): MiniBarOption {
+    const fmt = (v: number) =>
+        unit === "money" ? signedMoney(v) : `${v > 0 ? "+" : ""}${v.toFixed(2)}R`;
+    const barColors = colors ?? values.map((v) => (v > 0 ? G : v < 0 ? R : canvasColors.faint));
+
+    return {
+        animationDuration: 420,
+        animationDurationUpdate: 240,
+        grid: {
+            left: 0,
+            right: 0,
+            top: 8,
+            bottom: showX ? 24 : 2,
+            containLabel: false,
+        },
+        tooltip: {
+            trigger: "axis",
+            axisPointer: {
+                type: "shadow",
+                shadowStyle: {
+                    color: "rgba(255,255,255,.04)",
+                },
+            },
+            backgroundColor: "#050607",
+            borderColor: "#10161a",
+            borderWidth: 1,
+            padding: [8, 10],
+            textStyle: {
+                color: "#c8d2d0",
+                fontFamily: monoFontStack,
+                fontSize: 12,
+            },
+            extraCssText: "border-radius:6px;box-shadow:0 12px 26px rgba(0,0,0,.32);",
+            formatter: (params: unknown) => {
+                const point = Array.isArray(params) ? params[0] : params;
+                const item = point as { axisValue?: unknown; value?: unknown; color?: string };
+                const value = typeof item.value === "number" ? item.value : Number(item.value ?? 0);
+                const label = String(item.axisValue ?? "");
+                const color = item.color ?? canvasColors.faint;
+
+                return [
+                    `<strong style="color:#eef4f2;">${escapeHtml(label)}</strong>`,
+                    `<br/><span style="display:inline-block;width:9px;height:9px;background:${color};margin-right:5px;"></span>${escapeHtml(fmt(value))}`,
+                ].join("");
+            },
+        },
+        xAxis: {
+            type: "category",
+            data: labels,
+            axisTick: {
+                alignWithLabel: true,
+                lineStyle: {
+                    color: canvasColors.borderFaint,
+                },
+            },
+            axisLine: {
+                lineStyle: {
+                    color: canvasColors.borderFaint,
+                },
+            },
+            axisLabel: {
+                show: showX,
+                color: canvasColors.faint,
+                fontFamily: monoFontStack,
+                fontSize: 10,
+                margin: 8,
+                hideOverlap: true,
+            },
+        },
+        yAxis: {
+            type: "value",
+            min: Math.min(0, ...values),
+            max: Math.max(0, ...values),
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: { show: false },
+            splitLine: { show: false },
+        },
+        series: [
+            {
+                name: unit === "money" ? "P&L" : "R:R",
+                type: "bar",
+                barWidth: "60%",
+                data: values.map((value, index) => ({
+                    value,
+                    itemStyle: {
+                        color: barColors[index] ?? canvasColors.faint,
+                    },
+                })),
+            },
+        ],
+    };
+}
+
+// Tiny ECharts bar chart for the stat cards, based on bar-tick-align.
 function MiniBars({
     values,
     labels,
@@ -208,57 +328,33 @@ function MiniBars({
     showX?: boolean;
     colors?: string[];
 }) {
-    const fmt = (v: number) =>
-        unit === "money" ? signedMoney(v) : `${v > 0 ? "+" : ""}${v.toFixed(2)}R`;
-    return (
-        <div className="mt-4 h-[120px]">
-            <Bar
-                data={{
-                    labels,
-                    datasets: [
-                        {
-                            data: values,
-                            backgroundColor:
-                                colors ?? values.map((v) => (v > 0 ? G : v < 0 ? R : canvasColors.faint)),
-                            borderRadius: 2,
-                        },
-                    ],
-                }}
-                options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 500 },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (c) => fmt(c.parsed.y ?? 0),
-                            },
-                        },
-                    },
-                    scales: {
-                        x: showX
-                            ? {
-                                  grid: { display: false, drawTicks: false },
-                                  ticks: {
-                                      color: canvasColors.faint,
-                                      font: { family: monoFontStack, size: 9 },
-                                      padding: 8,
-                                  },
-                              }
-                            : { display: false },
-                        // Exact data bounds — no rounding down to a "nice" tick,
-                        // which reserved empty space below barely-negative bars.
-                        y: {
-                            display: false,
-                            min: Math.min(0, ...values),
-                            max: Math.max(0, ...values),
-                        },
-                    },
-                }}
-            />
-        </div>
+    const chartNode = useRef<HTMLDivElement>(null);
+    const chart = useRef<EChartsType | null>(null);
+    const option = useMemo(
+        () => buildMiniBarOption({ values, labels, unit, showX, colors }),
+        [colors, labels, showX, unit, values],
     );
+
+    useEffect(() => {
+        if (!chartNode.current) return;
+
+        const instance = echarts.init(chartNode.current, undefined, { renderer: "canvas" });
+        const resizeObserver = new ResizeObserver(() => instance.resize());
+        chart.current = instance;
+        resizeObserver.observe(chartNode.current);
+
+        return () => {
+            resizeObserver.disconnect();
+            instance.dispose();
+            chart.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
+        chart.current?.setOption(option, { notMerge: true });
+    }, [option]);
+
+    return <div ref={chartNode} className="mt-4 h-[120px] w-full" />;
 }
 
 // The four headline cards (Total P&L / Win Rate / Best Trade / Avg R:R).

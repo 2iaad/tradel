@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { useAuthSubmit } from "@/hooks/use-auth-submit";
 import { apiMessage } from "@/lib/api";
 import { signedMoney } from "@/lib/format";
@@ -36,26 +38,33 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
 
 // Input cells aligned to the log grid columns; P&L stays computed server-side.
 function FormCells({ t }: { t: TradeLogRow | null }) {
+    const [symbol, setSymbol] = useState(t?.sym ?? "");
+    const [side, setSide] = useState<"LONG" | "SHORT">(t?.side ?? "LONG");
+    const [entry, setEntry] = useState(t?.entry ?? "");
+    const [exit, setExit] = useState(t?.exit ?? "");
+    const [lots, setLots] = useState(t?.lots ?? "");
+    const [rReward, setRReward] = useState(t?.rv === null || t?.rv === undefined ? "" : String(t.rv));
+
     return (
         <>
             {/* date column: created_at, set server-side — shown after save */}
             <span className={dashCls}>{t?.date ?? "—"}</span>
-            <Input name="symbol" defaultValue={t?.sym} required maxLength={20} placeholder="SYM" className={inCls} />
-            <Select name="side" defaultValue={t?.side ?? "LONG"}>
+            <Input name="symbol" value={symbol} onChange={(e) => setSymbol(e.target.value)} required maxLength={20} placeholder="SYM" className={inCls} />
+            <Select name="side" value={side} onValueChange={(value) => setSide(value as "LONG" | "SHORT")}>
                 <SelectTrigger className={inCls}><SelectValue /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="LONG">LONG</SelectItem>
                     <SelectItem value="SHORT">SHORT</SelectItem>
                 </SelectContent>
             </Select>
-            <Input name="entry" type="number" step="any" defaultValue={t?.entry} required placeholder="entry" className={inCls} />
-            <Input name="exit" type="number" step="any" defaultValue={t?.exit ?? ""} placeholder="—" className={inCls} />
-            <Input name="lots" type="number" step="any" defaultValue={t?.lots} required placeholder="lots" className={inCls} />
+            <Input name="entry" type="number" step="any" value={entry} onChange={(e) => setEntry(e.target.value)} required placeholder="entry" className={inCls} />
+            <Input name="exit" type="number" step="any" value={exit} onChange={(e) => setExit(e.target.value)} placeholder="—" className={inCls} />
+            <Input name="lots" type="number" step="any" value={lots} onChange={(e) => setLots(e.target.value)} required placeholder="lots" className={inCls} />
             <span className={dashCls}>
                 {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
             </span>
             {t ? (
-                <Input name="rReward" type="number" step="any" defaultValue={t.rv ?? ""} placeholder="—" className={inCls} />
+                <Input name="rReward" type="number" step="any" value={rReward} onChange={(e) => setRReward(e.target.value)} placeholder="—" className={inCls} />
             ) : (
                 <span className={dashCls}>—</span>
             )}
@@ -98,7 +107,7 @@ export function TradeRowForm({
     return (
         <form onSubmit={onSubmit} className="border-t border-border-faint bg-accent">
             <div className={`${LOG_GRID} items-center px-[22px] py-[7px]`}>
-                <FormCells t={t} />
+                <FormCells key={t?.id ?? "new"} t={t} />
                 <span />
                 <FormIcons pending={pending} onCancel={onCancel} />
             </div>

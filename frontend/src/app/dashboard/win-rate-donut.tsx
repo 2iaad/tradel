@@ -1,148 +1,73 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-import { PieChart, type PieSeriesOption } from 'echarts/charts';
+import dynamic from 'next/dynamic';
 import {
-    LegendComponent,
-    type LegendComponentOption,
-    TooltipComponent,
-    type TooltipComponentOption,
-} from 'echarts/components';
-import * as echarts from 'echarts/core';
-import type { ComposeOption, EChartsType } from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
+    ArcElement,
+    Chart as ChartJS,
+    Tooltip,
+    type ChartData,
+    type ChartOptions,
+} from 'chart.js';
 
-import { canvasColors, G, monoFontStack, R } from '@/lib/ui';
+import { canvasColors, G, R } from '@/lib/ui';
 
-echarts.use([PieChart, LegendComponent, TooltipComponent, CanvasRenderer]);
+ChartJS.register(ArcElement, Tooltip);
 
-const BE = canvasColors.faint;
+// Chart.js touches `window` at import — client-only, no SSR pass.
+const Doughnut = dynamic(() => import('react-chartjs-2').then((m) => m.Doughnut), {
+    ssr: false,
+});
 
-type ChartOption = ComposeOption<
-    PieSeriesOption | LegendComponentOption | TooltipComponentOption
->;
+const BE = canvasColors.faint; // breakeven grey
 
-interface WinRateDonutProps {
+const options: ChartOptions<'doughnut'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: { legend: { display: false } },
+};
+
+// Wins / losses / breakevens as a 3-slice doughnut for the win-rate card.
+export function WinRateDonut({
+    wins,
+    losses,
+    breakevens,
+}: {
     wins: number;
     losses: number;
     breakevens: number;
-}
-
-function pieTooltip(params: unknown): string {
-    const item = params as { name?: string; value?: unknown; percent?: unknown };
-    const name = item.name ?? 'Trades';
-    const value = typeof item.value === 'number' ? item.value : Number(item.value ?? 0);
-    const percent = typeof item.percent === 'number' ? item.percent : Number(item.percent ?? 0);
-
-    return `${name}<br/><span style="color:#eef4f2;font-weight:700;">${value}</span> (${percent.toFixed(1)}%)`;
-}
-
-function buildOption(wins: number, losses: number, breakevens: number): ChartOption {
-    const counts: Record<string, number> = {
-        Wins: wins,
-        Losses: losses,
-        Breakevens: breakevens,
-    };
-
-    return {
-        color: [G, R, BE],
-        animationDuration: 420,
-        animationDurationUpdate: 240,
-        legend: {
-            bottom: 0,
-            left: 'center',
-            icon: 'circle',
-            selectedMode: false,
-            itemWidth: 10,
-            itemHeight: 10,
-            itemGap: 13,
-            formatter: (name) => `${name} ${counts[name] ?? 0}`,
-            textStyle: {
-                color: '#c8d2d0',
-                fontFamily: monoFontStack,
-                fontSize: 11,
-            },
-        },
-        tooltip: {
-            trigger: 'item',
-            backgroundColor: '#10161a',
-            borderColor: '#2b353b',
-            borderWidth: 1,
-            padding: [8, 10],
-            textStyle: {
-                color: '#c8d2d0',
-                fontFamily: monoFontStack,
-                fontSize: 12,
-            },
-            extraCssText: 'border-radius:8px;box-shadow:0 12px 28px rgba(0,0,0,.32);',
-            formatter: pieTooltip,
-        },
-        series: [
+}) {
+    const data: ChartData<'doughnut'> = {
+        labels: ['Wins', 'Losses', 'Breakevens'],
+        datasets: [
             {
-                name: 'Win Rate',
-                type: 'pie',
-                radius: ['50%', '76%'],
-                center: ['50%', '42%'],
-                minAngle: 2,
-                avoidLabelOverlap: true,
-                label: { show: false },
-                labelLine: { show: false },
-                itemStyle: {
-                    borderRadius: 10,
-                    borderColor: canvasColors.card,
-                    borderWidth: 2,
-                },
-                emphasis: {
-                    scale: false,
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0,0,0,.22)',
-                    },
-                },
-                data: [
-                    { value: wins, name: 'Wins' },
-                    { value: losses, name: 'Losses' },
-                    { value: breakevens, name: 'Breakevens' },
-                ],
+                data: [wins, losses, breakevens],
+                backgroundColor: [G, R, BE],
+                borderColor: canvasColors.card,
+                borderWidth: 2,
             },
         ],
     };
-}
 
-// Wins / losses / breakevens as an ECharts rounded-border doughnut.
-export function WinRateDonut({ wins, losses, breakevens }: WinRateDonutProps) {
-    const chartNode = useRef<HTMLDivElement>(null);
-    const chart = useRef<EChartsType | null>(null);
-    const option = useMemo(
-        () => buildOption(wins, losses, breakevens),
-        [wins, losses, breakevens],
-    );
-
-    useEffect(() => {
-        if (!chartNode.current) return;
-
-        const instance = echarts.init(chartNode.current, undefined, { renderer: 'canvas' });
-        const resizeObserver = new ResizeObserver(() => instance.resize());
-        chart.current = instance;
-        resizeObserver.observe(chartNode.current);
-
-        return () => {
-            resizeObserver.disconnect();
-            instance.dispose();
-            chart.current = null;
-        };
-    }, []);
-
-    useEffect(() => {
-        chart.current?.setOption(option, { notMerge: true });
-    }, [option]);
+    const legend: [string, string, number][] = [
+        ['Wins', G, wins],
+        ['Losses', R, losses],
+        ['Breakevens', BE, breakevens],
+    ];
 
     return (
-        <div
-            ref={chartNode}
-            role="img"
-            aria-label={`Win rate chart: ${wins} wins, ${losses} losses, ${breakevens} breakevens`}
-            className="h-[178px] w-full"
-        />
+        <div className="flex flex-col gap-2">
+            <div className="h-[150px]">
+                <Doughnut options={options} data={data} />
+            </div>
+            <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+                {legend.map(([label, color, n]) => (
+                    <span key={label} className="inline-flex items-center gap-1.5 font-mono text-ui-xs text-secondary-foreground">
+                        <span className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
+                        {label} {n}
+                    </span>
+                ))}
+            </div>
+        </div>
     );
 }

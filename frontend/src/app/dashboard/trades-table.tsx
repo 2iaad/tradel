@@ -86,7 +86,7 @@ export function TradesTable({ rows, loading }: { rows: TradeLogRow[]; loading: b
     return (
         <Card className={`${cardCls} pt-5 pb-1.5 flex flex-col`}>
             <div className="flex items-center justify-between px-[22px] pb-3.5">
-                <h2 className={h2Cls}>Recent 5 trades</h2>
+                <h2 className={h2Cls}>Recent trades</h2>
                 <Button nativeButton={false} render={<Link href="/dashboard/trades" />} variant="ghost" size="sm" className={`${ghostBtnCls} h-auto px-0 hover:bg-transparent`}>
                     VIEW ALL →
                 </Button>

@@ -21,7 +21,7 @@ export function useDashboardData() {
             apiTrades
                 .map(toTradeLogRow)
                 .sort((a, b) => b.ts - a.ts)
-                .slice(0, 5),
+                .slice(0, 8),
         [apiTrades],
     );
 

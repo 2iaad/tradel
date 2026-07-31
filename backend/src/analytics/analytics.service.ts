@@ -29,12 +29,6 @@ export interface CalendarDay {
     date: string; // 'YYYY-MM-DD'
     pnl: number;
     trades: number;
-    items: CalendarTrade[];
-}
-
-export interface CalendarTrade {
-    symbol: string;
-    pnl: number | null;
 }
 
 const num = (v: string | null) => (v === null ? 0 : parseFloat(v));
@@ -110,10 +104,6 @@ export class AnalyticsService {
             date: row.day,
             pnl: num(row.pnl),
             trades: Number(row.trades),
-            items: (row.items ?? []).map((item) => ({
-                symbol: item.symbol,
-                pnl: item.pnl === null ? null : Number(item.pnl),
-            })),
         }));
     }
 }

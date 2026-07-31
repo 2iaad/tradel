@@ -171,6 +171,28 @@ input:-webkit-autofill:focus {
     }
 }
 
+@keyframes tradelEquityLineReveal {
+    from {
+        clip-path: inset(0 100% 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+.equity-line-reveal {
+    clip-path: inset(0 100% 0 0);
+    will-change: clip-path;
+    animation: tradelEquityLineReveal 1.4s linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .equity-line-reveal {
+        clip-path: none;
+        animation: none;
+    }
+}
+
 /* Landing-page reveal engine: hidden start states per type; the finals
    are applied by use-reveal.ts when an element enters the viewport. */
 [data-reveal] {

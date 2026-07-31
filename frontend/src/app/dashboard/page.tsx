@@ -60,7 +60,7 @@ export default function DashboardPage() {
 
     return (
         <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
-            <PageHeader kicker="" title={`${greeting()}, ${name}`} />
+            {/* <PageHeader kicker="" title={`${greeting()}, ${name}`} /> */}
             <StatCards s={stats} />
             <EquityCard />
             <div className="grid grid-cols-[1.9fr_1fr] gap-4 items-start">

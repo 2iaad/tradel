@@ -1,146 +1,105 @@
+// Equity-series math for the dashboard chart — no React, no canvas.
+
 import type { ApiTrade } from '@/stores/trades';
 
-export interface EquityPoint {
-    cumulative: number;
-    date: string;
-    dateKey: string;
-    dateShort: string;
-    pnl: number;
-    trade: number;
+// Range keys → trailing-window length in days. YTD/ALL computed per-call.
+export const RANGES = {
+    '30D': 30,
+    '90D': 90,
+    YTD: 'ytd',
+    ALL: 'all',
+} as const;
+export type RangeKey = keyof typeof RANGES;
+
+// Real equity series for a range: cumulative starting_balance + closed-trade
+// P&L, ordered by close time. `pts` is normalized to [0,1] against [lo,hi].
+export interface Series {
+    pts: number[];
+    /** Timestamp (ms) per point — seed at the window start, then one per trade. */
+    dates: number[];
+    lo: number;
+    hi: number;
+    startEquity: number;
+    /** P&L for each segment after the seed point, used for win/loss colors. */
+    tradePnls: number[];
+    bestDay: number | null;
+    worstDay: number | null;
+    avgDay: number | null;
 }
 
-export interface DailyPnlPoint {
-    date: string;
-    dateKey: string;
-    dateShort: string;
-    pnl: number;
+// Window start (ms) for a range key, relative to now. ALL → 0 (everything).
+function windowStart(key: RangeKey): number {
+    const r = RANGES[key];
+    if (r === 'all') return 0;
+    if (r === 'ytd') return new Date(new Date().getFullYear(), 0, 1).getTime();
+    return Date.now() - r * 86400_000;
 }
 
-export interface EquityChartData {
-    dailyPoints: DailyPnlPoint[];
-    dateLabelsByTrade: Record<number, string>;
-    dateTicks: number[];
-    deepestDip: number;
-    gradientOffset: number;
-    greenDays: number;
-    net: number;
-    peak: number;
-    peakTrade: number | null;
-    redDays: number;
-    tradePoints: EquityPoint[];
-}
+/* Builds the equity series from closed trades. A trade counts as closed once
+   it has a pnl (matching the dashboard stats), ordered by when it was logged
+   (created_at). Equity climbs by each trade's pnl in that order; the window's
+   first point is seeded at the running equity *before* the window (so a 30D
+   view starts at the right balance, not the base). Flat line at
+   startingBalance when nothing closed. */
+const closedTime = (t: ApiTrade) => Date.parse(t.created_at);
 
-const validClosedTrade = (trade: ApiTrade) => {
-    if (trade.pnl === null) return false;
-    const pnl = Number(trade.pnl);
-    const timestamp = Date.parse(trade.created_at);
-    return Number.isFinite(pnl) && Number.isFinite(timestamp);
-};
-
-const dateKey = (date: Date) =>
-    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-const sampleDateTicks = (points: EquityPoint[], limit = 8) => {
-    const firstTradeByDay: Array<{ trade: number; label: string }> = [];
-    const seen = new Set<string>();
-
-    for (const point of points) {
-        if (seen.has(point.dateKey)) continue;
-        seen.add(point.dateKey);
-        firstTradeByDay.push({ trade: point.trade, label: point.dateShort });
-    }
-
-    const sampled =
-        firstTradeByDay.length <= limit
-            ? firstTradeByDay
-            : Array.from({ length: limit }, (_, index) => {
-                  const position = (index * (firstTradeByDay.length - 1)) / (limit - 1);
-                  return firstTradeByDay[Math.round(position)];
-              });
-
-    return {
-        dateTicks: sampled.map((point) => point.trade),
-        dateLabelsByTrade: Object.fromEntries(
-            sampled.map((point) => [point.trade, point.label]),
-        ) as Record<number, string>,
-    };
-};
-
-// Builds both visualizations in the reference card from the active account's
-// closed trades. `created_at` is currently the product's only trade timestamp,
-// so it is also the chart's chronological/closing timestamp.
-export function buildEquityChartData(trades: ApiTrade[]): EquityChartData {
+export function buildSeries(
+    trades: ApiTrade[],
+    startingBalance: number,
+    key: RangeKey,
+): Series {
     const closed = trades
-        .filter(validClosedTrade)
-        .sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+        .filter((t) => t.pnl !== null)
+        .sort((a, b) => closedTime(a) - closedTime(b));
 
-    let cumulative = 0;
-    const tradePoints: EquityPoint[] = closed.map((trade, index) => {
-        const pnl = Number(trade.pnl);
-        const date = new Date(trade.created_at);
-        cumulative += pnl;
+    const start = windowStart(key);
+    let running = startingBalance;
+    let i = 0;
+    // Fast-forward through trades that closed before the window.
+    for (; i < closed.length && closedTime(closed[i]) < start; i++)
+        running += parseFloat(closed[i].pnl!);
 
-        return {
-            cumulative,
-            date: date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-            }),
-            dateKey: dateKey(date),
-            dateShort: date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-            }),
-            pnl,
-            trade: index + 1,
-        };
-    });
-
-    const dailyByDate = new Map<string, DailyPnlPoint>();
-    for (const point of tradePoints) {
-        const current = dailyByDate.get(point.dateKey);
-        if (current) current.pnl += point.pnl;
-        else {
-            dailyByDate.set(point.dateKey, {
-                date: point.date,
-                dateKey: point.dateKey,
-                dateShort: point.dateShort,
-                pnl: point.pnl,
-            });
-        }
+    const equity = [running]; // seed at pre-window running equity
+    const tradePnls: number[] = [];
+    const dailyPnls = new Map<string, number>();
+    // Seed date: window start, or the first in-window trade (ALL has start 0).
+    const dates = [start > 0 ? start : (closed[i] ? closedTime(closed[i]) : Date.now())];
+    for (; i < closed.length; i++) {
+        const pnl = parseFloat(closed[i].pnl!);
+        running += pnl;
+        tradePnls.push(pnl);
+        const day = new Date(closedTime(closed[i])).toDateString();
+        dailyPnls.set(day, (dailyPnls.get(day) ?? 0) + pnl);
+        equity.push(running);
+        dates.push(closedTime(closed[i]));
     }
-    const dailyPoints = [...dailyByDate.values()];
-
-    let runningPeak = 0;
-    let deepestDip = 0;
-    let peak = 0;
-    let peakTrade: number | null = null;
-    for (const point of tradePoints) {
-        if (point.cumulative > peak) {
-            peak = point.cumulative;
-            peakTrade = point.trade;
-        }
-        runningPeak = Math.max(runningPeak, point.cumulative);
-        deepestDip = Math.min(deepestDip, point.cumulative - runningPeak);
+    // Nothing closed in-window: draw a flat 2-point line, not a single point
+    // (the geometry divides by the trade-index span).
+    if (equity.length === 1) {
+        equity.push(running);
+        dates.push(Date.now());
     }
 
-    const lowest = Math.min(0, ...tradePoints.map((point) => point.cumulative));
-    const highest = Math.max(0, ...tradePoints.map((point) => point.cumulative));
-    const gradientOffset =
-        highest <= 0 ? 0 : lowest >= 0 ? 1 : highest / (highest - lowest);
-    const ticks = sampleDateTicks(tradePoints);
-
+    let lo = Math.min(...equity);
+    let hi = Math.max(...equity);
+    if (lo === hi) {
+        // Flat series: pad so normalization doesn't divide by zero.
+        const pad = Math.abs(lo) * 0.01 || 1;
+        lo -= pad;
+        hi += pad;
+    }
+    const span = hi - lo;
+    const pts = equity.map((v) => (v - lo) / span);
+    const dayValues = [...dailyPnls.values()];
     return {
-        dailyPoints,
-        ...ticks,
-        deepestDip,
-        gradientOffset,
-        greenDays: dailyPoints.filter((point) => point.pnl >= 0).length,
-        net: tradePoints.at(-1)?.cumulative ?? 0,
-        peak,
-        peakTrade,
-        redDays: dailyPoints.filter((point) => point.pnl < 0).length,
-        tradePoints,
+        pts,
+        dates,
+        lo,
+        hi,
+        startEquity: equity[0],
+        tradePnls,
+        bestDay: dayValues.length ? Math.max(...dayValues) : null,
+        worstDay: dayValues.length ? Math.min(...dayValues) : null,
+        avgDay: dayValues.length ? dayValues.reduce((sum, value) => sum + value, 0) / dayValues.length : null,
     };
 }

@@ -24,10 +24,6 @@ export interface CalendarRow {
     day: string;
     pnl: string | null;
     trades: string;
-    items: Array<{
-        symbol: string;
-        pnl: number | null;
-    }>;
 }
 
 @Injectable()
@@ -75,14 +71,7 @@ export class AnalyticsRepository {
             `SELECT
                 to_char(created_at, 'YYYY-MM-DD') AS day,
                 SUM(pnl)                          AS pnl,
-                COUNT(*)                          AS trades,
-                COALESCE(
-                    json_agg(
-                        json_build_object('symbol', symbol, 'pnl', pnl)
-                        ORDER BY created_at, id
-                    ),
-                    '[]'::json
-                )                                 AS items
+                COUNT(*)                          AS trades
             FROM trades
             WHERE account_id = $1
               AND created_at >= $2::timestamptz

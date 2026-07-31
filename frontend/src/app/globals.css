@@ -171,10 +171,6 @@ input:-webkit-autofill:focus {
     }
 }
 
-.equity-line-reveal {
-    will-change: clip-path;
-}
-
 /* Landing-page reveal engine: hidden start states per type; the finals
    are applied by use-reveal.ts when an element enters the viewport. */
 [data-reveal] {

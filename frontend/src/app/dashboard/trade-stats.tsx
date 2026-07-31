@@ -461,6 +461,7 @@ function MiniLine({
     color?: string;
 }) {
     const chartNode = useRef<HTMLDivElement>(null);
+    const revealNode = useRef<HTMLDivElement>(null);
     const chart = useRef<EChartsType | null>(null);
     const option = useMemo(
         () => buildMiniLineOption({ values, labels, unit, color }),
@@ -486,8 +487,33 @@ function MiniLine({
         chart.current?.setOption(option, { notMerge: true });
     }, [option]);
 
+    useEffect(() => {
+        const node = revealNode.current;
+        if (!node) return;
+
+        const duration = 1600;
+        let startedAt: number | null = null;
+        let frame = 0;
+        const tick = (now: number) => {
+            startedAt ??= now;
+            const progress = Math.min((now - startedAt) / duration, 1);
+            const hiddenRight = (1 - progress) * 100;
+            node.style.clipPath = `inset(0 ${hiddenRight}% 0 0)`;
+            if (progress < 1) frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+
+        return () => {
+            cancelAnimationFrame(frame);
+        };
+    }, []);
+
     return (
-        <div className="equity-line-reveal mt-4 h-[120px] w-full overflow-hidden">
+        <div
+            ref={revealNode}
+            className="equity-line-reveal mt-4 h-[120px] w-full overflow-hidden"
+            style={{ clipPath: 'inset(0 100% 0 0)' }}
+        >
             <div ref={chartNode} className="h-full w-full" />
         </div>
     );

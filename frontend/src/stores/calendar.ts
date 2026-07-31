@@ -6,11 +6,17 @@ import { api, apiMessage } from '@/lib/api';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 
-// One day's totals, mirroring AnalyticsService.CalendarDay.
+// One day's totals plus the per-trade breakdown, mirroring AnalyticsService.CalendarDay.
+export interface CalendarTrade {
+    symbol: string;
+    pnl: number | null;
+}
+
 export interface CalendarDay {
     date: string; // 'YYYY-MM-DD'
     pnl: number;
     trades: number;
+    items: CalendarTrade[];
 }
 
 interface CalendarStore {

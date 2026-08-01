@@ -13,7 +13,7 @@ import type { ComposeOption, EChartsType } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { signedMoney } from '@/lib/format';
-import { canvasColors, cardCls, G, monoFontStack, R } from '@/lib/ui';
+import { canvasColors, cardCls, cardMetaLabelCls, G, monoFontStack, R } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
 import { toTradeLogRow } from './trades/use-trade-log';
@@ -187,15 +187,13 @@ function StatCard({
     children: React.ReactNode;
 }) {
     return (
-        <Card className={`${cardCls} px-6 py-4 flex flex-col gap-2`}>
+        <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-2`}>
             <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-ui-xs font-medium tracking-[0.14em] text-content-faint">
-                    {label}
-                </span>
+                <span className={cardMetaLabelCls}>{label}</span>
                 {/* Always rendered so cards without a chip keep the same header height. */}
                 <Badge
                     variant="outline"
-                    className={`h-auto rounded px-2 py-2 font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground ${chip ? '' : 'invisible'}`}
+                    className={`h-auto rounded px-2 py-1.5 font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground ${chip ? '' : 'invisible'}`}
                 >
                     {chip ?? '—'}
                 </Badge>

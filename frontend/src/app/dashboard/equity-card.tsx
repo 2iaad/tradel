@@ -27,7 +27,14 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { cardCls, monoFontStack } from '@/lib/ui';
+import {
+    cardCls,
+    cardDescriptionCls,
+    cardFooterCls,
+    cardMetaLabelCls,
+    cardTitleCls,
+    monoFontStack,
+} from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
 import {
@@ -148,9 +155,7 @@ function DailyTooltip({ active, payload, currency }: DailyTooltipProps) {
 function Metric({ label, value, color }: { label: string; value: string; color: string }) {
     return (
         <div className="flex min-w-0 flex-col gap-0.5">
-            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-content-faint">
-                {label}
-            </span>
+            <span className={cardMetaLabelCls}>{label}</span>
             <span className="truncate font-mono text-ui-sm font-semibold tabular-nums" style={{ color }}>
                 {value}
             </span>
@@ -206,10 +211,10 @@ export function EquityCard() {
             <CardHeader className="gap-0 px-[22px] pb-3 pt-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                        <CardTitle className="text-ui-lg font-semibold text-card-foreground">
+                        <CardTitle className={cardTitleCls}>
                             {mode === 'equity' ? 'Equity curve' : 'Daily P&L'}
                         </CardTitle>
-                        <CardDescription className="mt-1 text-ui-sm font-medium text-content-faint">
+                        <CardDescription className={cardDescriptionCls}>
                             {mode === 'equity'
                                 ? 'Cumulative profit and loss, trade by trade'
                                 : 'Profit and loss for each trading day'}
@@ -468,22 +473,18 @@ export function EquityCard() {
             </CardContent>
 
             {hasTrades && (
-                <CardFooter className="border-t border-border-subtle bg-muted/35 px-[22px] py-3">
+                <CardFooter className={cardFooterCls}>
                     <div className="flex w-full items-end justify-between gap-4">
                         {mode === 'equity' ? (
                             <>
                                 <div className="flex min-w-0 flex-col gap-0.5">
-                                    <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-content-faint">
-                                        Period
-                                    </span>
+                                    <span className={cardMetaLabelCls}>Period</span>
                                     <span className="truncate text-ui-sm font-semibold text-content">
                                         {firstDate} – {lastDate}
                                     </span>
                                 </div>
                                 <div className="flex flex-col gap-0.5 text-right">
-                                    <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-content-faint">
-                                        Trades
-                                    </span>
+                                    <span className={cardMetaLabelCls}>Trades</span>
                                     <span className="font-mono text-ui-sm font-semibold tabular-nums text-content">
                                         {chart.tradePoints.length}
                                     </span>

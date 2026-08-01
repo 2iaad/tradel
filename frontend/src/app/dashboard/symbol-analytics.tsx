@@ -25,7 +25,16 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { canvasColors, cardCls, monoFontStack } from '@/lib/ui';
+import {
+    canvasColors,
+    cardCls,
+    cardDescriptionCls,
+    cardFooterCls,
+    cardMetaLabelCls,
+    cardMetaValueCls,
+    cardTitleCls,
+    monoFontStack,
+} from '@/lib/ui';
 import type { BreakdownEntry } from '@/stores/analytics';
 
 echarts.use([
@@ -123,12 +132,12 @@ function SectionHeader({
     children?: React.ReactNode;
 }) {
     return (
-        <div className="flex items-start justify-between gap-5 px-10 pt-8">
+        <div className="flex items-start justify-between gap-5 px-[22px] pb-3 pt-5">
             <div className="min-w-0">
-                <h2 className="m-0 text-[1.55rem] font-semibold leading-tight tracking-[-0.02em] text-card-foreground">
+                <h2 className={cardTitleCls}>
                     {title}
                 </h2>
-                <p className="mt-3 text-ui-lg text-content-muted">{description}</p>
+                <p className={cardDescriptionCls}>{description}</p>
             </div>
             {children}
         </div>
@@ -288,7 +297,7 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                     <div className="flex h-[430px] items-center justify-center text-ui-sm text-content-faint">No symbol data yet</div>
                 )}
             </div>
-            <div className="grid grid-cols-3 border-t border-border-subtle px-10 py-6">
+            <div className={`${cardFooterCls} grid grid-cols-3`}>
                 <FooterMetric label="Symbols" value={String(data.length)} />
                 <FooterMetric label="Best" value={best ? `${best.label} ${fmtWholeMoney(best.net, currency, true)}` : '—'} center />
                 <FooterMetric label="Net P&L" value={fmtMoney(net, currency, true)} right accent={net >= 0} />
@@ -312,8 +321,8 @@ function FooterMetric({
 }) {
     return (
         <div className={`${center ? 'text-center' : right ? 'text-right' : ''} min-w-0`}>
-            <div className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-content-faint">{label}</div>
-            <div className={`mt-2 truncate text-ui-lg font-semibold ${accent ? 'text-profit' : 'text-content'}`}>{value}</div>
+            <div className={cardMetaLabelCls}>{label}</div>
+            <div className={`mt-2 truncate ${cardMetaValueCls} ${accent ? 'text-profit' : ''}`}>{value}</div>
         </div>
     );
 }
@@ -337,17 +346,19 @@ function TradeDistribution({ rows }: SymbolsProps) {
             },
             series: [
                 {
+                    name: 'Trade Distribution',
                     type: 'pie',
-                    radius: ['45%', '70%'],
+                    radius: ['22%', '78%'],
                     center: ['50%', '50%'],
+                    roseType: 'area',
                     avoidLabelOverlap: true,
                     label: { show: false },
                     labelLine: { show: false },
                     itemStyle: {
+                        borderRadius: 8,
                         borderColor: canvasColors.card,
                         borderWidth: 3,
                     },
-                    emphasis: { scale: false },
                     data: data.map((row, index) => ({
                         name: row.label,
                         value: row.count,
@@ -370,8 +381,8 @@ function TradeDistribution({ rows }: SymbolsProps) {
                     <div className="relative h-[390px] min-w-0">
                         <div ref={node} role="img" aria-label="Trade count distribution by symbol" className="h-full w-full" />
                         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-1">
-                            <span className="text-[2.1rem] font-semibold leading-none text-content">{total}</span>
-                            <span className="mt-1 text-ui-md text-content-muted">Trades</span>
+                            <span className="text-display-md font-semibold leading-none text-content">{total}</span>
+                            <span className="mt-1 text-ui-sm text-content-muted">Trades</span>
                         </div>
                     </div>
                 ) : (
@@ -381,7 +392,7 @@ function TradeDistribution({ rows }: SymbolsProps) {
                     {data.map((row, index) => {
                         const percentage = total ? Math.round((row.count / total) * 100) : 0;
                         return (
-                            <div key={row.label} className="flex items-center gap-3 text-ui-md">
+                            <div key={row.label} className="flex items-center gap-3 text-ui-sm">
                                 <span className="size-4 shrink-0 rounded-[3px]" style={{ background: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length] }} />
                                 <span className="min-w-0 truncate font-semibold text-content">{row.label}</span>
                                 <span className="ml-auto whitespace-nowrap font-mono text-content">{percentage}%</span>
@@ -391,14 +402,14 @@ function TradeDistribution({ rows }: SymbolsProps) {
                     })}
                 </div>
             </div>
-            <div className="grid grid-cols-2 border-t border-border-subtle px-10 py-6">
+            <div className={`${cardFooterCls} grid grid-cols-2`}>
                 <div>
-                    <div className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-content-faint">Most traded</div>
-                    <div className="mt-2 text-ui-lg font-semibold text-content">{mostTraded ? `${mostTraded.label} · ${mostTraded.count} ${mostTraded.count === 1 ? 'trade' : 'trades'}` : '—'}</div>
+                    <div className={cardMetaLabelCls}>Most traded</div>
+                    <div className={`mt-2 ${cardMetaValueCls}`}>{mostTraded ? `${mostTraded.label} · ${mostTraded.count} ${mostTraded.count === 1 ? 'trade' : 'trades'}` : '—'}</div>
                 </div>
                 <div className="text-right">
-                    <div className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-content-faint">Concentration</div>
-                    <div className="mt-2 text-ui-lg font-semibold text-content">{total ? `${concentration}% of all trades` : '—'}</div>
+                    <div className={cardMetaLabelCls}>Concentration</div>
+                    <div className={`mt-2 ${cardMetaValueCls}`}>{total ? `${concentration}% of all trades` : '—'}</div>
                 </div>
             </div>
         </Card>

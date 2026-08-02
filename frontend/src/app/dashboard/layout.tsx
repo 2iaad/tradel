@@ -7,12 +7,12 @@ import type { CSSProperties } from 'react';
 import { Tape, TOP_TICKS } from '@/components/tape';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useAccountStore } from '@/stores/accounts';
-import { useSessionStore } from '@/stores/session';
+import { hasDashboardSession, useSessionStore } from '@/stores/session';
 import { Sidebar } from './sidebar';
 
 // Dashboard shell: sidebar + tape, gated on the restored session.
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const status = useSessionStore((s) => s.session.status);
+    const session = useSessionStore((s) => s.session);
     const restore = useSessionStore((s) => s.restore);
     const loadAccounts = useAccountStore((s) => s.load);
     const router = useRouter();
@@ -25,8 +25,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     // No guest dashboard — send unauthenticated visitors to sign in.
     useEffect(() => {
-        if (status === 'anon') router.replace('/login');
-    }, [status, router]);
+        if (session.status === 'anon') router.replace('/login');
+    }, [session.status, router]);
 
     return (
         <SidebarProvider
@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     duration="46s"
                     className="h-10 border-b border-border-subtle flex-none"
                 />
-                {status === 'user' && children}
+                {hasDashboardSession(session) && children}
             </SidebarInset>
         </SidebarProvider>
     );

@@ -3,8 +3,10 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
+import { buildDemoAnalytics } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
+import { useTradesStore } from '@/stores/trades';
 
 // Mirrors AnalyticsSummary from the backend. Ratio fields are null when
 // undefined (no closed trades / no losses) → render "—", never NaN.
@@ -48,11 +50,19 @@ export const useAnalyticsStore = create<AnalyticsStore>((set) => ({
 
     // Fetch summary + both breakdowns for the active account in parallel.
     load: async () => {
-        if (useSessionStore.getState().session.status !== 'user') {
+        const status = useSessionStore.getState().session.status;
+        const accId = activeId();
+        if (status === 'demo') {
+            const trades = useTradesStore
+                .getState()
+                .trades.filter((trade) => trade.account_id === accId);
+            set({ ...buildDemoAnalytics(trades), loading: false, error: null });
+            return;
+        }
+        if (status !== 'user') {
             set({ loading: false });
             return;
         }
-        const accId = activeId();
         if (!accId) {
             set({ summary: null, bySymbol: [], bySide: [], loading: false });
             return;

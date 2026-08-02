@@ -52,10 +52,13 @@ const menuLinkClass =
     "grid w-full grid-cols-[20px_1fr] items-start gap-x-3 gap-y-1 rounded-md p-3.5 text-white hover:bg-white/10 focus:bg-white/10";
 
 const menuTitleClass =
-    "new-button_label !justify-start !text-left !text-[0.875em] !font-medium !leading-none !text-white";
+    "font-sans text-[0.875em] font-normal leading-none text-white";
 
 const menuDescriptionClass =
-    "col-start-2 text-[0.875em] font-normal leading-[1.35] text-white/60";
+    "col-start-2 font-sans text-[0.875em] font-normal leading-[1.35] text-white/60";
+
+const navigationLabelClass =
+    "font-sans !text-[0.875em] !font-normal !leading-none";
 
 export function HomeNav() {
     return (
@@ -76,11 +79,11 @@ export function HomeNav() {
                 <NavigationMenu
                     render={<div />}
                     className="pointer-events-auto absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white max-[900px]:hidden"
-                    popupClassName="border border-white/15 bg-black/55 font-sans text-white shadow-[0_18px_50px_rgba(0,0,0,0.35)] ring-0 backdrop-blur-xl backdrop-saturate-150"
+                    popupClassName="border border-white/10 bg-black/65 font-sans text-white shadow-[0_14px_36px_rgba(0,0,0,0.3)] ring-0 backdrop-blur-md"
                 >
                     <NavigationMenuList className="gap-1">
                         <NavigationMenuItem>
-                            <NavigationMenuTrigger data-nav-item="">
+                            <NavigationMenuTrigger className={navigationLabelClass} data-nav-item="">
                                 Getting Started
                             </NavigationMenuTrigger>
                             <NavigationMenuContent className="w-[430px] p-2">
@@ -107,7 +110,7 @@ export function HomeNav() {
                         </NavigationMenuItem>
 
                         <NavigationMenuItem>
-                            <NavigationMenuTrigger data-nav-item="">
+                            <NavigationMenuTrigger className={navigationLabelClass} data-nav-item="">
                                 Platform
                             </NavigationMenuTrigger>
                             <NavigationMenuContent className="w-[540px] p-2">
@@ -136,7 +139,7 @@ export function HomeNav() {
                         <NavigationMenuItem>
                             <NavigationMenuLink
                                 render={<Link href="#agent" />}
-                                className="h-9 px-2.5 py-1.5 font-medium text-white hover:bg-muted focus:bg-muted"
+                                className={`h-9 px-2.5 py-1.5 text-white hover:bg-muted focus:bg-muted ${navigationLabelClass}`}
                                 data-nav-item=""
                                 closeOnClick
                             >

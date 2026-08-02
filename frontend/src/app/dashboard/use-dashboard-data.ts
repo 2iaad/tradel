@@ -25,5 +25,5 @@ export function useDashboardData() {
         [apiTrades],
     );
 
-    return { recent, loading };
+    return { recent, loading, trades: apiTrades };
 }

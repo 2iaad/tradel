@@ -140,7 +140,12 @@ function NotesList() {
 
 export default function DashboardPage() {
     const session = useSessionStore((s) => s.session);
-    const name = session.status === 'user' ? session.email.split('@')[0] : 'trader';
+    const name =
+        session.status === 'demo'
+            ? 'Demo'
+            : session.status === 'user'
+              ? session.email.split('@')[0]
+              : 'trader';
     const { recent, loading, trades } = useDashboardData();
     const stats = useTradeStats();
     const streak = useMemo(() => loggingStreak(trades), [trades]);

@@ -3,8 +3,10 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
+import { buildDemoCalendar } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
+import { useTradesStore } from '@/stores/trades';
 
 // One day's totals plus the per-trade breakdown, mirroring AnalyticsService.CalendarDay.
 export interface CalendarTrade {
@@ -39,11 +41,19 @@ export const useCalendarStore = create<CalendarStore>((set) => ({
     // GET the calendar for one month of the active account.
     load: async (month) => {
         set({ month });
-        if (useSessionStore.getState().session.status !== 'user') {
+        const status = useSessionStore.getState().session.status;
+        const accId = activeId();
+        if (status === 'demo') {
+            const trades = useTradesStore
+                .getState()
+                .trades.filter((trade) => trade.account_id === accId);
+            set({ days: buildDemoCalendar(trades, month), loading: false, error: null });
+            return;
+        }
+        if (status !== 'user') {
             set({ loading: false });
             return;
         }
-        const accId = activeId();
         if (!accId) {
             set({ days: [], loading: false });
             return;

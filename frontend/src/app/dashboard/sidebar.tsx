@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useAccountStore } from '@/stores/accounts';
-import { useSessionStore } from '@/stores/session';
+import { hasDashboardSession, useSessionStore } from '@/stores/session';
 import { AccountModal } from './account-modal';
 import { Button } from '@/components/ui/button';
 import { Avatar as ShadcnAvatar, AvatarFallback } from '@/components/ui/avatar';
@@ -191,10 +191,11 @@ function AccountPicker() {
 // Sign-out button.
 function AuthAction() {
     const router = useRouter();
+    const demo = useSessionStore((s) => s.session.status === 'demo');
     const signOutStore = useSessionStore((s) => s.signOut);
     const signOut = async () => {
         await signOutStore();
-        router.push('/login');
+        router.push(demo ? '/' : '/login');
     };
 
     return (
@@ -204,7 +205,7 @@ function AuthAction() {
             variant="outline"
             className="h-auto block w-full border-border-subtle bg-transparent p-2 text-center font-mono text-ui-sm font-medium tracking-[0.12em] text-content-faint hover:bg-transparent hover:text-loss hover:border-loss/25"
         >
-            SIGN OUT
+            {demo ? 'EXIT DEMO' : 'SIGN OUT'}
         </Button>
     );
 }
@@ -213,7 +214,7 @@ function AuthAction() {
 export function Sidebar() {
     const session = useSessionStore((s) => s.session);
     // Only signed-in users reach the dashboard; render nothing otherwise.
-    if (session.status !== 'user') return null;
+    if (!hasDashboardSession(session)) return null;
 
     return (
         <ShadcnSidebar
@@ -239,7 +240,7 @@ export function Sidebar() {
                 <AccountPicker />
                 <UserBadge
                     initials={session.email.slice(0, 2)}
-                    name={session.email.split('@')[0]}
+                    name={session.status === 'demo' ? 'Demo Trader' : session.email.split('@')[0]}
                     sub={session.email}
                 />
                 <AuthAction />

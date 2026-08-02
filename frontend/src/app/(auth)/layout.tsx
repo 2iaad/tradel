@@ -12,6 +12,7 @@ import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
 import { api } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
+import { clearDemoSession } from '@/stores/session';
 
 // Shared bits for the three sliding auth forms.
 type Mode = 'login' | 'register' | 'reset';
@@ -96,6 +97,7 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
         const password = f.get('password') as string;
         try {
             const { data } = await api.post('/auth/login', { email, password });
+            clearDemoSession();
             return data;
         } catch (err) {
             const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
@@ -128,6 +130,7 @@ async function registerAction(f: FormData) {
     const password = f.get('password') as string;
     try {
         const { data } = await api.post('/auth/register', { username, email, password });
+        clearDemoSession();
         return data;
     } catch (err) {
         const m = axios.isAxiosError(err) ? err.response?.data?.message : null;

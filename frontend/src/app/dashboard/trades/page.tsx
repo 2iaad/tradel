@@ -8,6 +8,9 @@ import { useTradeLog } from './use-trade-log';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BarChart3, CalendarDays, Flame, Scale, TrendingDown, TrendingUp } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 type Log = ReturnType<typeof useTradeLog>;
 
@@ -61,30 +64,66 @@ function FilterToolbar({ log }: { log: Log }) {
     );
 }
 
-// One label+value pill in the quick-stats strip.
-function Chip({ label, value, color }: { label: string; value: string; color?: string }) {
+function Chip({
+    label,
+    value,
+    color,
+    icon,
+}: {
+    label: string;
+    value: string;
+    color?: string;
+    icon: ReactNode;
+}) {
     return (
-        <span className="inline-flex items-center gap-1.5 bg-muted border border-border-subtle rounded-full px-3.5 py-1.5 font-mono text-ui-xs font-medium tracking-[0.04em] text-muted-foreground">
-            {label && <span>{label}</span>}
-            <span style={{ color: color ?? 'var(--secondary-foreground)' }}>{value}</span>
-        </span>
+        <Badge
+            variant="outline"
+            className="h-auto justify-start rounded-full px-3.5 py-2 font-mono text-ui-xs font-medium tracking-[0.04em] text-muted-foreground"
+        >
+                <span className="-translate-y-px mr-0.5">{icon}</span>
+                {label && <span className="">{label}</span>}
+                <span style={{ color: color ?? 'var(--secondary-foreground)' }}>{value}</span>
+        </Badge>
     );
 }
 
-// Quick-stats pill strip under the cards.
 function ChipStrip({ s }: { s: Log['summary'] }) {
     return (
         <Card className="flex flex-row items-center gap-2 border-0 bg-transparent py-0.5 ring-0">
-            <Chip label="" value={`${s.count} trades`} color={G} />
-            <Chip label="Avg win" value={s.avgWin} color={G} />
-            <Chip label="Avg loss" value={s.avgLoss} color={R} />
-            <Chip label="PF" value={s.pf} />
             <Chip
+                icon={<BarChart3 aria-hidden="true" className="size-3" />}
+                label=""
+                value={`${s.count} trades`}
+            />
+            <Chip
+                icon={<TrendingUp aria-hidden="true" className="size-3" />}
+                label="Avg win"
+                value={s.avgWin}
+                color={G}
+            />
+            <Chip
+                icon={<TrendingDown aria-hidden="true" className="size-3" />}
+                label="Avg loss"
+                value={s.avgLoss}
+                color={R}
+            />
+            <Chip
+                icon={<Scale aria-hidden="true" className="size-3" />}
+                label="PF"
+                value={s.pf}
+            />
+            <Chip
+                icon={<Flame aria-hidden="true" className="size-3" />}
                 label="Streak"
                 value={s.streak}
                 color={s.streak === '—' ? undefined : s.streakWin ? G : R}
             />
-            <Chip label="This month" value={s.monthNet} color={s.monthPos ? G : R} />
+            <Chip
+                icon={<CalendarDays aria-hidden="true" className="size-3.5" />}
+                label="This month"
+                value={s.monthNet}
+                color={s.monthPos ? G : R}
+            />
         </Card>
     );
 }

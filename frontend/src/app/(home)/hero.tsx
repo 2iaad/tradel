@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import Link from 'next/link';
 
 export function Hero() {
     return (
@@ -44,9 +45,17 @@ export function Hero() {
                 </div>
             </section>
             <div className="hero-bottom__wrap">
-                {/* justify-center + raised bottom: single CTA, theme's
-                    space-between clipped it at the screen edge */}
-                <div className="home-hero__bottom justify-center bottom-16">
+                {/* Keep both entry points centered above the theme's clipped edge. */}
+                <div className="home-hero__bottom justify-center gap-3 bottom-16 max-[479px]:flex-col max-[479px]:gap-2">
+                    <Link
+                        className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block !inline-flex !border !border-white/25 !bg-black/35 !text-white"
+                        data-nav-item=""
+                        href="/demo"
+                    >
+                        <div className="new-button_label w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80">
+                            {' VIEW LIVE DEMO '}
+                        </div>
+                    </Link>
                     <a
                         className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block"
                         data-nav-item=""

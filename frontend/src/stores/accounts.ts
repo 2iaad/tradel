@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
+import { DEMO_ACCOUNT } from '@/lib/demo-data';
 import { useSessionStore } from '@/stores/session';
 
 // Trading account as returned by the accounts API.
@@ -54,7 +55,17 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
     // GET /accounts, then resolve the active id: keep the persisted one if it
     // still exists, else fall back to the first account (or null when empty).
     load: async () => {
-        if (useSessionStore.getState().session.status !== 'user') {
+        const status = useSessionStore.getState().session.status;
+        if (status === 'demo') {
+            set({
+                accounts: [{ ...DEMO_ACCOUNT }],
+                activeId: DEMO_ACCOUNT.id,
+                loading: false,
+                error: null,
+            });
+            return;
+        }
+        if (status !== 'user') {
             set({ loading: false });
             return;
         }
@@ -76,6 +87,20 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
 
     // POST /accounts, refresh the list, and make the new account active.
     create: async (payload) => {
+        if (useSessionStore.getState().session.status === 'demo') {
+            const account: Account = {
+                id: `demo-account-${Date.now()}`,
+                name: payload.name ?? 'Demo Account',
+                broker: payload.broker ?? null,
+                currency: payload.currency ?? 'USD',
+                starting_balance: String(payload.startingBalance ?? 0),
+            };
+            set((state) => ({
+                accounts: [...state.accounts, account],
+                activeId: account.id,
+            }));
+            return;
+        }
         const { data } = await api.post<Account>('/accounts', payload);
         const { data: accounts } = await api.get<Account[]>('/accounts');
         writeActive(data.id);
@@ -84,6 +109,25 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
 
     // PATCH /accounts/:id, then refresh the list.
     rename: async (id, payload) => {
+        if (useSessionStore.getState().session.status === 'demo') {
+            set((state) => ({
+                accounts: state.accounts.map((account) =>
+                    account.id === id
+                        ? {
+                              ...account,
+                              name: payload.name ?? account.name,
+                              broker: payload.broker ?? account.broker,
+                              currency: payload.currency ?? account.currency,
+                              starting_balance:
+                                  payload.startingBalance === undefined
+                                      ? account.starting_balance
+                                      : String(payload.startingBalance),
+                          }
+                        : account,
+                ),
+            }));
+            return;
+        }
         await api.patch(`/accounts/${id}`, payload);
         const { data } = await api.get<Account[]>('/accounts');
         set({ accounts: data });
@@ -92,6 +136,12 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
     // DELETE /accounts/:id, refresh, and re-point the active account if the
     // deleted one was selected.
     remove: async (id) => {
+        if (useSessionStore.getState().session.status === 'demo') {
+            const accounts = get().accounts.filter((account) => account.id !== id);
+            const activeId = get().activeId === id ? (accounts[0]?.id ?? null) : get().activeId;
+            set({ accounts, activeId });
+            return;
+        }
         await api.delete(`/accounts/${id}`);
         const { data } = await api.get<Account[]>('/accounts');
         let active = get().activeId;
@@ -103,7 +153,7 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
     },
 
     setActive: (id) => {
-        writeActive(id);
+        if (useSessionStore.getState().session.status !== 'demo') writeActive(id);
         set({ activeId: id });
     },
 }));

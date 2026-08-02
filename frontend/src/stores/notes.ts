@@ -3,8 +3,10 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
+import { buildDemoNotes } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
+import { useTradesStore } from '@/stores/trades';
 
 // Note as returned by the notes API.
 export interface ApiNote {
@@ -28,6 +30,7 @@ interface NotesStore {
     notes: ApiNote[];
     loading: boolean;
     error: string | null;
+    loadedFor: string | null;
     load: () => Promise<void>;
     create: (tradeId: string, payload: NotePayload) => Promise<void>;
     update: (id: string, payload: NotePayload) => Promise<void>;
@@ -41,22 +44,40 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
     notes: [],
     loading: true,
     error: null,
+    loadedFor: null,
 
     // GET /accounts/:activeId/notes. No active account → empty list.
     load: async () => {
-        if (useSessionStore.getState().session.status !== 'user') {
+        const status = useSessionStore.getState().session.status;
+        const accId = activeId();
+        if (status === 'demo') {
+            if (get().loadedFor === accId) {
+                set({ loading: false });
+                return;
+            }
+            const trades = useTradesStore
+                .getState()
+                .trades.filter((trade) => trade.account_id === accId);
+            set({
+                notes: accId ? buildDemoNotes(trades) : [],
+                loadedFor: accId,
+                loading: false,
+                error: null,
+            });
+            return;
+        }
+        if (status !== 'user') {
             set({ loading: false });
             return;
         }
-        const accId = activeId();
         if (!accId) {
-            set({ notes: [], loading: false });
+            set({ notes: [], loadedFor: null, loading: false });
             return;
         }
         set({ loading: true, error: null });
         try {
             const { data } = await api.get<ApiNote[]>(`/accounts/${accId}/notes`);
-            set({ notes: data });
+            set({ notes: data, loadedFor: accId });
         } catch (err) {
             set({ error: apiMessage(err) });
         } finally {
@@ -70,6 +91,19 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
     create: async (tradeId, payload) => {
         const accId = activeId();
         if (!accId) throw new Error('No account selected');
+        if (useSessionStore.getState().session.status === 'demo') {
+            const note: ApiNote = {
+                id: `demo-note-${Date.now()}`,
+                account_id: accId,
+                trade_id: tradeId,
+                title: payload.title,
+                body: payload.body,
+                tags: payload.tags ?? [],
+                created_at: new Date().toISOString(),
+            };
+            set({ notes: [note, ...get().notes] });
+            return;
+        }
         await api.post(`/accounts/${accId}/trades/${tradeId}/notes`, { ...payload, tradeId });
         await get().load();
     },
@@ -78,6 +112,16 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
     update: async (id, payload) => {
         const accId = activeId();
         if (!accId) throw new Error('No account selected');
+        if (useSessionStore.getState().session.status === 'demo') {
+            set({
+                notes: get().notes.map((note) =>
+                    note.id === id
+                        ? { ...note, ...payload, tags: payload.tags ?? [] }
+                        : note,
+                ),
+            });
+            return;
+        }
         await api.patch(`/accounts/${accId}/notes/${id}`, payload);
         await get().load();
     },
@@ -86,6 +130,10 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
     remove: async (id) => {
         const accId = activeId();
         if (!accId) return;
+        if (useSessionStore.getState().session.status === 'demo') {
+            set({ notes: get().notes.filter((note) => note.id !== id) });
+            return;
+        }
         await api.delete(`/accounts/${accId}/notes/${id}`);
         set({ notes: get().notes.filter((n) => n.id !== id) });
     },

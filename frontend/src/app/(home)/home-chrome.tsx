@@ -1,9 +1,66 @@
 import Link from "next/link";
+import {
+    BookOpenCheck,
+    CalendarDays,
+    ChartNoAxesCombined,
+    LayoutDashboard,
+    ListOrdered,
+    NotebookPen,
+    PlayCircle,
+    UserPlus,
+} from "lucide-react";
+
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+
+const GETTING_STARTED = [
+    {
+        title: "View live demo",
+        description: "Explore a populated trading journal without creating an account.",
+        href: "/demo",
+        icon: PlayCircle,
+    },
+    {
+        title: "Why journal trades",
+        description: "See how structured review turns trading history into useful feedback.",
+        href: "#ai",
+        icon: BookOpenCheck,
+    },
+    {
+        title: "Create your workspace",
+        description: "Start tracking your own trades, notes, and performance.",
+        href: "/register",
+        icon: UserPlus,
+    },
+] as const;
+
+const PLATFORM = [
+    { title: "Dashboard", description: "Account performance at a glance.", href: "/dashboard", icon: LayoutDashboard },
+    { title: "Trade log", description: "Filter and review every execution.", href: "/dashboard/trades", icon: ListOrdered },
+    { title: "Analytics", description: "Find patterns across symbols and setups.", href: "/dashboard/analytics", icon: ChartNoAxesCombined },
+    { title: "Calendar", description: "Inspect daily and monthly P&L.", href: "/dashboard/calendar", icon: CalendarDays },
+    { title: "Journal", description: "Keep the context behind every trade.", href: "/dashboard/journal", icon: NotebookPen },
+] as const;
+
+const menuLinkClass =
+    "grid w-full grid-cols-[20px_1fr] items-start gap-x-3 gap-y-1 rounded-md p-3.5 text-white hover:bg-white/10 focus:bg-white/10";
+
+const menuTitleClass =
+    "new-button_label !justify-start !text-left !text-[0.875em] !font-medium !leading-none !text-white";
+
+const menuDescriptionClass =
+    "col-start-2 text-[0.875em] font-normal leading-[1.35] text-white/60";
 
 export function HomeNav() {
     return (
-        <nav className="nav-w" theme="light">
-            <div className="nav-inner">
+        <nav className="nav-w" theme="light" aria-label="Primary">
+            <div className="nav-inner relative">
                 <Link
                     aria-current="page"
                     aria-label="homepage"
@@ -15,13 +72,87 @@ export function HomeNav() {
                         tradel
                     </span>
                 </Link>
+
+                <NavigationMenu
+                    render={<div />}
+                    className="pointer-events-auto absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white max-[900px]:hidden"
+                    popupClassName="border border-white/15 bg-black/55 font-sans text-white shadow-[0_18px_50px_rgba(0,0,0,0.35)] ring-0 backdrop-blur-xl backdrop-saturate-150"
+                >
+                    <NavigationMenuList className="gap-1">
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger data-nav-item="">
+                                Getting Started
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent className="w-[430px] p-2">
+                                <ul className="m-0 grid list-none gap-1 p-0">
+                                    {GETTING_STARTED.map((item) => (
+                                        <li key={item.title}>
+                                            <NavigationMenuLink
+                                                render={<Link href={item.href} />}
+                                                className={menuLinkClass}
+                                                closeOnClick
+                                            >
+                                                <item.icon className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                                                <span className={menuTitleClass}>
+                                                    {item.title}
+                                                </span>
+                                                <span className={menuDescriptionClass}>
+                                                    {item.description}
+                                                </span>
+                                            </NavigationMenuLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger data-nav-item="">
+                                Platform
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent className="w-[540px] p-2">
+                                <ul className="m-0 grid list-none grid-cols-2 gap-1 p-0">
+                                    {PLATFORM.map((item) => (
+                                        <li key={item.title}>
+                                            <NavigationMenuLink
+                                                render={<Link href={item.href} />}
+                                                className={menuLinkClass}
+                                                closeOnClick
+                                            >
+                                                <item.icon className="mt-0.5 size-4 text-primary" aria-hidden="true" />
+                                                <span className={menuTitleClass}>
+                                                    {item.title}
+                                                </span>
+                                                <span className={menuDescriptionClass}>
+                                                    {item.description}
+                                                </span>
+                                            </NavigationMenuLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+
+                        <NavigationMenuItem>
+                            <NavigationMenuLink
+                                render={<Link href="#agent" />}
+                                className="h-9 px-2.5 py-1.5 font-medium text-white hover:bg-muted focus:bg-muted"
+                                data-nav-item=""
+                                closeOnClick
+                            >
+                                Why Tradel
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
+
                 <div className="nav-content">
                     <div className="nav-buttons">
                         <Link className="nav-link new-button_label" data-nav-item="" href="/login">
                             Log in
                         </Link>
                         <Link className="new-button w-inline-block" data-nav-item="" href="/register">
-                            <div className="new-button_label">Create account</div>
+                            <span className="new-button_label">Create account</span>
                         </Link>
                     </div>
                 </div>

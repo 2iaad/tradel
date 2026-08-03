@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
 
-import { Tape, TOP_TICKS } from '@/components/tape';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { useAccountStore } from '@/stores/accounts';
 import { hasDashboardSession, useSessionStore } from '@/stores/session';
 import { Sidebar } from './sidebar';
@@ -16,6 +16,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const restore = useSessionStore((s) => s.restore);
     const loadAccounts = useAccountStore((s) => s.load);
     const router = useRouter();
+    const pathname = usePathname();
+    const title =
+        {
+            '/dashboard': 'Dashboard',
+            '/dashboard/trades': 'Trades',
+            '/dashboard/analytics': 'Analytics',
+            '/dashboard/calendar': 'Calendar',
+            '/dashboard/journal': 'Journal',
+            '/dashboard/settings': 'Settings',
+        }[pathname] ?? 'Dashboard';
 
     // Restore the session, then load accounts (which sets the active account
     // and cascades into the trades/notes stores via their subscriptions).
@@ -30,16 +40,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <SidebarProvider
-            className="min-h-screen bg-background"
-            style={{ '--sidebar-width': '14.5rem' } as CSSProperties}
+            className="has-data-[variant=inset]:bg-background"
+            style={
+                {
+                    '--sidebar-width': 'calc(var(--spacing) * 72)',
+                    '--header-height': 'calc(var(--spacing) * 12)',
+                } as CSSProperties
+            }
         >
             <Sidebar />
-            <SidebarInset className="min-w-0 bg-background">
-                <Tape
-                    items={TOP_TICKS}
-                    duration="46s"
-                    className="h-10 border-b border-border-subtle flex-none"
-                />
+            <SidebarInset>
+                <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+                    <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator
+                            orientation="vertical"
+                            className="mx-2 h-4 data-vertical:self-auto"
+                        />
+                        <h1 className="text-base font-medium">{title}</h1>
+                    </div>
+                </header>
                 {hasDashboardSession(session) && children}
             </SidebarInset>
         </SidebarProvider>

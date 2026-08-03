@@ -129,16 +129,37 @@ export function useTradeLog() {
     };
     const toggleOpen = (id: string) => setOpenId((cur) => (cur === id ? null : id));
 
-    const rows = useMemo(() => {
+    const filteredBySearch = useMemo(() => {
         const needle = q.trim().toLowerCase();
-        const filtered = trades.filter((t) => {
+        return trades.filter((t) => {
             if (
                 needle &&
                 !t.sym.toLowerCase().includes(needle) &&
                 !t.setup.toLowerCase().includes(needle)
             )
                 return false;
-            if (side !== 'ALL' && t.side !== side) return false;
+            return true;
+        });
+    }, [trades, q]);
+
+    const viewCounts = useMemo(
+        () => ({
+            all: filteredBySearch.length,
+            winners: filteredBySearch.filter((t) => (t.pnlv ?? 0) > 0).length,
+            losers: filteredBySearch.filter((t) => (t.pnlv ?? 0) < 0).length,
+            long: filteredBySearch.filter((t) => t.side === 'LONG').length,
+            short: filteredBySearch.filter((t) => t.side === 'SHORT').length,
+        }),
+        [filteredBySearch],
+    );
+
+    const filteredBySearchAndSide = useMemo(
+        () => filteredBySearch.filter((t) => side === 'ALL' || t.side === side),
+        [filteredBySearch, side],
+    );
+
+    const rows = useMemo(() => {
+        const filtered = filteredBySearchAndSide.filter((t) => {
             if (outcome === 'WINS' && (t.pnlv ?? 0) <= 0) return false;
             if (outcome === 'LOSSES' && (t.pnlv ?? 0) >= 0) return false;
             return true;
@@ -146,7 +167,7 @@ export function useTradeLog() {
         const key = SORT_KEY[sortCol];
         const val = (t: TradeLogRow) => t[key] ?? -1e15; // null R/P&L sorts last on desc
         return [...filtered].sort((a, b) => (dir === 'desc' ? val(b) - val(a) : val(a) - val(b)));
-    }, [trades, q, side, outcome, sortCol, dir]);
+    }, [filteredBySearchAndSide, outcome, sortCol, dir]);
 
     // Shared stats over the FILTERED rows (drives the chip strip + footer);
     // the headline cards use useTradeStats (all trades) instead.
@@ -182,6 +203,7 @@ export function useTradeLog() {
         openId,
         toggleOpen,
         rows,
+        viewCounts,
         summary,
         range,
         loading,

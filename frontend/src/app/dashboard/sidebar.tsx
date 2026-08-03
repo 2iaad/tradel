@@ -1,173 +1,172 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import {
+    BarChart3Icon,
+    BookOpenIcon,
+    CalendarDaysIcon,
+    CirclePlusIcon,
+    CommandIcon,
+    LayoutDashboardIcon,
+    ListIcon,
+    LogOutIcon,
+    MailIcon,
+    Settings2Icon,
+    type LucideIcon,
+} from 'lucide-react';
 
-import { useAccountStore } from '@/stores/accounts';
-import { hasDashboardSession, useSessionStore } from '@/stores/session';
 import { AccountModal } from './account-modal';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Avatar as ShadcnAvatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Sidebar as ShadcnSidebar,
     SidebarContent,
     SidebarFooter,
     SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useAccountStore } from '@/stores/accounts';
+import { hasDashboardSession, useSessionStore } from '@/stores/session';
 
-const NAV = [
-    ['Dashboard', '/dashboard', '/icons/sidebar/dashboard.png'],
-    ['Trades', '/dashboard/trades', '/icons/sidebar/trades.png'],
-    ['Analytics', '/dashboard/analytics', '/icons/sidebar/analytics.png'],
-    ['Calendar', '/dashboard/calendar', '/icons/sidebar/calendar.png'],
-    ['Journal', '/dashboard/journal', '/icons/sidebar/journal.png'],
-    ['Settings', '/dashboard/settings', '/icons/sidebar/settings.png'],
+const NAV_MAIN = [
+    { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboardIcon },
+    { title: 'Trades', url: '/dashboard/trades', icon: ListIcon },
+    { title: 'Analytics', url: '/dashboard/analytics', icon: BarChart3Icon },
+    { title: 'Calendar', url: '/dashboard/calendar', icon: CalendarDaysIcon },
 ] as const;
 
-const itemCls = 'flex items-center my-0.5 w-full box-border rounded-lg px-8 py-5 text-ui-sm';
+const NAV_WORKSPACE = [
+    { title: 'Journal', url: '/dashboard/journal', icon: BookOpenIcon },
+] as const;
 
-// TRADEL wordmark with the pulsing dot.
-function Logo() {
-    return (
-        <div className="flex items-center gap-2.5 px-2.5 pb-[26px]">
-            <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
-                TRADEL
-            </span>
-        </div>
-    );
-}
+const NAV_SECONDARY = [
+    { title: 'Settings', url: '/dashboard/settings', icon: Settings2Icon },
+] as const;
 
-type NavItem = (typeof NAV)[number];
+function NavLink({ item }: { item: { title: string; url: string; icon: LucideIcon } }) {
+    const pathname = usePathname();
+    const active =
+        pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(`${item.url}/`));
+    const Icon = item.icon;
 
-const linkCls = (active: boolean) =>
-    `${itemCls} ${
-        active
-            ? 'bg-accent shadow-[inset_2px_0_0_var(--primary)] text-card-foreground font-medium'
-            : 'text-content-muted transition-colors hover:bg-surface-subtle hover:text-secondary-foreground'
-    }`;
-
-// Nav row linking to a dashboard section; highlights the active route.
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
-    const [label, href, icon] = item;
     return (
         <SidebarMenuItem>
             <SidebarMenuButton
-                render={<Link href={href} />}
+                render={<Link href={item.url} />}
+                tooltip={item.title}
                 isActive={active}
-                className={linkCls(active)}
             >
-                <Image
-                    src={icon}
-                    alt=""
-                    width={20}
-                    height={20}
-                    aria-hidden="true"
-                    draggable={false}
-                    className={`size-5 shrink-0 object-contain transition-[filter,opacity] ${
-                        active ? 'opacity-100' : 'grayscale opacity-60'
-                    }`}
-                />
-                {label}
+                <Icon />
+                <span>{item.title}</span>
             </SidebarMenuButton>
         </SidebarMenuItem>
     );
 }
 
-// Section nav list, highlighting the active route.
-function NavLinks() {
-    const pathname = usePathname();
-
+function MainNavigation() {
     return (
-        <SidebarMenu>
-            {NAV.map((item) => (
-                <NavLink key={item[1]} item={item} active={pathname === item[1]} />
-            ))}
-        </SidebarMenu>
+        <SidebarGroup>
+            <SidebarGroupContent className="flex flex-col gap-2">
+                <SidebarMenu>
+                    <SidebarMenuItem className="flex items-center gap-2">
+                        <SidebarMenuButton
+                            render={<Link href="/dashboard/trades" />}
+                            tooltip="Log trade"
+                            className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+                        >
+                            <CirclePlusIcon />
+                            <span>Log trade</span>
+                        </SidebarMenuButton>
+                        <Button
+                            nativeButton={false}
+                            render={<Link href="/dashboard/journal" />}
+                            size="icon"
+                            className="size-8 group-data-[collapsible=icon]:opacity-0"
+                            variant="outline"
+                        >
+                            <MailIcon />
+                            <span className="sr-only">Journal</span>
+                        </Button>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                <SidebarMenu>
+                    {NAV_MAIN.map((item) => (
+                        <NavLink key={item.title} item={item} />
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
     );
 }
 
-// Round initials avatar.
-function Avatar({ initials }: { initials: string }) {
+function WorkspaceNavigation() {
     return (
-        <ShadcnAvatar className="size-8 rounded-full border border-border bg-accent">
-            <AvatarFallback className="bg-transparent font-mono text-ui-xs font-semibold text-primary uppercase">
-                {initials}
-            </AvatarFallback>
-        </ShadcnAvatar>
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarMenu>
+                {NAV_WORKSPACE.map((item) => (
+                    <NavLink key={item.title} item={item} />
+                ))}
+            </SidebarMenu>
+        </SidebarGroup>
     );
 }
 
-// Avatar + name/sub line at the bottom of the sidebar.
-function UserBadge({ initials, name, sub }: { initials: string; name: string; sub: string }) {
+function SecondaryNavigation() {
     return (
-        <div className="flex items-center gap-2.5 px-2.5 py-1">
-            <Avatar initials={initials} />
-            <span className="flex flex-col gap-px min-w-0">
-                <span className="text-ui-sm font-medium text-content">{name}</span>
-                <span className="font-mono text-ui-xs text-content-faint overflow-hidden text-ellipsis">
-                    {sub}
-                </span>
-            </span>
-        </div>
+        <SidebarGroup className="mt-auto">
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    {NAV_SECONDARY.map((item) => (
+                        <NavLink key={item.title} item={item} />
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
     );
 }
 
-// Account switcher: active account button that expands to the account list +
-// "new account". Switching an account cascades into the trades/notes stores.
 function AccountPicker() {
-    const accounts = useAccountStore((s) => s.accounts);
-    const activeId = useAccountStore((s) => s.activeId);
-    const setActive = useAccountStore((s) => s.setActive);
+    const accounts = useAccountStore((state) => state.accounts);
+    const activeId = useAccountStore((state) => state.activeId);
+    const setActive = useAccountStore((state) => state.setActive);
     const [open, setOpen] = useState(false);
     const [creating, setCreating] = useState(false);
-
-    const active = accounts.find((a) => a.id === activeId) ?? null;
+    const active = accounts.find((account) => account.id === activeId) ?? null;
 
     return (
-        <div className="relative">
+        <div className="relative group-data-[collapsible=icon]:hidden">
             <Button
                 type="button"
-                onClick={() => setOpen((o) => !o)}
+                onClick={() => setOpen((value) => !value)}
                 variant="outline"
-                className="h-auto flex w-full items-center justify-between gap-2 rounded-lg border-border-subtle bg-muted px-3 py-2.5 text-left hover:bg-muted hover:border-border-hover"
+                className="h-10 w-full justify-between bg-background px-3 text-left"
             >
-                <span className="flex flex-col items-start gap-0.5 min-w-0">
-                    <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
-                        ACCOUNT
-                    </span>
-                    <span className="text-ui-sm font-medium text-content truncate max-w-[150px]">
-                        {active ? active.name : 'No account'}
-                    </span>
-                </span>
-                <span className="font-mono text-ui-xs text-content-faint">▾</span>
+                <span className="min-w-0 truncate">{active?.name ?? 'No account'}</span>
+                <span className="text-muted-foreground">▾</span>
             </Button>
             {open && (
-                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-card border border-border rounded-lg p-1.5 flex flex-col gap-0.5 shadow-[0_8px_28px_rgba(0,0,0,0.5)] z-40">
-                    {accounts.map((a) => (
+                <div className="absolute bottom-full left-0 right-0 z-40 mb-1.5 flex flex-col gap-0.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md">
+                    {accounts.map((account) => (
                         <Button
-                            key={a.id}
+                            key={account.id}
                             type="button"
                             onClick={() => {
-                                setActive(a.id);
+                                setActive(account.id);
                                 setOpen(false);
                             }}
                             variant="ghost"
-                            className={`h-auto flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-ui-sm text-left transition-colors ${
-                                a.id === activeId
-                                    ? 'bg-accent text-card-foreground'
-                                    : 'bg-transparent text-content-muted hover:bg-surface-subtle hover:text-secondary-foreground'
-                            }`}
+                            className="h-8 w-full justify-between px-2.5 text-left"
                         >
-                            <span className="truncate">{a.name}</span>
-                            {a.id === activeId && (
-                                <span className="text-primary text-ui-xs">●</span>
-                            )}
+                            <span className="truncate">{account.name}</span>
+                            {account.id === activeId && <span className="text-primary">●</span>}
                         </Button>
                     ))}
                     <Button
@@ -177,9 +176,9 @@ function AccountPicker() {
                             setOpen(false);
                         }}
                         variant="ghost"
-                        className="h-auto mt-0.5 rounded-md border-t border-border-faint bg-transparent px-2.5 py-2 text-left font-mono text-ui-sm font-medium tracking-[0.1em] text-primary hover:bg-surface-subtle"
+                        className="h-8 justify-start border-t px-2.5 text-primary"
                     >
-                        + NEW ACCOUNT
+                        + New account
                     </Button>
                 </div>
             )}
@@ -188,62 +187,70 @@ function AccountPicker() {
     );
 }
 
-// Sign-out button.
-function AuthAction() {
+function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
     const router = useRouter();
-    const demo = useSessionStore((s) => s.session.status === 'demo');
-    const signOutStore = useSessionStore((s) => s.signOut);
+    const signOutStore = useSessionStore((state) => state.signOut);
+    const name = demo ? 'Demo Trader' : email.split('@')[0];
+    const initials = email.slice(0, 2).toUpperCase();
+
     const signOut = async () => {
         await signOutStore();
         router.push(demo ? '/' : '/login');
     };
 
     return (
-        <Button
-            type="button"
-            onClick={signOut}
-            variant="outline"
-            className="h-auto block w-full border-border-subtle bg-transparent p-2 text-center font-mono text-ui-sm font-medium tracking-[0.12em] text-content-faint hover:bg-transparent hover:text-loss hover:border-loss/25"
-        >
-            {demo ? 'EXIT DEMO' : 'SIGN OUT'}
-        </Button>
+        <SidebarMenu>
+            <SidebarMenuItem>
+                <SidebarMenuButton size="lg" className="h-12">
+                    <Avatar className="size-8 rounded-lg grayscale">
+                        <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-medium">{name}</span>
+                        <span className="truncate text-xs text-foreground/70">{email}</span>
+                    </div>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+                <SidebarMenuButton onClick={signOut} tooltip={demo ? 'Exit demo' : 'Sign out'}>
+                    <LogOutIcon />
+                    <span>{demo ? 'Exit demo' : 'Sign out'}</span>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
     );
 }
 
-// Dashboard sidebar: logo, section nav, and the session footer.
 export function Sidebar() {
-    const session = useSessionStore((s) => s.session);
-    // Only signed-in users reach the dashboard; render nothing otherwise.
+    const session = useSessionStore((state) => state.session);
     if (!hasDashboardSession(session)) return null;
 
     return (
-        <ShadcnSidebar
-            collapsible="offcanvas"
-            className="border-border-subtle bg-sidebar text-content"
-        >
-            <SidebarHeader className="gap-0 p-4 pt-7">
-                <Logo />
-                <Button
-                    nativeButton={false}
-                    render={<Link href="/dashboard/trades" />}
-                    className="h-10 rounded-lg bg-primary px-3.5 py-2.5 text-ui-sm font-semibold text-black hover:bg-primary-hover"
-                >
-                    + Log trade
-                </Button>
+        <ShadcnSidebar collapsible="offcanvas" variant="inset">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            render={<Link href="/dashboard" />}
+                            className="data-[slot=sidebar-menu-button]:p-1.5!"
+                        >
+                            <CommandIcon className="size-5!" />
+                            <span className="text-base font-semibold">Tradel</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <SidebarGroup className="px-4 py-0">
-                    <NavLinks />
-                </SidebarGroup>
+                <MainNavigation />
+                <WorkspaceNavigation />
+                <SecondaryNavigation />
             </SidebarContent>
-            <SidebarFooter className="gap-4 border-t border-border-faint p-4">
+            <SidebarFooter>
                 <AccountPicker />
-                <UserBadge
-                    initials={session.email.slice(0, 2)}
-                    name={session.status === 'demo' ? 'Demo Trader' : session.email.split('@')[0]}
-                    sub={session.email}
+                <UserNavigation
+                    email={session.email}
+                    demo={session.status === 'demo'}
                 />
-                <AuthAction />
             </SidebarFooter>
         </ShadcnSidebar>
     );

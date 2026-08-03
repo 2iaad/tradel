@@ -219,7 +219,7 @@ function HeroPanel({ shifted }: { shifted: boolean }) {
 
     return (
         <div
-            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-sidebar z-[1] ${paneEase}`}
+            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-background z-[1] ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '100%' : '0%'})` }}
         >
             <canvas
@@ -240,7 +240,7 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
     const shifted = mode !== 'login';
     return (
         <div
-            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-card border-l border-border-subtle z-[2] ${paneEase}`}
+            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-background border-l border-border-subtle z-[2] ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '-100%' : '0%'})` }}
         >
             <div

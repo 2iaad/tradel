@@ -27,19 +27,29 @@ export default function AnalyticsPage() {
     }, [load, loadTrades]);
 
     return (
-        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
-            <PageHeader kicker="" title="Performance" />
-            {loading && !summary ? (
-                <p className="font-mono text-ui-sm tracking-[0.22em] text-content-soft py-10 text-center">
-                    {'/// LOADING'}
-                </p>
-            ) : (
-                <>
-                    <StatCards s={stats} />
-                    <EquityCard />
-                    <SymbolAnalyticsGrid rows={bySymbol} currency={currency} />
-                </>
-            )}
+        <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col gap-2">
+                <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                    <div className="px-4 lg:px-6">
+                        <PageHeader kicker="" title="Performance" />
+                    </div>
+                    {loading && !summary ? (
+                        <p className="px-4 py-10 text-center font-mono text-ui-sm tracking-[0.22em] text-content-soft lg:px-6">
+                            {'/// LOADING'}
+                        </p>
+                    ) : (
+                        <>
+                            <StatCards s={stats} />
+                            <div className="px-4 lg:px-6">
+                                <EquityCard />
+                            </div>
+                            <div className="px-4 lg:px-6">
+                                <SymbolAnalyticsGrid rows={bySymbol} currency={currency} />
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

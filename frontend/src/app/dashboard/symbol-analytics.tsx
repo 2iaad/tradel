@@ -59,14 +59,14 @@ type ChartOption = ComposeOption<
 >;
 
 const DISTRIBUTION_COLORS = [
-    '#08dc32',
-    '#4387ef',
-    '#a94ee9',
-    '#ed3aa2',
-    '#ff691b',
-    '#a5df00',
-    '#12b789',
-    '#f04444',
+    canvasColors.yellow,
+    canvasColors.grayLight,
+    canvasColors.yellowMuted,
+    canvasColors.gray,
+    canvasColors.yellowHover,
+    canvasColors.grayDim,
+    canvasColors.yellowDark,
+    canvasColors.grayDark,
 ];
 
 const fmtMoney = (value: number, currency: string, signed = false) => {
@@ -162,9 +162,9 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                 animationDuration: 450,
                 tooltip: {
                     trigger: 'item',
-                    backgroundColor: '#101315',
-                    borderColor: '#2b353b',
-                    textStyle: { color: '#eef4f2', fontFamily: monoFontStack, fontSize: 12 },
+                    backgroundColor: canvasColors.surface,
+                    borderColor: canvasColors.border,
+                    textStyle: { color: canvasColors.grayLight, fontFamily: monoFontStack, fontSize: 12 },
                     formatter: (params: unknown) => {
                         const item = params as { name?: string; value?: number[] };
                         const values = item.value ?? [];
@@ -186,7 +186,7 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                         fontSize: 10,
                     },
                     splitNumber: 4,
-                    splitArea: { areaStyle: { color: ['rgba(255,255,255,.02)', 'transparent'] } },
+                    splitArea: { areaStyle: { color: ['rgba(160,160,154,.03)', 'transparent'] } },
                     splitLine: { lineStyle: { color: canvasColors.borderFaint } },
                     axisLine: { lineStyle: { color: canvasColors.borderFaint } },
                 },
@@ -223,7 +223,7 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                 axisLine: { show: false },
                 axisTick: { show: false },
                 axisLabel: {
-                    color: '#a9a39b',
+                    color: canvasColors.gray,
                     fontFamily: monoFontStack,
                     fontSize: 13,
                     margin: 14,
@@ -232,9 +232,9 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
-                backgroundColor: '#101315',
-                borderColor: '#2b353b',
-                textStyle: { color: '#eef4f2', fontFamily: monoFontStack, fontSize: 12 },
+                backgroundColor: canvasColors.surface,
+                borderColor: canvasColors.border,
+                textStyle: { color: canvasColors.grayLight, fontFamily: monoFontStack, fontSize: 12 },
                 formatter: (params: unknown) => {
                     const item = (Array.isArray(params) ? params[0] : params) as { name?: string; value?: number };
                     const row = data.find((entry) => entry.label === item.name);
@@ -247,7 +247,7 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                     data: data.map((row) => ({
                         value: row.net,
                         itemStyle: {
-                            color: row.net >= 0 ? '#16bd87' : canvasColors.loss,
+                            color: row.net >= 0 ? canvasColors.profit : canvasColors.loss,
                             borderRadius: row.net >= 0 ? [0, 7, 7, 0] : [7, 0, 0, 7],
                         },
                     })),
@@ -255,7 +255,7 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                     label: {
                         show: true,
                         position: 'right',
-                        color: '#d7d2ca',
+                        color: canvasColors.grayLight,
                         fontFamily: monoFontStack,
                         fontSize: 13,
                         formatter: (params: unknown) => {
@@ -336,9 +336,9 @@ function TradeDistribution({ rows }: SymbolsProps) {
             animationDuration: 450,
             tooltip: {
                 trigger: 'item',
-                backgroundColor: '#101315',
-                borderColor: '#2b353b',
-                textStyle: { color: '#eef4f2', fontFamily: monoFontStack, fontSize: 12 },
+                backgroundColor: canvasColors.surface,
+                borderColor: canvasColors.border,
+                textStyle: { color: canvasColors.grayLight, fontFamily: monoFontStack, fontSize: 12 },
                 formatter: (params: unknown) => {
                     const item = params as { name?: string; value?: number; percent?: number };
                     return `${item.name ?? ''}<br/>${item.value ?? 0} trades · ${Number(item.percent ?? 0).toFixed(0)}%`;

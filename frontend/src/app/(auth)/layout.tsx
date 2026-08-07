@@ -64,7 +64,7 @@ function SwitchLine({
     onClick: () => void;
 }) {
     return (
-        <p className="mt-1 mb-0 text-ui-md text-[#6b7a76] text-center">
+        <p className="mt-1 mb-0 text-center text-ui-md text-content-faint">
             {text && <>{text} </>}
             <Button type="button" variant="link" onClick={onClick} className={`${linkCls} h-auto text-ui-md`}>
                 {label}
@@ -219,14 +219,14 @@ function HeroPanel({ shifted }: { shifted: boolean }) {
 
     return (
         <div
-            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-sidebar z-[1] ${paneEase}`}
+            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-background z-[1] ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '100%' : '0%'})` }}
         >
             <canvas
                 ref={canvasRef}
                 className="absolute top-0 left-0 w-full h-full opacity-[0.92]"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,11,0.3)_0%,rgba(7,9,11,0)_30%,rgba(7,9,11,0.9)_82%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(5_5_5/0.3)_0%,transparent_30%,rgb(5_5_5/0.9)_82%)]" />
             <HeroCopy />
         </div>
     );
@@ -240,7 +240,7 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
     const shifted = mode !== 'login';
     return (
         <div
-            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-card border-l border-border-subtle z-[2] ${paneEase}`}
+            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-background border-l border-border-subtle z-[2] ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '-100%' : '0%'})` }}
         >
             <div

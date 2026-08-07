@@ -90,7 +90,7 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
     return (
         <div
             onClick={onCancel}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,6,8,0.7)] backdrop-blur-[6px] animate-[tradelFadeIn_0.25s_ease]"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[6px] animate-[tradelFadeIn_0.25s_ease]"
         >
             <div
                 onClick={(e) => e.stopPropagation()}

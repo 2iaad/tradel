@@ -1,9 +1,15 @@
 :root {
-  --color--tradel: #3affa3;
+  --color--tradel: var(--palette-yellow, #ffdd3a);
+  --color--green-dark: var(--semantic-profit, #2fd57f);
+  --color--red: var(--semantic-loss, #f0554e);
+  --color--grey: color-mix(in srgb, var(--palette-gray-50, #eeeeeb) 50%, transparent);
+  --color--black: var(--palette-black, #050505);
+  --color--white: var(--palette-gray-50, #eeeeeb);
+  --swiper-theme-color: var(--palette-yellow, #ffdd3a);
 }
 
 html {
-  background: #050505;
+  background: var(--palette-black, #050505);
 }
 
 body {
@@ -50,7 +56,7 @@ body {
 }
 
 .home-hero__brand-mask {
-  background: #060607;
+  background: var(--palette-black, #050505);
   height: 3.1%;
   left: 18.6%;
   pointer-events: none;
@@ -62,7 +68,7 @@ body {
 }
 
 .home-hero__brand-mark {
-  color: #fff;
+  color: var(--palette-gray-50, #eeeeeb);
   font-family: "PP Mori", Intervariable, Arial, sans-serif;
   font-size: clamp(4px, 0.72em, 11px);
   font-weight: 600;
@@ -111,6 +117,33 @@ body {
   --color--tradel: var(--brand);
   --color--tradel-15: color-mix(in srgb, var(--brand) 15%, transparent);
   --color--tradel-45: color-mix(in srgb, var(--brand) 45%, transparent);
+}
+
+/* Replace the few literal legacy accents that do not use the theme vars. */
+.footer-social {
+  border-color: transparent;
+}
+
+.footer-social:hover {
+  border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+}
+
+.grid-item::after {
+  background: linear-gradient(
+    color-mix(in srgb, var(--palette-gray-500) 16%, transparent),
+    color-mix(in srgb, var(--brand) 4%, transparent)
+  );
+}
+
+.glow-w__borders,
+.glow-w__glow,
+.glow-w__mask {
+  background-image: conic-gradient(
+    from 0 at 50% 50%,
+    color-mix(in srgb, var(--brand) 40%, transparent),
+    transparent 60deg 310deg,
+    color-mix(in srgb, var(--brand) 40%, transparent) 360deg
+  );
 }
 
 /* Lighthouse media (viz video, phone screens) have the green baked into

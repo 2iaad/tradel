@@ -187,7 +187,7 @@ function StatCard({
     children: React.ReactNode;
 }) {
     return (
-        <Card className={`${cardCls} px-[22px] py-5 flex flex-col gap-2`}>
+        <Card className={`${cardCls} @container/card px-[22px] py-5 flex flex-col gap-2`}>
             <div className="flex items-center justify-between gap-2">
                 <span className={cardMetaLabelCls}>{label}</span>
                 {/* Always rendered so cards without a chip keep the same header height. */}
@@ -259,12 +259,12 @@ function buildMiniBarOption({
                     color: 'rgba(255,255,255,.04)',
                 },
             },
-            backgroundColor: '#050607',
-            borderColor: '#10161a',
+            backgroundColor: canvasColors.black,
+            borderColor: canvasColors.border,
             borderWidth: 1,
             padding: [8, 10],
             textStyle: {
-                color: '#c8d2d0',
+                color: canvasColors.grayLight,
                 fontFamily: monoFontStack,
                 fontSize: 12,
             },
@@ -277,7 +277,7 @@ function buildMiniBarOption({
                 const color = item.color ?? canvasColors.faint;
 
                 return [
-                    `<strong style="color:#eef4f2;">${escapeHtml(label)}</strong>`,
+                    `<strong style="color:${canvasColors.grayLight};">${escapeHtml(label)}</strong>`,
                     `<br/><span style="display:inline-block;width:9px;height:9px;background:${color};margin-right:5px;"></span>${escapeHtml(fmt(value))}`,
                 ].join('');
             },
@@ -521,7 +521,7 @@ function MiniLine({
 export function StatCards({ s }: { s: TradeStats }) {
     const netCol = s.netV > 0 ? G : s.netV < 0 ? R : undefined;
     return (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
             <StatCard label="TOTAL P&L" chip={s.ret} value={s.net} valueColor={netCol}>
                 <span style={{ color: netCol ?? 'var(--content-faint)' }}>
                     Avg {s.avgTrade} per trade

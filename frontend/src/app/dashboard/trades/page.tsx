@@ -1,11 +1,10 @@
 'use client';
 
-import { ctaCls, G, R } from '@/lib/ui';
+import { G, R } from '@/lib/ui';
 import { PageHeader } from '../page-header';
 import { StatCards, useTradeStats } from '../trade-stats';
 import { TradeLogTable } from './trade-log-table';
 import { useTradeLog } from './use-trade-log';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,41 +13,7 @@ import type { ReactNode } from 'react';
 
 type Log = ReturnType<typeof useTradeLog>;
 
-const SIDES = ['ALL', 'LONG', 'SHORT'] as const;
-const OUTCOMES = ['ALL', 'WINS', 'LOSSES'] as const;
-
-// Segmented pill toggle; the active option fills green.
-function SegmentedTabs<T extends string>({
-    options,
-    active,
-    onChange,
-}: {
-    options: readonly T[];
-    active: T;
-    onChange: (value: T) => void;
-}) {
-    return (
-        <div className="flex gap-1 bg-muted border border-border-subtle rounded-lg p-[3px]">
-            {options.map((opt) => {
-                const on = opt === active;
-                return (
-                    <Button
-                        key={opt}
-                        type="button"
-                        onClick={() => onChange(opt)}
-                        variant={on ? 'default' : 'ghost'}
-                        size="sm"
-                        className={`h-auto rounded-md px-[13px] py-1.5 font-mono text-ui-xs ${on ? 'bg-primary text-black hover:bg-primary-hover' : 'bg-transparent text-content-faint hover:bg-accent hover:text-secondary-foreground'}`}
-                    >
-                        {opt}
-                    </Button>
-                );
-            })}
-        </div>
-    );
-}
-
-// Search box + side/outcome segmented filters + the date-range stamp.
+// Search filters whichever table view is currently active.
 function FilterToolbar({ log }: { log: Log }) {
     return (
         <div className="flex items-center gap-3 flex-wrap">
@@ -58,8 +23,6 @@ function FilterToolbar({ log }: { log: Log }) {
                 placeholder="Search symbol or setup…"
                 className="h-auto flex-1 min-w-[200px] max-w-[300px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder"
             />
-            <SegmentedTabs options={SIDES} active={log.side} onChange={log.setSide} />
-            <SegmentedTabs options={OUTCOMES} active={log.outcome} onChange={log.setOutcome} />
         </div>
     );
 }
@@ -133,20 +96,20 @@ export default function TradesPage() {
     const log = useTradeLog();
     const stats = useTradeStats();
     return (
-        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
-            <PageHeader kicker="" title="Trade log">
-                <Button
-                    type="button"
-                    onClick={() => log.startEdit('new')}
-                    className={`${ctaCls} text-black h-10 whitespace-nowrap`}
-                >
-                    + Log trade
-                </Button>
-            </PageHeader>
-            <StatCards s={stats} />
-            <ChipStrip s={log.summary} />
-            <FilterToolbar log={log} />
-            <TradeLogTable log={log} dense={false} />
+        <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col gap-2">
+                <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                    <div className="px-4 lg:px-6">
+                        <PageHeader kicker="" title="Trade log" />
+                    </div>
+                    <StatCards s={stats} />
+                    <div className="flex flex-col gap-5 px-4 lg:px-6">
+                        <ChipStrip s={log.summary} />
+                        <FilterToolbar log={log} />
+                        <TradeLogTable log={log} dense={false} />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

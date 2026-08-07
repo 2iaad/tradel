@@ -1,173 +1,167 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import {
+    BarChart3Icon,
+    BookOpenIcon,
+    CalendarDaysIcon,
+    CirclePlusIcon,
+    CommandIcon,
+    LayoutDashboardIcon,
+    ListIcon,
+    LogOutIcon,
+    Settings2Icon,
+    type LucideIcon,
+} from 'lucide-react';
 
-import { useAccountStore } from '@/stores/accounts';
-import { hasDashboardSession, useSessionStore } from '@/stores/session';
 import { AccountModal } from './account-modal';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Avatar as ShadcnAvatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Sidebar as ShadcnSidebar,
     SidebarContent,
     SidebarFooter,
     SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useAccountStore } from '@/stores/accounts';
+import { hasDashboardSession, useSessionStore } from '@/stores/session';
 
-const NAV = [
-    ['Dashboard', '/dashboard', '/icons/sidebar/dashboard.png'],
-    ['Trades', '/dashboard/trades', '/icons/sidebar/trades.png'],
-    ['Analytics', '/dashboard/analytics', '/icons/sidebar/analytics.png'],
-    ['Calendar', '/dashboard/calendar', '/icons/sidebar/calendar.png'],
-    ['Journal', '/dashboard/journal', '/icons/sidebar/journal.png'],
-    ['Settings', '/dashboard/settings', '/icons/sidebar/settings.png'],
+const NAV_MAIN = [
+    { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboardIcon },
+    { title: 'Trades', url: '/dashboard/trades', icon: ListIcon },
+    { title: 'Analytics', url: '/dashboard/analytics', icon: BarChart3Icon },
+    { title: 'Calendar', url: '/dashboard/calendar', icon: CalendarDaysIcon },
 ] as const;
 
-const itemCls = 'flex items-center my-0.5 w-full box-border rounded-lg px-8 py-5 text-ui-sm';
+const NAV_WORKSPACE = [
+    { title: 'Journal', url: '/dashboard/journal', icon: BookOpenIcon },
+] as const;
 
-// TRADEL wordmark with the pulsing dot.
-function Logo() {
-    return (
-        <div className="flex items-center gap-2.5 px-2.5 pb-[26px]">
-            <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
-                TRADEL
-            </span>
-        </div>
-    );
-}
+const NAV_SECONDARY = [
+    { title: 'Settings', url: '/dashboard/settings', icon: Settings2Icon },
+] as const;
 
-type NavItem = (typeof NAV)[number];
+function NavLink({ item }: { item: { title: string; url: string; icon: LucideIcon } }) {
+    const pathname = usePathname();
+    const active =
+        pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(`${item.url}/`));
+    const Icon = item.icon;
 
-const linkCls = (active: boolean) =>
-    `${itemCls} ${
-        active
-            ? 'bg-accent shadow-[inset_2px_0_0_var(--primary)] text-card-foreground font-medium'
-            : 'text-content-muted transition-colors hover:bg-surface-subtle hover:text-secondary-foreground'
-    }`;
-
-// Nav row linking to a dashboard section; highlights the active route.
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
-    const [label, href, icon] = item;
     return (
         <SidebarMenuItem>
             <SidebarMenuButton
-                render={<Link href={href} />}
+                render={<Link href={item.url} />}
+                tooltip={item.title}
                 isActive={active}
-                className={linkCls(active)}
+                size="lg"
+                className="relative px-3 text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground data-active:bg-primary/10 data-active:text-sidebar-accent-foreground data-active:shadow-[inset_3px_0_0_var(--sidebar-primary)] data-active:[&_svg]:text-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:data-active:shadow-none [&_svg]:text-sidebar-foreground/45"
             >
-                <Image
-                    src={icon}
-                    alt=""
-                    width={20}
-                    height={20}
-                    aria-hidden="true"
-                    draggable={false}
-                    className={`size-5 shrink-0 object-contain transition-[filter,opacity] ${
-                        active ? 'opacity-100' : 'grayscale opacity-60'
-                    }`}
-                />
-                {label}
+                <Icon />
+                <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
             </SidebarMenuButton>
         </SidebarMenuItem>
     );
 }
 
-// Section nav list, highlighting the active route.
-function NavLinks() {
-    const pathname = usePathname();
-
+function MainNavigation() {
     return (
-        <SidebarMenu>
-            {NAV.map((item) => (
-                <NavLink key={item[1]} item={item} active={pathname === item[1]} />
-            ))}
-        </SidebarMenu>
+        <SidebarGroup>
+            <SidebarGroupContent className="flex flex-col gap-4">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            render={<Link href="/dashboard/trades" />}
+                            tooltip="Log trade"
+                            size="lg"
+                            className="border border-primary/25 bg-primary/10 px-3 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] duration-200 hover:border-primary/40 hover:bg-primary/15 hover:text-primary active:bg-primary/20 active:text-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:shadow-none group-data-[collapsible=icon]:hover:border-transparent group-data-[collapsible=icon]:hover:bg-sidebar-accent"
+                        >
+                            <CirclePlusIcon />
+                            <span className="group-data-[collapsible=icon]:hidden">Log trade</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                <SidebarMenu>
+                    {NAV_MAIN.map((item) => (
+                        <NavLink key={item.title} item={item} />
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
     );
 }
 
-// Round initials avatar.
-function Avatar({ initials }: { initials: string }) {
+function WorkspaceNavigation() {
     return (
-        <ShadcnAvatar className="size-8 rounded-full border border-border bg-accent">
-            <AvatarFallback className="bg-transparent font-mono text-ui-xs font-semibold text-primary uppercase">
-                {initials}
-            </AvatarFallback>
-        </ShadcnAvatar>
+        <SidebarGroup>
+            <SidebarGroupLabel className="px-3 text-[0.625rem] uppercase tracking-[0.18em]">
+                Workspace
+            </SidebarGroupLabel>
+            <SidebarMenu>
+                {NAV_WORKSPACE.map((item) => (
+                    <NavLink key={item.title} item={item} />
+                ))}
+            </SidebarMenu>
+        </SidebarGroup>
     );
 }
 
-// Avatar + name/sub line at the bottom of the sidebar.
-function UserBadge({ initials, name, sub }: { initials: string; name: string; sub: string }) {
+function SecondaryNavigation() {
     return (
-        <div className="flex items-center gap-2.5 px-2.5 py-1">
-            <Avatar initials={initials} />
-            <span className="flex flex-col gap-px min-w-0">
-                <span className="text-ui-sm font-medium text-content">{name}</span>
-                <span className="font-mono text-ui-xs text-content-faint overflow-hidden text-ellipsis">
-                    {sub}
-                </span>
-            </span>
-        </div>
+        <SidebarGroup className="mt-auto border-t border-sidebar-border/70 pt-2">
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    {NAV_SECONDARY.map((item) => (
+                        <NavLink key={item.title} item={item} />
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
     );
 }
 
-// Account switcher: active account button that expands to the account list +
-// "new account". Switching an account cascades into the trades/notes stores.
 function AccountPicker() {
-    const accounts = useAccountStore((s) => s.accounts);
-    const activeId = useAccountStore((s) => s.activeId);
-    const setActive = useAccountStore((s) => s.setActive);
+    const accounts = useAccountStore((state) => state.accounts);
+    const activeId = useAccountStore((state) => state.activeId);
+    const setActive = useAccountStore((state) => state.setActive);
     const [open, setOpen] = useState(false);
     const [creating, setCreating] = useState(false);
-
-    const active = accounts.find((a) => a.id === activeId) ?? null;
+    const active = accounts.find((account) => account.id === activeId) ?? null;
 
     return (
-        <div className="relative">
+        <div className="relative group-data-[collapsible=icon]:hidden">
             <Button
                 type="button"
-                onClick={() => setOpen((o) => !o)}
+                onClick={() => setOpen((value) => !value)}
+                aria-expanded={open}
                 variant="outline"
-                className="h-auto flex w-full items-center justify-between gap-2 rounded-lg border-border-subtle bg-muted px-3 py-2.5 text-left hover:bg-muted hover:border-border-hover"
+                className="h-10 w-full justify-between border-sidebar-border bg-sidebar-accent/45 px-3 text-left text-sidebar-foreground shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
-                <span className="flex flex-col items-start gap-0.5 min-w-0">
-                    <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint">
-                        ACCOUNT
-                    </span>
-                    <span className="text-ui-sm font-medium text-content truncate max-w-[150px]">
-                        {active ? active.name : 'No account'}
-                    </span>
-                </span>
-                <span className="font-mono text-ui-xs text-content-faint">▾</span>
+                <span className="min-w-0 truncate">{active?.name ?? 'No account'}</span>
+                <span className="text-muted-foreground">▾</span>
             </Button>
             {open && (
-                <div className="absolute bottom-full left-0 right-0 mb-1.5 bg-card border border-border rounded-lg p-1.5 flex flex-col gap-0.5 shadow-[0_8px_28px_rgba(0,0,0,0.5)] z-40">
-                    {accounts.map((a) => (
+                <div className="absolute bottom-full left-0 right-0 z-40 mb-1.5 flex flex-col gap-0.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md">
+                    {accounts.map((account) => (
                         <Button
-                            key={a.id}
+                            key={account.id}
                             type="button"
                             onClick={() => {
-                                setActive(a.id);
+                                setActive(account.id);
                                 setOpen(false);
                             }}
                             variant="ghost"
-                            className={`h-auto flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-ui-sm text-left transition-colors ${
-                                a.id === activeId
-                                    ? 'bg-accent text-card-foreground'
-                                    : 'bg-transparent text-content-muted hover:bg-surface-subtle hover:text-secondary-foreground'
-                            }`}
+                            className="h-8 w-full justify-between px-2.5 text-left"
                         >
-                            <span className="truncate">{a.name}</span>
-                            {a.id === activeId && (
-                                <span className="text-primary text-ui-xs">●</span>
-                            )}
+                            <span className="truncate">{account.name}</span>
+                            {account.id === activeId && <span className="text-primary">●</span>}
                         </Button>
                     ))}
                     <Button
@@ -177,9 +171,9 @@ function AccountPicker() {
                             setOpen(false);
                         }}
                         variant="ghost"
-                        className="h-auto mt-0.5 rounded-md border-t border-border-faint bg-transparent px-2.5 py-2 text-left font-mono text-ui-sm font-medium tracking-[0.1em] text-primary hover:bg-surface-subtle"
+                        className="h-8 justify-start border-t px-2.5 text-primary"
                     >
-                        + NEW ACCOUNT
+                        + New account
                     </Button>
                 </div>
             )}
@@ -188,62 +182,81 @@ function AccountPicker() {
     );
 }
 
-// Sign-out button.
-function AuthAction() {
+function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
     const router = useRouter();
-    const demo = useSessionStore((s) => s.session.status === 'demo');
-    const signOutStore = useSessionStore((s) => s.signOut);
+    const signOutStore = useSessionStore((state) => state.signOut);
+    const name = demo ? 'Demo Trader' : email.split('@')[0];
+    const initials = email.slice(0, 2).toUpperCase();
+
     const signOut = async () => {
         await signOutStore();
         router.push(demo ? '/' : '/login');
     };
 
     return (
-        <Button
-            type="button"
-            onClick={signOut}
-            variant="outline"
-            className="h-auto block w-full border-border-subtle bg-transparent p-2 text-center font-mono text-ui-sm font-medium tracking-[0.12em] text-content-faint hover:bg-transparent hover:text-loss hover:border-loss/25"
+        <div
+            title={`${name} · ${email}`}
+            className="flex h-14 items-center gap-2 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-2 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0"
         >
-            {demo ? 'EXIT DEMO' : 'SIGN OUT'}
-        </Button>
+            <Avatar className="size-8 rounded-md">
+                <AvatarFallback className="rounded-md bg-primary/10 text-xs font-semibold text-primary">
+                    {initials}
+                </AvatarFallback>
+            </Avatar>
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-medium text-sidebar-foreground">{name}</span>
+                <span className="truncate text-xs text-sidebar-foreground/50">{email}</span>
+            </div>
+            <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                title={demo ? 'Exit demo' : 'Sign out'}
+                className="text-sidebar-foreground/45 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden"
+                onClick={signOut}
+            >
+                <LogOutIcon />
+                <span className="sr-only">{demo ? 'Exit demo' : 'Sign out'}</span>
+            </Button>
+        </div>
     );
 }
 
-// Dashboard sidebar: logo, section nav, and the session footer.
 export function Sidebar() {
-    const session = useSessionStore((s) => s.session);
-    // Only signed-in users reach the dashboard; render nothing otherwise.
+    const session = useSessionStore((state) => state.session);
     if (!hasDashboardSession(session)) return null;
 
     return (
-        <ShadcnSidebar
-            collapsible="offcanvas"
-            className="border-border-subtle bg-sidebar text-content"
-        >
-            <SidebarHeader className="gap-0 p-4 pt-7">
-                <Logo />
-                <Button
-                    nativeButton={false}
-                    render={<Link href="/dashboard/trades" />}
-                    className="h-10 rounded-lg bg-primary px-3.5 py-2.5 text-ui-sm font-semibold text-black hover:bg-primary-hover"
-                >
-                    + Log trade
-                </Button>
+        <ShadcnSidebar collapsible="icon" variant="inset">
+            <SidebarHeader className="p-3 pb-2 group-data-[collapsible=icon]:p-2">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            render={<Link href="/dashboard" />}
+                            size="lg"
+                            className="h-11 gap-3 p-0 hover:bg-transparent active:bg-transparent"
+                        >
+                            <span className="flex size-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]">
+                                <CommandIcon className="size-4.5!" />
+                            </span>
+                            <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
+                                Tradel
+                            </span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <SidebarGroup className="px-4 py-0">
-                    <NavLinks />
-                </SidebarGroup>
+                <MainNavigation />
+                <WorkspaceNavigation />
+                <SecondaryNavigation />
             </SidebarContent>
-            <SidebarFooter className="gap-4 border-t border-border-faint p-4">
+            <SidebarFooter className="gap-2.5 border-t border-sidebar-border/70 p-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-2">
                 <AccountPicker />
-                <UserBadge
-                    initials={session.email.slice(0, 2)}
-                    name={session.status === 'demo' ? 'Demo Trader' : session.email.split('@')[0]}
-                    sub={session.email}
+                <UserNavigation
+                    email={session.email}
+                    demo={session.status === 'demo'}
                 />
-                <AuthAction />
             </SidebarFooter>
         </ShadcnSidebar>
     );

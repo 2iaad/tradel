@@ -24,7 +24,7 @@ import { PanelLeftIcon } from 'lucide-react';
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = '16rem';
-const SIDEBAR_WIDTH_MOBILE = '18rem';
+const SIDEBAR_WIDTH_MOBILE = 'min(15rem, calc(100vw - 3rem))';
 const SIDEBAR_WIDTH_ICON = '3rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
@@ -235,7 +235,7 @@ function Sidebar({
                 <div
                     data-sidebar="sidebar"
                     data-slot="sidebar-inner"
-                    className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+                    className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border group-data-[variant=inset]:rounded-xl group-data-[variant=inset]:border group-data-[variant=inset]:border-sidebar-border group-data-[variant=inset]:shadow-[0_16px_40px_rgb(0_0_0/0.28)]"
                 >
                     {children}
                 </div>
@@ -354,7 +354,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
             data-slot="sidebar-content"
             data-sidebar="content"
             className={cn(
-                'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+                'no-scrollbar flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden',
                 className,
             )}
             {...props}
@@ -437,7 +437,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
         <ul
             data-slot="sidebar-menu"
             data-sidebar="menu"
-            className={cn('m-0 flex w-full min-w-0 list-none flex-col gap-0 p-0', className)}
+            className={cn('m-0 flex w-full min-w-0 list-none flex-col gap-1 p-0', className)}
             {...props}
         />
     );

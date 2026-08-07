@@ -34,7 +34,7 @@ function pieTooltip(params: unknown): string {
     const value = typeof item.value === 'number' ? item.value : Number(item.value ?? 0);
     const percent = typeof item.percent === 'number' ? item.percent : Number(item.percent ?? 0);
 
-    return `${name}<br/><span style="color:#eef4f2;font-weight:700;">${value}</span> (${percent.toFixed(1)}%)`;
+    return `${name}<br/><span style="color:${canvasColors.grayLight};font-weight:700;">${value}</span> (${percent.toFixed(1)}%)`;
 }
 
 function buildOption(wins: number, losses: number, breakevens: number): ChartOption {
@@ -58,19 +58,19 @@ function buildOption(wins: number, losses: number, breakevens: number): ChartOpt
             itemGap: 13,
             formatter: (name) => `${name} ${counts[name] ?? 0}`,
             textStyle: {
-                color: '#c8d2d0',
+                color: canvasColors.grayLight,
                 fontFamily: monoFontStack,
                 fontSize: 11,
             },
         },
         tooltip: {
             trigger: 'item',
-            backgroundColor: '#10161a',
-            borderColor: '#2b353b',
+            backgroundColor: canvasColors.surface,
+            borderColor: canvasColors.border,
             borderWidth: 1,
             padding: [8, 10],
             textStyle: {
-                color: '#c8d2d0',
+                color: canvasColors.grayLight,
                 fontFamily: monoFontStack,
                 fontSize: 12,
             },

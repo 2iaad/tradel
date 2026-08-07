@@ -117,7 +117,7 @@ function tradeRows(items: CalendarTrade[]): string {
 
             return [
                 '<div style="display:flex;justify-content:space-between;gap:18px;align-items:center;">',
-                `<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c8d2d0;">${escapeHtml(item.symbol)}</span>`,
+                `<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${canvasColors.grayLight};">${escapeHtml(item.symbol)}</span>`,
                 `<span style="color:${pnlColor};font-weight:700;white-space:nowrap;">${escapeHtml(tradeValue)}</span>`,
                 '</div>',
             ].join('');
@@ -125,8 +125,8 @@ function tradeRows(items: CalendarTrade[]): string {
         .join('');
 
     return [
-        '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #22303a;">',
-        '<div style="margin-bottom:6px;color:#78878a;font-size:10px;letter-spacing:.12em;">PAIR / P&amp;L</div>',
+        `<div style="margin-top:10px;padding-top:10px;border-top:1px solid ${canvasColors.border};">`,
+        `<div style="margin-bottom:6px;color:${canvasColors.gray};font-size:10px;letter-spacing:.12em;">PAIR / P&amp;L</div>`,
         '<div style="display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;padding-right:2px;">',
         rows,
         '</div>',
@@ -144,12 +144,12 @@ function tooltip(params: unknown): string {
 
     return [
         `<div style="min-width:220px;max-width:300px;font-family:${monoFontStack};">`,
-        `<div style="margin-bottom:9px;color:#eef4f2;font-weight:700;">${escapeHtml(dateLabel(date))}</div>`,
-        '<div style="display:flex;justify-content:space-between;gap:20px;color:#78878a;">',
+        `<div style="margin-bottom:9px;color:${canvasColors.grayLight};font-weight:700;">${escapeHtml(dateLabel(date))}</div>`,
+        `<div style="display:flex;justify-content:space-between;gap:20px;color:${canvasColors.gray};">`,
         `<span>NET P&amp;L</span><span style="color:${pnlColor};font-weight:700;">${signedMoney(pnl)}</span>`,
         '</div>',
-        '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:5px;color:#78878a;">',
-        `<span>ACTIVITY</span><span style="color:#c8d2d0;">${trades} ${tradeLabel}</span>`,
+        `<div style="display:flex;justify-content:space-between;gap:20px;margin-top:5px;color:${canvasColors.gray};">`,
+        `<span>ACTIVITY</span><span style="color:${canvasColors.grayLight};">${trades} ${tradeLabel}</span>`,
         '</div>',
         tradeRows(datum.items),
         '</div>',
@@ -169,12 +169,12 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
             trigger: 'item',
             confine: true,
             formatter: tooltip,
-            backgroundColor: '#10161a',
-            borderColor: '#2b353b',
+            backgroundColor: canvasColors.surface,
+            borderColor: canvasColors.border,
             borderWidth: 1,
             padding: [11, 13],
             textStyle: {
-                color: '#c8d2d0',
+                color: canvasColors.grayLight,
                 fontFamily: monoFontStack,
                 fontSize: 12,
             },
@@ -188,11 +188,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
             dimension: 1,
             seriesIndex: 2,
             inRange: {
-                color: [
-                    '#38191a',
-                    '#0a0d0f',
-                    '#123424',
-                ],
+                color: [canvasColors.lossDark, canvasColors.black, canvasColors.profitDark],
             },
         },
         calendar: {
@@ -217,7 +213,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                 fontWeight: 600,
             },
             itemStyle: {
-                color: '#0e1214',
+                color: canvasColors.surface,
                 borderWidth: 0,
             },
             splitLine: {
@@ -246,7 +242,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                     },
                     rich: {
                         date: {
-                            color: '#eef4f2',
+                            color: canvasColors.grayLight,
                             fontFamily: monoFontStack,
                             fontSize: 15,
                             fontWeight: 700,
@@ -267,7 +263,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                             lineHeight: 22,
                         },
                         empty: {
-                            color: '#4d5a5f',
+                            color: canvasColors.grayDark,
                             fontFamily: monoFontStack,
                             fontSize: 9,
                             fontWeight: 500,
@@ -295,7 +291,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                     },
                     rich: {
                         trades: {
-                            color: '#78878a',
+                            color: canvasColors.gray,
                             fontFamily: monoFontStack,
                             fontSize: 9,
                             fontWeight: 500,
@@ -310,13 +306,13 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                 coordinateSystem: 'calendar',
                 data,
                 itemStyle: {
-                    borderColor: '#0e1214',
+                    borderColor: canvasColors.surface,
                     borderRadius: 12,
                     borderWidth: 8,
                 },
                 emphasis: {
                     itemStyle: {
-                        borderColor: '#ffdd3a',
+                        borderColor: canvasColors.yellow,
                         borderWidth: 1,
                         shadowBlur: 8,
                         shadowColor: 'rgba(255,221,58,0.1)',
@@ -356,9 +352,9 @@ export function CalendarChart({ days, loading, month }: CalendarChartProps) {
         if (loading) {
             chart.current?.showLoading('default', {
                 text: 'LOADING MONTH',
-                color: '#ffdd3a',
+                color: canvasColors.yellow,
                 textColor: canvasColors.faint,
-                maskColor: 'rgba(14,18,20,0.68)',
+                maskColor: 'rgba(5,5,5,0.68)',
                 fontSize: 11,
                 showSpinner: true,
             });

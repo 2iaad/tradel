@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import '../../styles/home-theme.css';
 
 export const metadata: Metadata = {
-    title: 'Tradel — AI-powered trading journal',
+    title: 'Tradel | AI-powered trading journal',
     description: 'Log your trades, see your progress.',
     robots: { index: false, follow: false, noarchive: true },
 };

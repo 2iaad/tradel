@@ -19,8 +19,12 @@ function SideBadge({ side }: { side: string }) {
                 className="h-auto rounded px-2 py-0.5 font-mono text-ui-xs font-semibold tracking-[0.08em]"
                 style={{
                     color: long ? G : R,
-                    background: long ? "rgba(47,213,127,.08)" : "rgba(240,85,78,.08)",
-                    borderColor: long ? "rgba(47,213,127,.25)" : "rgba(240,85,78,.25)",
+                    background: long
+                        ? 'color-mix(in srgb, var(--profit) 10%, transparent)'
+                        : 'color-mix(in srgb, var(--loss) 10%, transparent)',
+                    borderColor: long
+                        ? 'color-mix(in srgb, var(--profit) 28%, transparent)'
+                        : 'color-mix(in srgb, var(--loss) 28%, transparent)',
                 }}
             >
                 {side}

@@ -15,6 +15,7 @@ import {
     Tooltip,
     XAxis,
     YAxis,
+    type ActiveDotProps,
     type TooltipContentProps,
 } from 'recharts';
 
@@ -149,6 +150,22 @@ function DailyTooltip({ active, payload, currency }: DailyTooltipProps) {
                 </span>
             </div>
         </div>
+    );
+}
+
+function EquityActiveDot({ cx, cy, payload }: ActiveDotProps) {
+    if (cx === undefined || cy === undefined) return null;
+    const point = payload as EquityPoint;
+
+    return (
+        <circle
+            cx={cx}
+            cy={cy}
+            r={4}
+            fill={point.cumulative >= 0 ? PROFIT : LOSS}
+            stroke="var(--background)"
+            strokeWidth={2}
+        />
     );
 }
 
@@ -375,12 +392,7 @@ export function EquityCard() {
                                         stroke="url(#equity-stroke)"
                                         strokeWidth={2}
                                         dot={false}
-                                        activeDot={{
-                                            r: 4,
-                                            fill: chart.net >= 0 ? PROFIT : LOSS,
-                                            stroke: 'var(--background)',
-                                            strokeWidth: 2,
-                                        }}
+                                        activeDot={EquityActiveDot}
                                         animationDuration={650}
                                     />
                                     {lastPoint && (

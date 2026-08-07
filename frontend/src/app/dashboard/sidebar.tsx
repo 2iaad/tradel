@@ -62,6 +62,7 @@ function NavLink({ item }: { item: { title: string; url: string; icon: LucideIco
                 render={<Link href={item.url} />}
                 tooltip={item.title}
                 isActive={active}
+                size="lg"
             >
                 <Icon />
                 <span>{item.title}</span>
@@ -73,27 +74,18 @@ function NavLink({ item }: { item: { title: string; url: string; icon: LucideIco
 function MainNavigation() {
     return (
         <SidebarGroup>
-            <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarGroupContent className="flex flex-col gap-4">
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center gap-2">
                         <SidebarMenuButton
                             render={<Link href="/dashboard/trades" />}
                             tooltip="Log trade"
+                            size="lg"
                             className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
                         >
                             <CirclePlusIcon />
                             <span>Log trade</span>
                         </SidebarMenuButton>
-                        <Button
-                            nativeButton={false}
-                            render={<Link href="/dashboard/journal" />}
-                            size="icon"
-                            className="size-8 group-data-[collapsible=icon]:opacity-0"
-                            variant="outline"
-                        >
-                            <MailIcon />
-                            <span className="sr-only">Journal</span>
-                        </Button>
                     </SidebarMenuItem>
                 </SidebarMenu>
                 <SidebarMenu>
@@ -212,7 +204,11 @@ function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
                 </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-                <SidebarMenuButton onClick={signOut} tooltip={demo ? 'Exit demo' : 'Sign out'}>
+                <SidebarMenuButton
+                    onClick={signOut}
+                    tooltip={demo ? 'Exit demo' : 'Sign out'}
+                    size="lg"
+                >
                     <LogOutIcon />
                     <span>{demo ? 'Exit demo' : 'Sign out'}</span>
                 </SidebarMenuButton>
@@ -232,6 +228,7 @@ export function Sidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             render={<Link href="/dashboard" />}
+                            size="lg"
                             className="data-[slot=sidebar-menu-button]:p-1.5!"
                         >
                             <CommandIcon className="size-5!" />

@@ -12,7 +12,6 @@ import {
     LayoutDashboardIcon,
     ListIcon,
     LogOutIcon,
-    MailIcon,
     Settings2Icon,
     type LucideIcon,
 } from 'lucide-react';
@@ -63,6 +62,7 @@ function NavLink({ item }: { item: { title: string; url: string; icon: LucideIco
                 tooltip={item.title}
                 isActive={active}
                 size="lg"
+                className="relative px-3 text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground data-active:bg-primary/10 data-active:text-sidebar-accent-foreground data-active:shadow-[inset_3px_0_0_var(--sidebar-primary)] data-active:[&_svg]:text-primary [&_svg]:text-sidebar-foreground/45"
             >
                 <Icon />
                 <span>{item.title}</span>
@@ -76,12 +76,12 @@ function MainNavigation() {
         <SidebarGroup>
             <SidebarGroupContent className="flex flex-col gap-4">
                 <SidebarMenu>
-                    <SidebarMenuItem className="flex items-center gap-2">
+                    <SidebarMenuItem>
                         <SidebarMenuButton
                             render={<Link href="/dashboard/trades" />}
                             tooltip="Log trade"
                             size="lg"
-                            className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+                            className="border border-primary/25 bg-primary/10 px-3 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] duration-200 hover:border-primary/40 hover:bg-primary/15 hover:text-primary active:bg-primary/20 active:text-primary"
                         >
                             <CirclePlusIcon />
                             <span>Log trade</span>
@@ -101,7 +101,9 @@ function MainNavigation() {
 function WorkspaceNavigation() {
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupLabel className="px-3 text-[0.625rem] uppercase tracking-[0.18em]">
+                Workspace
+            </SidebarGroupLabel>
             <SidebarMenu>
                 {NAV_WORKSPACE.map((item) => (
                     <NavLink key={item.title} item={item} />
@@ -113,7 +115,7 @@ function WorkspaceNavigation() {
 
 function SecondaryNavigation() {
     return (
-        <SidebarGroup className="mt-auto">
+        <SidebarGroup className="mt-auto border-t border-sidebar-border/70 pt-2">
             <SidebarGroupContent>
                 <SidebarMenu>
                     {NAV_SECONDARY.map((item) => (
@@ -138,8 +140,9 @@ function AccountPicker() {
             <Button
                 type="button"
                 onClick={() => setOpen((value) => !value)}
+                aria-expanded={open}
                 variant="outline"
-                className="h-10 w-full justify-between bg-background px-3 text-left"
+                className="h-10 w-full justify-between border-sidebar-border bg-sidebar-accent/45 px-3 text-left text-sidebar-foreground shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
                 <span className="min-w-0 truncate">{active?.name ?? 'No account'}</span>
                 <span className="text-muted-foreground">▾</span>
@@ -191,29 +194,28 @@ function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
     };
 
     return (
-        <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton size="lg" className="h-12">
-                    <Avatar className="size-8 rounded-lg grayscale">
-                        <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium">{name}</span>
-                        <span className="truncate text-xs text-foreground/70">{email}</span>
-                    </div>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-                <SidebarMenuButton
-                    onClick={signOut}
-                    tooltip={demo ? 'Exit demo' : 'Sign out'}
-                    size="lg"
-                >
-                    <LogOutIcon />
-                    <span>{demo ? 'Exit demo' : 'Sign out'}</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex h-14 items-center gap-2 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-2 group-data-[collapsible=icon]:hidden">
+            <Avatar className="size-8 rounded-md">
+                <AvatarFallback className="rounded-md bg-primary/10 text-xs font-semibold text-primary">
+                    {initials}
+                </AvatarFallback>
+            </Avatar>
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium text-sidebar-foreground">{name}</span>
+                <span className="truncate text-xs text-sidebar-foreground/50">{email}</span>
+            </div>
+            <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                title={demo ? 'Exit demo' : 'Sign out'}
+                className="text-sidebar-foreground/45 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                onClick={signOut}
+            >
+                <LogOutIcon />
+                <span className="sr-only">{demo ? 'Exit demo' : 'Sign out'}</span>
+            </Button>
+        </div>
     );
 }
 
@@ -223,16 +225,18 @@ export function Sidebar() {
 
     return (
         <ShadcnSidebar collapsible="offcanvas" variant="inset">
-            <SidebarHeader>
+            <SidebarHeader className="p-3 pb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             render={<Link href="/dashboard" />}
                             size="lg"
-                            className="data-[slot=sidebar-menu-button]:p-1.5!"
+                            className="h-11 gap-3 p-0 hover:bg-transparent active:bg-transparent"
                         >
-                            <CommandIcon className="size-5!" />
-                            <span className="text-base font-semibold">Tradel</span>
+                            <span className="flex size-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]">
+                                <CommandIcon className="size-4.5!" />
+                            </span>
+                            <span className="text-base font-semibold tracking-tight">Tradel</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -242,7 +246,7 @@ export function Sidebar() {
                 <WorkspaceNavigation />
                 <SecondaryNavigation />
             </SidebarContent>
-            <SidebarFooter>
+            <SidebarFooter className="gap-2.5 border-t border-sidebar-border/70 p-3">
                 <AccountPicker />
                 <UserNavigation
                     email={session.email}

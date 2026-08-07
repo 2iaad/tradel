@@ -62,10 +62,10 @@ function NavLink({ item }: { item: { title: string; url: string; icon: LucideIco
                 tooltip={item.title}
                 isActive={active}
                 size="lg"
-                className="relative px-3 text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground data-active:bg-primary/10 data-active:text-sidebar-accent-foreground data-active:shadow-[inset_3px_0_0_var(--sidebar-primary)] data-active:[&_svg]:text-primary [&_svg]:text-sidebar-foreground/45"
+                className="relative px-3 text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground data-active:bg-primary/10 data-active:text-sidebar-accent-foreground data-active:shadow-[inset_3px_0_0_var(--sidebar-primary)] data-active:[&_svg]:text-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:data-active:shadow-none [&_svg]:text-sidebar-foreground/45"
             >
                 <Icon />
-                <span>{item.title}</span>
+                <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
             </SidebarMenuButton>
         </SidebarMenuItem>
     );
@@ -81,10 +81,10 @@ function MainNavigation() {
                             render={<Link href="/dashboard/trades" />}
                             tooltip="Log trade"
                             size="lg"
-                            className="border border-primary/25 bg-primary/10 px-3 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] duration-200 hover:border-primary/40 hover:bg-primary/15 hover:text-primary active:bg-primary/20 active:text-primary"
+                            className="border border-primary/25 bg-primary/10 px-3 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] duration-200 hover:border-primary/40 hover:bg-primary/15 hover:text-primary active:bg-primary/20 active:text-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:shadow-none group-data-[collapsible=icon]:hover:border-transparent group-data-[collapsible=icon]:hover:bg-sidebar-accent"
                         >
                             <CirclePlusIcon />
-                            <span>Log trade</span>
+                            <span className="group-data-[collapsible=icon]:hidden">Log trade</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -100,7 +100,7 @@ function MainNavigation() {
 
 function WorkspaceNavigation() {
     return (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+        <SidebarGroup>
             <SidebarGroupLabel className="px-3 text-[0.625rem] uppercase tracking-[0.18em]">
                 Workspace
             </SidebarGroupLabel>
@@ -194,13 +194,16 @@ function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
     };
 
     return (
-        <div className="flex h-14 items-center gap-2 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-2 group-data-[collapsible=icon]:hidden">
+        <div
+            title={`${name} · ${email}`}
+            className="flex h-14 items-center gap-2 rounded-lg border border-sidebar-border/70 bg-sidebar-accent/35 p-2 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0"
+        >
             <Avatar className="size-8 rounded-md">
                 <AvatarFallback className="rounded-md bg-primary/10 text-xs font-semibold text-primary">
                     {initials}
                 </AvatarFallback>
             </Avatar>
-            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-medium text-sidebar-foreground">{name}</span>
                 <span className="truncate text-xs text-sidebar-foreground/50">{email}</span>
             </div>
@@ -209,7 +212,7 @@ function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
                 variant="ghost"
                 size="icon-sm"
                 title={demo ? 'Exit demo' : 'Sign out'}
-                className="text-sidebar-foreground/45 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                className="text-sidebar-foreground/45 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden"
                 onClick={signOut}
             >
                 <LogOutIcon />
@@ -224,8 +227,8 @@ export function Sidebar() {
     if (!hasDashboardSession(session)) return null;
 
     return (
-        <ShadcnSidebar collapsible="offcanvas" variant="inset">
-            <SidebarHeader className="p-3 pb-2">
+        <ShadcnSidebar collapsible="icon" variant="inset">
+            <SidebarHeader className="p-3 pb-2 group-data-[collapsible=icon]:p-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
@@ -236,7 +239,9 @@ export function Sidebar() {
                             <span className="flex size-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]">
                                 <CommandIcon className="size-4.5!" />
                             </span>
-                            <span className="text-base font-semibold tracking-tight">Tradel</span>
+                            <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
+                                Tradel
+                            </span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -246,7 +251,7 @@ export function Sidebar() {
                 <WorkspaceNavigation />
                 <SecondaryNavigation />
             </SidebarContent>
-            <SidebarFooter className="gap-2.5 border-t border-sidebar-border/70 p-3">
+            <SidebarFooter className="gap-2.5 border-t border-sidebar-border/70 p-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-2">
                 <AccountPicker />
                 <UserNavigation
                     email={session.email}

@@ -43,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="has-data-[variant=inset]:bg-background"
             style={
                 {
-                    '--sidebar-width': 'calc(var(--spacing) * 72)',
+                    '--sidebar-width': 'calc(var(--spacing) * 60)',
                     '--header-height': 'calc(var(--spacing) * 12)',
                 } as CSSProperties
             }

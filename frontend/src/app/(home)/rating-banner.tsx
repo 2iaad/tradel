@@ -41,7 +41,7 @@ function ReviewSlide({ review }: { review: Review }) {
                             width="100%"
                             xmlns="http://www.w3.org/2000/svg"
                         >
-                            <path d={STAR_PATH} fill="#3AFFA3" />
+                            <path d={STAR_PATH} fill="var(--brand)" />
                         </svg>
                         <div className="rating-top">{review.date}</div>
                         {'  '}

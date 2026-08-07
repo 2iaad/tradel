@@ -128,8 +128,12 @@ function SideBadge({ side }: { side: TradeLogRow["side"] }) {
             className="h-auto px-1.5 font-mono text-ui-xs font-semibold tracking-[0.06em]"
             style={{
                 color: long ? G : R,
-                background: long ? "rgba(47,213,127,.08)" : "rgba(240,85,78,.08)",
-                borderColor: long ? "rgba(47,213,127,.25)" : "rgba(240,85,78,.25)",
+                background: long
+                    ? 'color-mix(in srgb, var(--profit) 10%, transparent)'
+                    : 'color-mix(in srgb, var(--loss) 10%, transparent)',
+                borderColor: long
+                    ? 'color-mix(in srgb, var(--profit) 28%, transparent)'
+                    : 'color-mix(in srgb, var(--loss) 28%, transparent)',
             }}
         >
             {side}
@@ -245,7 +249,7 @@ function ConfirmDeleteModal({ onCancel, onConfirm }: { onCancel: () => void; onC
     return (
         <div
             onClick={onCancel}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(4,6,8,0.7)] backdrop-blur-[6px]"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[6px]"
         >
             <div
                 onClick={(event) => event.stopPropagation()}

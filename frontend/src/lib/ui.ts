@@ -1,6 +1,5 @@
-// Shared Carbon Terminal class strings (auth page + dashboard modal).
-// Palette: the global `primary` token is the single UI accent.
-// Green/red are reserved for win/loss (P&L) signals only — see G/R below.
+// Shared application class strings (auth page + dashboard modal).
+// UI chrome uses black/yellow/gray; green/red are semantic-only signals.
 export const inputCls =
     'w-full h-10 min-h-10 box-border bg-muted border border-border rounded-lg px-3.5 py-3 text-content text-sm outline-none transition-[border-color,box-shadow] duration-200 focus:border-primary focus:ring-3 focus:ring-primary/15';
 export const labelCls =
@@ -13,15 +12,29 @@ export const kickerCls = 'font-mono text-ui-xs font-medium tracking-[0.2em] text
 export const errorCls = 'm-0 text-ui-sm text-loss';
 
 // Dashboard building blocks.
-// Win/loss signal colors — P&L only, never UI chrome.
-// Canvas APIs cannot resolve CSS custom properties, so these mirror the
-// semantic tokens in globals.css for Chart.js and the auth canvas.
+// Canvas APIs cannot resolve CSS custom properties, so these values mirror
+// the canonical tokens in globals.css. Positive data uses green and negative
+// data uses red; categorical series continue to use the brand palette.
 export const canvasColors = {
+    black: '#050505',
+    surface: '#101010',
+    surfaceHover: '#181818',
+    yellow: '#ffdd3a',
+    yellowHover: '#ffe66b',
+    yellowMuted: '#b8a12c',
+    yellowDark: '#3f3712',
     profit: '#2fd57f',
+    profitDark: '#123424',
     loss: '#f0554e',
-    faint: '#5f6b70',
-    borderFaint: '#161c20',
-    card: '#0e1214',
+    lossDark: '#38191a',
+    grayLight: '#d2d2cd',
+    gray: '#858580',
+    grayDim: '#6b6b66',
+    grayDark: '#4d4d49',
+    border: '#2b2b28',
+    borderFaint: '#171716',
+    faint: '#6b6b66',
+    card: '#101010',
 } as const;
 export const G = canvasColors.profit;
 export const R = canvasColors.loss;

@@ -42,7 +42,7 @@ function drawCandles(canvas: HTMLCanvasElement, t: number) {
     const frac = offset % step;
     const y = (v: number) => 48 + (1 - v) * (h - 130);
     // faint horizontal grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.045)';
+    ctx.strokeStyle = 'rgba(160,160,154,0.07)';
     ctx.lineWidth = 1;
     for (let gy = 48; gy < h - 40; gy += 56) {
         ctx.beginPath();

@@ -259,12 +259,12 @@ function buildMiniBarOption({
                     color: 'rgba(255,255,255,.04)',
                 },
             },
-            backgroundColor: '#050607',
-            borderColor: '#10161a',
+            backgroundColor: canvasColors.black,
+            borderColor: canvasColors.border,
             borderWidth: 1,
             padding: [8, 10],
             textStyle: {
-                color: '#c8d2d0',
+                color: canvasColors.grayLight,
                 fontFamily: monoFontStack,
                 fontSize: 12,
             },
@@ -277,7 +277,7 @@ function buildMiniBarOption({
                 const color = item.color ?? canvasColors.faint;
 
                 return [
-                    `<strong style="color:#eef4f2;">${escapeHtml(label)}</strong>`,
+                    `<strong style="color:${canvasColors.grayLight};">${escapeHtml(label)}</strong>`,
                     `<br/><span style="display:inline-block;width:9px;height:9px;background:${color};margin-right:5px;"></span>${escapeHtml(fmt(value))}`,
                 ].join('');
             },

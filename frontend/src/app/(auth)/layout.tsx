@@ -64,7 +64,7 @@ function SwitchLine({
     onClick: () => void;
 }) {
     return (
-        <p className="mt-1 mb-0 text-ui-md text-[#6b7a76] text-center">
+        <p className="mt-1 mb-0 text-center text-ui-md text-content-faint">
             {text && <>{text} </>}
             <Button type="button" variant="link" onClick={onClick} className={`${linkCls} h-auto text-ui-md`}>
                 {label}
@@ -226,7 +226,7 @@ function HeroPanel({ shifted }: { shifted: boolean }) {
                 ref={canvasRef}
                 className="absolute top-0 left-0 w-full h-full opacity-[0.92]"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,11,0.3)_0%,rgba(7,9,11,0)_30%,rgba(7,9,11,0.9)_82%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(5_5_5/0.3)_0%,transparent_30%,rgb(5_5_5/0.9)_82%)]" />
             <HeroCopy />
         </div>
     );

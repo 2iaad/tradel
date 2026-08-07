@@ -102,9 +102,9 @@ h6 {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-    -webkit-text-fill-color: #e9eef0;
-    -webkit-box-shadow: 0 0 0 1000px #0a0d0f inset;
-    caret-color: #e9eef0;
+    -webkit-text-fill-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--muted) inset;
+    caret-color: var(--foreground);
     transition: background-color 9999s ease-in-out 0s;
 }
 
@@ -213,56 +213,79 @@ input:-webkit-autofill:focus {
 }
 
 :root {
-    /* shadcn tokens mapped to Tradel's existing Carbon Terminal palette. */
-    --brand: #ffdd3a;
-    --brand-hover: #ffe867;
-    --brand-foreground: #050505;
-    --background: #050505;
-    --foreground: #ededed;
-    --card: #0e1214;
-    --card-foreground: #eef4f2;
-    --popover: #0e1214;
-    --popover-foreground: #eef4f2;
+    /* Tradel chrome: black surfaces, yellow emphasis, neutral gray content.
+       Green and red are reserved for semantic market and feedback states. */
+    --palette-black: #050505;
+    --palette-black-soft: #0a0a0a;
+    --palette-black-raised: #101010;
+    --palette-black-hover: #181818;
+    --palette-yellow: #ffdd3a;
+    --palette-yellow-hover: #ffe66b;
+    --palette-yellow-muted: #b8a12c;
+    --semantic-profit: #2fd57f;
+    --semantic-profit-dark: #123424;
+    --semantic-loss: #f0554e;
+    --semantic-loss-hover: #ff6f68;
+    --semantic-loss-dark: #38191a;
+    --palette-gray-50: #eeeeeb;
+    --palette-gray-200: #d2d2cd;
+    --palette-gray-400: #a0a09a;
+    --palette-gray-500: #858580;
+    --palette-gray-600: #6b6b66;
+    --palette-gray-700: #4d4d49;
+    --palette-gray-800: #2b2b28;
+    --palette-gray-850: #222220;
+    --palette-gray-900: #171716;
+
+    --brand: var(--palette-yellow);
+    --brand-hover: var(--palette-yellow-hover);
+    --brand-foreground: var(--palette-black);
+    --background: var(--palette-black);
+    --foreground: var(--palette-gray-50);
+    --card: var(--palette-black-raised);
+    --card-foreground: var(--palette-gray-50);
+    --popover: var(--palette-black-raised);
+    --popover-foreground: var(--palette-gray-50);
     --primary: var(--brand);
     --primary-hover: var(--brand-hover);
     --primary-foreground: var(--brand-foreground);
-    --secondary: #10161a;
-    --secondary-foreground: #c8d2d0;
-    --muted: #0a0d0f;
-    --muted-foreground: #78878a;
-    --accent: #10161a;
-    --accent-foreground: #eef4f2;
-    --content: #e9eef0;
-    --content-muted: #93a09d;
-    --content-dim: #8a9995;
-    --content-faint: #5f6b70;
-    --content-placeholder: #4d5a5f;
-    --content-soft: #7e8d89;
-    --profit: #2fd57f;
-    --loss: #f0554e;
-    --loss-hover: #ff6f68;
+    --secondary: var(--palette-gray-900);
+    --secondary-foreground: var(--palette-gray-200);
+    --muted: var(--palette-black-soft);
+    --muted-foreground: var(--palette-gray-500);
+    --accent: var(--palette-gray-900);
+    --accent-foreground: var(--palette-gray-50);
+    --content: var(--palette-gray-50);
+    --content-muted: var(--palette-gray-400);
+    --content-dim: var(--palette-gray-500);
+    --content-faint: var(--palette-gray-600);
+    --content-placeholder: var(--palette-gray-700);
+    --content-soft: var(--palette-gray-500);
+    --profit: var(--semantic-profit);
+    --loss: var(--semantic-loss);
+    --loss-hover: var(--semantic-loss-hover);
     --loss-foreground: #140404;
     --destructive: var(--loss);
-    --border: #222a2f;
-    --border-subtle: #1b2226;
-    --border-faint: #161c20;
-    --border-hover: #2b353b;
-    --surface-subtle: #0d1215;
-    --input: #222a2f;
+    --border: var(--palette-gray-800);
+    --border-subtle: var(--palette-gray-850);
+    --border-faint: var(--palette-gray-900);
+    --border-hover: var(--palette-gray-700);
+    --surface-subtle: var(--palette-black-soft);
+    --input: var(--palette-gray-800);
     --ring: var(--brand);
     --chart-1: var(--brand);
-    --chart-2: #2fd57f;
-    --chart-3: #f0554e;
-    --chart-4: #93a09d;
-    --chart-5: #5f6b70;
+    --chart-2: var(--semantic-profit);
+    --chart-3: var(--semantic-loss);
+    --chart-4: var(--palette-yellow-muted);
+    --chart-5: var(--palette-gray-700);
     --radius: 0.625rem;
-    --sidebar: #07090b;
-    --sidebar-foreground: #e9eef0;
+    --sidebar: var(--palette-black-soft);
+    --sidebar-foreground: var(--palette-gray-200);
     --sidebar-primary: var(--brand);
     --sidebar-primary-foreground: var(--brand-foreground);
-    --sidebar-accent: #10161a;
-    --sidebar-accent-foreground: #eef4f2;
-    --sidebar-border: #1b2226;
+    --sidebar-accent: var(--palette-gray-900);
+    --sidebar-accent-foreground: var(--palette-gray-50);
+    --sidebar-border: var(--palette-gray-850);
     --sidebar-ring: var(--brand);
 }
 
@@ -287,6 +310,6 @@ input:-webkit-autofill:focus {
    foreground of every yellow primary button explicit at the cascade level. */
 @layer utilities {
     [data-slot='button'].bg-primary {
-        color: #050505;
+        color: var(--palette-black);
     }
 }

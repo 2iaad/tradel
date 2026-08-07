@@ -28,7 +28,7 @@ function TinyAvatar({ label, tone = 'yellow' }: { label: string; tone?: 'yellow'
 function TradeContextVisual() {
     return (
         <div
-            className="relative mx-auto h-[390px] w-full max-w-[1000px] sm:h-[460px] lg:h-[520px]"
+            className="relative mx-auto h-[375px] w-full max-w-[940px] sm:h-[440px] lg:h-[490px]"
             aria-label="A trade linked to its journal context"
         >
             <div className="absolute left-[1%] top-[175px] hidden -rotate-12 text-right font-mono text-[0.6875rem] italic leading-tight text-white/35 lg:block">
@@ -41,7 +41,7 @@ function TradeContextVisual() {
                 </svg>
             </div>
 
-            <div className="absolute left-1/2 top-[90px] w-[88%] max-w-[650px] -translate-x-[54%] -rotate-[1.5deg] transition-transform duration-500 hover:-rotate-[0.5deg] sm:top-[105px]">
+            <div className="absolute left-1/2 top-[86px] w-[85%] max-w-[610px] -translate-x-[54%] -rotate-[1.5deg] transition-transform duration-500 hover:-rotate-[0.5deg] sm:top-[100px]">
                 <div className={`${panelClass} overflow-hidden rounded-xl`}>
                     <div className="flex items-center gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-6 sm:py-5">
                         <TinyAvatar label="ZT" />
@@ -79,7 +79,7 @@ function TradeContextVisual() {
                 </div>
             </div>
 
-            <div className="absolute right-0 top-[38px] w-[44%] max-w-[275px] rotate-[6deg] transition-transform duration-500 hover:rotate-[3deg] sm:right-[2%] sm:top-[45px]">
+            <div className="absolute right-[1%] top-[36px] w-[42%] max-w-[260px] rotate-[6deg] transition-transform duration-500 hover:rotate-[3deg] sm:right-[3%] sm:top-[43px]">
                 <div className={`${panelClass} rounded-xl p-4 sm:p-6`}>
                     <div className="mb-3 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-white/25 sm:mb-4 sm:text-xs">Journal</div>
                     <div className="space-y-2.5 sm:space-y-4">
@@ -103,7 +103,7 @@ function TradeContextVisual() {
                 </div>
             </div>
 
-            <div className="absolute bottom-[25px] right-[2%] w-[46%] max-w-[285px] rotate-[5deg] sm:bottom-[35px] sm:right-[5%]">
+            <div className="absolute bottom-[24px] right-[3%] w-[44%] max-w-[265px] rotate-[5deg] sm:bottom-[33px] sm:right-[6%]">
                 <div className={`${panelClass} flex items-center gap-3 rounded-lg px-4 py-3 sm:px-5 sm:py-4`}>
                     <span className="font-mono text-sm text-primary sm:text-lg">@</span>
                     <span className="text-[0.625rem] text-white/30 sm:text-sm">Link a note or setup…</span>
@@ -116,10 +116,10 @@ function TradeContextVisual() {
 function AnalyticsVisual() {
     return (
         <div
-            className="relative mx-auto h-[390px] w-full max-w-[1000px] sm:h-[460px] lg:h-[520px]"
+            className="relative mx-auto h-[375px] w-full max-w-[940px] sm:h-[440px] lg:h-[490px]"
             aria-label="Trading performance dashboard cards"
         >
-            <div className="absolute left-[2%] top-[75px] w-[35%] max-w-[275px] -rotate-[5deg] transition-transform duration-500 hover:-rotate-[2deg] sm:left-[5%] sm:top-[95px]">
+            <div className="absolute left-[3%] top-[72px] w-[34%] max-w-[255px] -rotate-[5deg] transition-transform duration-500 hover:-rotate-[2deg] sm:left-[6%] sm:top-[90px]">
                 <div className={`${panelClass} rounded-xl p-4 sm:p-6`}>
                     <div className="mb-4 flex items-center gap-2 text-[0.6875rem] font-medium text-white/60 sm:mb-6 sm:gap-3 sm:text-base">
                         <BarChart3 className="size-4 text-primary sm:size-5" aria-hidden="true" />
@@ -141,7 +141,7 @@ function AnalyticsVisual() {
                 </div>
             </div>
 
-            <div className="absolute left-1/2 top-[48px] z-10 w-[44%] max-w-[340px] -translate-x-1/2 rotate-[2deg] transition-transform duration-500 hover:rotate-0 sm:top-[60px]">
+            <div className="absolute left-1/2 top-[46px] z-10 w-[42%] max-w-[315px] -translate-x-1/2 rotate-[2deg] transition-transform duration-500 hover:rotate-0 sm:top-[57px]">
                 <div className={`${panelClass} rounded-xl p-4 sm:p-7`}>
                     <div className="mb-1 flex items-center gap-3">
                         <span className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary sm:size-11">
@@ -175,7 +175,7 @@ function AnalyticsVisual() {
                 </div>
             </div>
 
-            <div className="absolute right-[1%] top-[62px] w-[37%] max-w-[300px] -rotate-[3deg] transition-transform duration-500 hover:-rotate-[1deg] sm:right-[3%] sm:top-[78px]">
+            <div className="absolute right-[2%] top-[59px] w-[35%] max-w-[280px] -rotate-[3deg] transition-transform duration-500 hover:-rotate-[1deg] sm:right-[4%] sm:top-[74px]">
                 <div className={`${panelClass} rounded-xl p-4 sm:p-6`}>
                     <div className="mb-4 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-white/25 sm:mb-6 sm:text-xs">Account summary</div>
                     <div className="space-y-3.5 sm:space-y-5">
@@ -229,7 +229,7 @@ function ProductStatement({ children, highlight, label, detail, initials }: {
     initials: string;
 }) {
     return (
-        <div className="mx-auto w-full max-w-[720px] border-l border-white/15 pl-4 sm:pl-5">
+        <div className="mx-auto w-full max-w-[680px] border-l border-white/15 pl-4 sm:pl-5">
             <p className="text-xs leading-[1.6] text-white/45 normal-case sm:text-sm lg:text-base">
                 {children}{' '}
                 <mark className="rounded-[2px] bg-primary/20 px-0.5 text-primary/85">{highlight}</mark>

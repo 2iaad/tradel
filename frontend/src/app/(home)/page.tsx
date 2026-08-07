@@ -4,6 +4,7 @@ import { HomeNav } from './home-chrome';
 import { IntroSection } from './intro-section';
 import { LighthouseSection } from './lighthouse-section';
 import { PartnersSection } from './partners-section';
+import { ProductStorySections } from './product-story-sections';
 
 const STATS = [
     { value: '128K+', label: 'Trades journaled' },
@@ -52,6 +53,7 @@ export default function Home() {
                     <HomeNav />
                     <Hero />
                     <IntroSection />
+                    <ProductStorySections />
                     <PartnersSection />
                     <StatsStrip />
                     <LighthouseSection />

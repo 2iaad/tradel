@@ -49,6 +49,21 @@ body {
   transform: translateY(2.5rem) scaleX(1.78) scaleY(0.92);
 }
 
+/* Keep legacy landing-page controls aligned with the shared app button size. */
+.new-button {
+  height: 2.5rem;
+  min-height: 2.5rem;
+  max-height: 2.5rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.new-button_label,
+.new-button_label.is--large {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .home-hero__img-source {
   display: block;
   height: auto;

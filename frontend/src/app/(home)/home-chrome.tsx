@@ -19,6 +19,7 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui/button";
 import tradelIcon from "../../../public/tradel-icon.png";
 
 const GETTING_STARTED = [
@@ -60,30 +61,32 @@ const menuDescriptionClass =
     "col-start-2 font-sans text-[0.875em] font-normal leading-[1.35] text-white/60";
 
 const navigationLabelClass =
-    "!h-10 !px-3 font-sans !text-[0.9375rem] !font-normal !leading-none";
+    "h-10 px-5 font-sans text-ui-md font-medium leading-none";
 
 export function HomeNav() {
     return (
         <nav className="nav-w" theme="light" aria-label="Primary">
-            <div className="nav-inner relative !grid !grid-cols-[1fr_auto_1fr] !items-center">
-                <Link
-                    aria-current="page"
-                    aria-label="homepage"
-                    className="nav-logo w--current !flex !size-10 items-center justify-center justify-self-start"
-                    data-nav-logo=""
-                    href="/"
-                >
-                    <Image
-                        src={tradelIcon}
-                        alt="Tradel"
-                        className="size-10 object-contain"
-                        priority
-                    />
-                </Link>
+            <div className="nav-inner relative flex h-20 items-center py-0">
+                <div className="flex flex-1 items-center justify-start">
+                    <Link
+                        aria-current="page"
+                        aria-label="homepage"
+                        className="nav-logo w--current flex size-10 items-center justify-center"
+                        data-nav-logo=""
+                        href="/"
+                    >
+                        <Image
+                            src={tradelIcon}
+                            alt="Tradel"
+                            className="size-10 object-contain"
+                            priority
+                        />
+                    </Link>
+                </div>
 
                 <NavigationMenu
                     render={<div />}
-                    className="pointer-events-auto justify-self-center text-white max-[900px]:hidden"
+                    className="pointer-events-auto h-10 flex-none text-white max-[900px]:hidden"
                     popupClassName="border border-white/10 bg-black/65 font-sans text-white shadow-[0_14px_36px_rgba(0,0,0,0.3)] ring-0 backdrop-blur-md"
                 >
                     <NavigationMenuList className="h-10 gap-1.5">
@@ -154,24 +157,26 @@ export function HomeNav() {
                     </NavigationMenuList>
                 </NavigationMenu>
 
-                <div className="nav-content !h-10 justify-self-end">
-                    <div className="nav-buttons !h-10">
-                        <Link
-                            className="nav-link new-button_label !m-0 !h-10 !px-3 !text-[0.9375rem] !leading-none"
+                <div className="nav-content flex h-10 flex-1 items-center justify-end">
+                    <div className="nav-buttons h-10">
+                        <Button
+                            nativeButton={false}
+                            render={<Link href="/login" />}
+                            variant="ghost"
+                            className="text-white hover:bg-white/10 hover:text-white"
                             data-nav-item=""
-                            href="/login"
                         >
                             Log in
-                        </Link>
-                        <Link
-                            className="new-button w-inline-block !h-10 !min-h-10 !max-h-10 !px-5"
+                        </Button>
+                        <Button
+                            nativeButton={false}
+                            render={<Link href="/register" />}
+                            variant="outline"
+                            className="border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white dark:border-white/25 dark:bg-white/5 dark:hover:bg-white/10"
                             data-nav-item=""
-                            href="/register"
                         >
-                            <span className="new-button_label !text-[0.9375rem] !leading-none">
-                                Create account
-                            </span>
-                        </Link>
+                            Create account
+                        </Button>
                     </div>
                 </div>
             </div>

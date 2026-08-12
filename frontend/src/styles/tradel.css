@@ -51,16 +51,16 @@ body {
 
 /* Keep legacy landing-page controls aligned with the shared app button size. */
 .new-button {
-  height: 2.5rem;
-  min-height: 2.5rem;
-  max-height: 2.5rem;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
 }
 
 .new-button_label,
 .new-button_label.is--large {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 }
 

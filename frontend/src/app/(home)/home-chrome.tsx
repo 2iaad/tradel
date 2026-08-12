@@ -61,12 +61,12 @@ const menuDescriptionClass =
     "col-start-2 font-sans text-[0.875em] font-normal leading-[1.35] text-white/60";
 
 const navigationLabelClass =
-    "h-10 px-5 font-sans text-ui-md font-medium leading-none";
+    "nav-link m-0 h-[38px] px-5 font-sans text-ui-sm font-medium leading-none hover:bg-transparent focus:bg-transparent";
 
 export function HomeNav() {
     return (
         <nav className="nav-w" theme="light" aria-label="Primary">
-            <div className="nav-inner relative flex h-20 items-center py-0">
+            <div className="nav-inner flex items-center py-3">
                 <div className="flex flex-1 items-center justify-start">
                     <Link
                         aria-current="page"
@@ -86,10 +86,10 @@ export function HomeNav() {
 
                 <NavigationMenu
                     render={<div />}
-                    className="pointer-events-auto h-10 flex-none text-white max-[900px]:hidden"
+                    className="pointer-events-auto h-[38px] flex-none text-white max-[900px]:hidden"
                     popupClassName="border border-white/10 bg-black/65 font-sans text-white shadow-[0_14px_36px_rgba(0,0,0,0.3)] ring-0 backdrop-blur-md"
                 >
-                    <NavigationMenuList className="h-10 gap-1.5">
+                    <NavigationMenuList className="h-[38px] gap-1.5">
                         <NavigationMenuItem>
                             <NavigationMenuTrigger className={navigationLabelClass} data-nav-item="">
                                 Getting Started
@@ -157,8 +157,8 @@ export function HomeNav() {
                     </NavigationMenuList>
                 </NavigationMenu>
 
-                <div className="nav-content flex h-10 flex-1 items-center justify-end">
-                    <div className="nav-buttons h-10">
+                <div className="nav-content flex h-[38px] flex-1 items-center justify-end">
+                    <div className="nav-buttons h-[38px]">
                         <Button
                             nativeButton={false}
                             render={<Link href="/login" />}

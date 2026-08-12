@@ -142,7 +142,7 @@ function AccountPicker() {
                 onClick={() => setOpen((value) => !value)}
                 aria-expanded={open}
                 variant="outline"
-                className="h-10 w-full justify-between border-sidebar-border bg-sidebar-accent/45 px-3 text-left text-sidebar-foreground shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="h-[38px] w-full justify-between border-sidebar-border bg-sidebar-accent/45 px-3 text-left text-sidebar-foreground shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
                 <span className="min-w-0 truncate">{active?.name ?? 'No account'}</span>
                 <span className="text-muted-foreground">▾</span>

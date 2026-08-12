@@ -163,7 +163,7 @@ export function HomeNav() {
                             nativeButton={false}
                             render={<Link href="/login" />}
                             variant="ghost"
-                            className="text-white hover:bg-white/10 hover:text-white"
+                            className="nav-link m-0 text-white hover:bg-transparent hover:text-white"
                             data-nav-item=""
                         >
                             Log in

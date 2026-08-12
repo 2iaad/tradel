@@ -86,7 +86,7 @@ function NoteCard({
 // Confirmation card shown before a note is deleted.
 function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
     const btn =
-        'h-auto flex-1 rounded-lg px-4 py-2.5 font-mono text-ui-xs font-semibold tracking-[0.1em] cursor-pointer transition-colors';
+        'flex-1 font-mono font-semibold tracking-[0.1em] cursor-pointer transition-colors';
     return (
         <div
             onClick={onCancel}

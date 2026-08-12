@@ -5,7 +5,7 @@ export const inputCls =
 export const labelCls =
     'block font-mono text-ui-xs font-medium tracking-[0.14em] uppercase text-content-faint mb-[7px]';
 export const btnCls =
-    'w-full h-10 min-h-10 border-none rounded-lg p-0 mt-1 bg-primary font-semibold text-ui-md text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.985] disabled:opacity-60 disabled:cursor-default';
+    'w-full border-none bg-primary font-semibold text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.985] disabled:opacity-60 disabled:cursor-default';
 export const linkCls =
     'bg-transparent border-none p-0 text-primary font-medium cursor-pointer hover:text-primary-hover';
 export const kickerCls = 'font-mono text-ui-xs font-medium tracking-[0.2em] text-primary';
@@ -50,6 +50,6 @@ export const cardMetaValueCls = 'text-ui-sm font-semibold text-content';
 export const cardFooterCls = 'border-t border-border-subtle bg-muted/35 px-[22px] py-3';
 export const h2Cls = cardTitleCls;
 export const ctaCls =
-    'border-none rounded-lg px-[18px] py-[11px] bg-primary text-ui-md text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.97]';
+    'border-none bg-primary text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.97]';
 export const ghostBtnCls =
     'bg-transparent border-none p-0 font-mono text-ui-xs font-medium tracking-[0.1em] text-primary cursor-pointer hover:text-primary-hover';

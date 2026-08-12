@@ -84,7 +84,7 @@ export default function SettingsPage() {
                 <Button
                     type="button"
                     onClick={() => setEditing('new')}
-                    className={`${ctaCls} h-auto whitespace-nowrap`}
+                    className={`${ctaCls} whitespace-nowrap`}
                 >
                     + Add account
                 </Button>
@@ -102,7 +102,7 @@ export default function SettingsPage() {
                     <p className="m-0 text-ui-sm text-content-dim text-center max-w-[360px]">
                         Create your first trading account to start logging trades and notes.
                     </p>
-                    <Button type="button" onClick={() => setEditing('new')} className={`${ctaCls} h-auto`}>
+                    <Button type="button" onClick={() => setEditing('new')} className={ctaCls}>
                         Create your first account
                     </Button>
                 </Card>

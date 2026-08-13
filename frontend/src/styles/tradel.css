@@ -51,50 +51,29 @@ body {
 
 /* Keep legacy landing-page controls aligned with the shared app button size. */
 .new-button {
-  height: 2.5rem;
-  min-height: 2.5rem;
-  max-height: 2.5rem;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
 }
 
 .new-button_label,
 .new-button_label.is--large {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
 }
 
-.home-hero__img-source {
-  display: block;
-  height: auto;
-  width: 100%;
-}
-
-.home-hero__brand-mask {
-  background: var(--palette-black, #050505);
-  height: 3.1%;
-  left: 18.6%;
-  pointer-events: none;
+/* Hero media stays centered and leaves a protected area for the CTA row. */
+.home-hero .home-hero__mockup {
+  bottom: 4rem;
+  filter: drop-shadow(0 2rem 4rem rgb(0 0 0 / 45%));
+  left: 50%;
+  max-width: 60rem;
   position: absolute;
-  top: 29.35%;
-  transform: rotate(-4deg) skewX(-10deg);
-  width: 5.1%;
-  z-index: 3;
-}
-
-.home-hero__brand-mark {
-  color: var(--palette-gray-50, #eeeeeb);
-  font-family: "PP Mori", Intervariable, Arial, sans-serif;
-  font-size: clamp(4px, 0.72em, 11px);
-  font-weight: 600;
-  left: 18.85%;
-  letter-spacing: -0.08em;
-  line-height: 1;
-  pointer-events: none;
-  position: absolute;
-  top: 29.7%;
-  transform: rotate(-4deg) skewX(-10deg);
-  z-index: 4;
+  transform: translateX(-50%);
+  width: min(88vw, calc((100svh - 14rem) * 1.5976), 75rem);
+  z-index: 2;
 }
 
 /* The theme now lives in the low `home-theme` cascade layer, so the app's
@@ -230,8 +209,9 @@ body {
     transform: translateY(0.6rem) scaleX(1.865) scaleY(1.06);
   }
 
-  .home-hero__brand-mark {
-    font-size: clamp(3px, 0.8vw, 6px);
+  .home-hero .home-hero__mockup {
+    bottom: clamp(14.5rem, 28svh, 15rem);
+    width: min(92vw, calc((100svh - 13rem) * 1.5976));
   }
 }
 

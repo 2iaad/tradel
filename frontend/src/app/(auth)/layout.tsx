@@ -1,12 +1,15 @@
 'use client';
 
 import axios from 'axios';
+import { Check } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useRef } from 'react';
 
 import { EmailField, PasswordField, UsernameField } from '@/components/auth/fields';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { FluxButton } from '@/components/ui/flux-button';
+import { TradelLogo } from '@/components/ui/tradel-logo';
 import { Tape, TOP_TICKS, BOTTOM_TICKS } from '@/components/tape';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
@@ -21,6 +24,35 @@ const formCls =
     'flex-[0_0_33.3333%] box-border flex flex-col justify-center gap-[18px] px-[clamp(40px,7vw,120px)]';
 
 const MODES: Mode[] = ['login', 'register', 'reset'];
+const AUTH_SUCCESS_HOLD_MS = 900;
+
+function FluxSubmit({
+    idleLabel,
+    loadingLabel,
+    successLabel,
+    onAction,
+}: {
+    idleLabel: string;
+    loadingLabel: string;
+    successLabel: string;
+    onAction: () => Promise<void>;
+}) {
+    return (
+        <div className="h-[38px] w-full">
+            <FluxButton
+                type="submit"
+                idleLabel={idleLabel}
+                loadingLabel={loadingLabel}
+                successLabel={successLabel}
+                successIcon={<Check aria-hidden />}
+                successHold={AUTH_SUCCESS_HOLD_MS}
+                onAction={onAction}
+                className={`${btnCls} h-[38px] text-ui-sm`}
+                style={{ height: 38, minWidth: '100%', width: '100%' }}
+            />
+        </div>
+    );
+}
 
 // Reads the current auth mode from the URL and switches it by navigation.
 function useAuthMode(): [Mode, (m: Mode) => void] {
@@ -91,8 +123,9 @@ function RememberRow({ onReset }: { onReset: () => void }) {
 // Sign-in form; owns its own submit/pending/error state.
 function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
+    const formRef = useRef<HTMLFormElement>(null);
 
-    const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
+    const { error, submit } = useAuthSubmit(async (f) => {
         const email = f.get('email') as string;
         const password = f.get('password') as string;
         try {
@@ -103,18 +136,31 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
             throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
         }
-    }, () => router.push('/dashboard'));
+    }, () => {
+        window.setTimeout(() => router.push('/dashboard'), AUTH_SUCCESS_HOLD_MS);
+    });
+
+    const submitLogin = () => {
+        if (!formRef.current) return Promise.reject(new Error('Login form is unavailable'));
+        if (!formRef.current.reportValidity()) {
+            return Promise.reject(new Error('Please complete the required fields'));
+        }
+        return submit(new FormData(formRef.current));
+    };
 
     return (
-        <form onSubmit={onSubmit} className={formCls}>
+        <form ref={formRef} className={formCls}>
             <FormHeading kicker="" title="Welcome back" />
             <EmailField />
             <PasswordField />
             <RememberRow onReset={() => onSwitch('reset')} />
             {error && <p className={errorCls}>{error}</p>}
-            <Button type="submit" disabled={pending} className={btnCls}>
-                Sign in
-            </Button>
+            <FluxSubmit
+                idleLabel="Sign in"
+                loadingLabel="Signing in"
+                successLabel="Signed in"
+                onAction={submitLogin}
+            />
             <SwitchLine
                 text="New to Tradel?"
                 label="Create an account"
@@ -141,20 +187,32 @@ async function registerAction(f: FormData) {
 // Account-creation form; owns its own submit/pending/error state.
 function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
-    const { pending, error, onSubmit } = useAuthSubmit(registerAction, () =>
-        router.push('/dashboard'),
-    );
+    const formRef = useRef<HTMLFormElement>(null);
+    const { error, submit } = useAuthSubmit(registerAction, () => {
+        window.setTimeout(() => router.push('/dashboard'), AUTH_SUCCESS_HOLD_MS);
+    });
+
+    const submitRegistration = () => {
+        if (!formRef.current) return Promise.reject(new Error('Registration form is unavailable'));
+        if (!formRef.current.reportValidity()) {
+            return Promise.reject(new Error('Please complete the required fields'));
+        }
+        return submit(new FormData(formRef.current));
+    };
 
     return (
-        <form onSubmit={onSubmit} className={formCls}>
+        <form ref={formRef} className={formCls}>
             <FormHeading kicker="" title="Start your journal" />
             <UsernameField />
             <EmailField />
             <PasswordField strong />
             {error && <p className={errorCls}>{error}</p>}
-            <Button type="submit" disabled={pending} className={btnCls}>
-                Create account
-            </Button>
+            <FluxSubmit
+                idleLabel="Create account"
+                loadingLabel="Creating account"
+                successLabel="Account created"
+                onAction={submitRegistration}
+            />
             <SwitchLine
                 text="Already have an account?"
                 label="Sign in"
@@ -190,9 +248,7 @@ function HeroCopy() {
         <div className="absolute inset-0 flex flex-col justify-between box-border px-[52px] py-11">
             <div className="flex items-center gap-2.5">
                 <span className="w-[9px] h-[9px] rounded-full bg-primary animate-[tradelPulse_2.2s_ease-out_infinite]" />
-                <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
-                    TRADEL
-                </span>
+                <TradelLogo className="h-6 w-[101px]" />
             </div>
             <div className="flex flex-col gap-3.5">
                 <h1 className="m-0 text-6xl! font-semibold leading-[1.05] tracking-[-0.02em] text-card-foreground">

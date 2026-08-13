@@ -14,7 +14,7 @@ export function LighthouseSection() {
                     loop
                     muted
                     playsInline
-                    src="/videos/Tradel---Lighthouse-Viz---V11.mp4"
+                    src="/videos/lighthouse-visualization.mp4"
                     width="100%"
                 />
             </div>
@@ -49,7 +49,7 @@ export function LighthouseSection() {
                                             alt=""
                                             className="phone"
                                             loading="lazy"
-                                            src="/images/iphone.webp"
+                                            src="/images/landing/phone-frame.webp"
                                         />
                                         <div className="phone-grid">
                                             {Array.from({ length: 338 }, (_, index) => (
@@ -62,7 +62,7 @@ export function LighthouseSection() {
                                             alt=""
                                             className="lh-notch"
                                             loading="lazy"
-                                            src="/images/iphone-camera.webp"
+                                            src="/images/landing/phone-camera.webp"
                                         />
                                     </div>
                                     <div className="lh-phone__bg" />

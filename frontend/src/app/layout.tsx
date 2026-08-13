@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     title: 'Tradel',
     description: 'Log entries, exits, and the reasoning between them.',
     icons: {
-        icon: '/tradel-icon.png?v=2',
+        icon: '/brand/tradel-mark.png',
     },
 };
 

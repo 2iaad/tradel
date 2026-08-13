@@ -8,7 +8,6 @@ import {
     BookOpenIcon,
     CalendarDaysIcon,
     CirclePlusIcon,
-    CommandIcon,
     LayoutDashboardIcon,
     ListIcon,
     LogOutIcon,
@@ -19,6 +18,7 @@ import {
 import { AccountModal } from './account-modal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { TradelLogo } from '@/components/ui/tradel-logo';
 import {
     Sidebar as ShadcnSidebar,
     SidebarContent,
@@ -81,7 +81,7 @@ function MainNavigation() {
                             render={<Link href="/dashboard/trades" />}
                             tooltip="Log trade"
                             size="lg"
-                            className="border border-primary/25 bg-primary/10 px-3 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] duration-200 hover:border-primary/40 hover:bg-primary/15 hover:text-primary active:bg-primary/20 active:text-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:shadow-none group-data-[collapsible=icon]:hover:border-transparent group-data-[collapsible=icon]:hover:bg-sidebar-accent"
+                            className="border border-primary bg-primary px-3 font-semibold text-primary-foreground duration-200 hover:border-primary-hover hover:bg-primary-hover hover:text-primary-foreground active:bg-primary-hover active:text-primary-foreground group-data-[collapsible=icon]:justify-center [&_svg]:text-primary-foreground"
                         >
                             <CirclePlusIcon />
                             <span className="group-data-[collapsible=icon]:hidden">Log trade</span>
@@ -142,7 +142,7 @@ function AccountPicker() {
                 onClick={() => setOpen((value) => !value)}
                 aria-expanded={open}
                 variant="outline"
-                className="h-10 w-full justify-between border-sidebar-border bg-sidebar-accent/45 px-3 text-left text-sidebar-foreground shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="h-[38px] w-full justify-between border-sidebar-border bg-sidebar-accent/45 px-3 text-left text-sidebar-foreground shadow-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
                 <span className="min-w-0 truncate">{active?.name ?? 'No account'}</span>
                 <span className="text-muted-foreground">▾</span>
@@ -234,14 +234,10 @@ export function Sidebar() {
                         <SidebarMenuButton
                             render={<Link href="/dashboard" />}
                             size="lg"
-                            className="h-11 gap-3 p-0 hover:bg-transparent active:bg-transparent"
+                            className="h-11 p-0 hover:bg-transparent active:bg-transparent group-data-[collapsible=icon]:justify-center"
                         >
-                            <span className="flex size-8 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]">
-                                <CommandIcon className="size-4.5!" />
-                            </span>
-                            <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-                                Tradel
-                            </span>
+                            <TradelLogo className="h-7 w-[118px] group-data-[collapsible=icon]:hidden" />
+                            <TradelLogo compact className="hidden size-6 group-data-[collapsible=icon]:block" />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

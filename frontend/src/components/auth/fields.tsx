@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import EnhancedPasswordField from '@/components/ui/password-field';
 import { inputCls, labelCls } from '@/lib/ui';
 
 // Labeled form input styled to the Carbon Terminal theme.
@@ -53,15 +54,19 @@ export function UsernameField() {
 // Password input; strong mode adds the signup complexity constraints.
 export function PasswordField({ strong = false }: { strong?: boolean }) {
     const [visible, setVisible] = useState(false);
-    const rules = strong
-        ? {
-              minLength: 10,
-              maxLength: 20,
-              pattern: '(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*',
-              title: 'Must include a lowercase letter, an uppercase letter and a number',
-              placeholder: '10+ characters',
-          }
-        : { placeholder: '••••••••' };
+    if (strong) {
+        return (
+            <EnhancedPasswordField
+                minLength={10}
+                maxLength={20}
+                required
+                placeholder="10+ characters"
+                inputClassName={inputCls}
+                labelClassName={labelCls}
+            />
+        );
+    }
+
     return (
         <div className="relative">
             <Field
@@ -69,7 +74,7 @@ export function PasswordField({ strong = false }: { strong?: boolean }) {
                 type={visible ? 'text' : 'password'}
                 name="password"
                 required
-                {...rules}
+                placeholder="••••••••"
             />
             <Button
                 type="button"

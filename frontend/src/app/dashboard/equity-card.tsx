@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChartNoAxesCombined } from 'lucide-react';
+import { ChartColumn, ChartNoAxesCombined } from 'lucide-react';
 import {
     Area,
     AreaChart,
@@ -19,7 +19,6 @@ import {
     type TooltipContentProps,
 } from 'recharts';
 
-import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -28,6 +27,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { IconBar, IconBarItem } from '@/components/ui/icon-bar';
 import {
     cardCls,
     cardDescriptionCls,
@@ -237,28 +237,20 @@ export function EquityCard() {
                                 : 'Profit and loss for each trading day'}
                         </CardDescription>
                     </div>
-                    <div className="flex w-fit items-center rounded-lg border border-border-subtle bg-muted p-[3px]">
-                        {(['equity', 'pnl'] as const).map((value) => {
-                            const selected = value === mode;
-                            return (
-                                <Button
-                                    key={value}
-                                    type="button"
-                                    aria-pressed={selected}
-                                    onClick={() => setMode(value)}
-                                    variant="ghost"
-                                    size="sm"
-                                    className={`h-auto rounded-md px-3 py-1.5 font-mono text-ui-xs ${
-                                        selected
-                                            ? 'bg-card text-content shadow-sm hover:bg-card hover:text-content'
-                                            : 'text-content-faint hover:bg-accent hover:text-secondary-foreground'
-                                    }`}
-                                >
-                                    {value === 'equity' ? 'Equity' : 'P&L'}
-                                </Button>
-                            );
-                        })}
-                    </div>
+                    <IconBar
+                        value={mode}
+                        onValueChange={(value) => {
+                            if (value === 'equity' || value === 'pnl') setMode(value);
+                        }}
+                        className="flex-nowrap gap-1"
+                    >
+                        <IconBarItem
+                            icon={ChartNoAxesCombined}
+                            label="Equity"
+                            value="equity"
+                        />
+                        <IconBarItem icon={ChartColumn} label="P&L" value="pnl" />
+                    </IconBar>
                 </div>
 
                 {hasTrades && (

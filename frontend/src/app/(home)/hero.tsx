@@ -1,5 +1,8 @@
 import { Fragment } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
+
+import dashboardMockup from '../../../public/images/landing/dashboard-mockup.png';
 
 export function Hero() {
     return (
@@ -33,13 +36,12 @@ export function Hero() {
                                 </Fragment>
                             ))}
                         </div>
-                        <img
-                            id="hero-img"
-                            alt="Tradel trading journal"
-                            className="home-hero__img"
-                            fetchPriority="high"
-                            loading="eager"
-                            src="/images/tradel.webp"
+                        <Image
+                            alt="Tradel dashboard preview"
+                            className=""
+                            preload
+                            sizes="(max-width: 767px) 175vw, (max-width: 1555px) 108vw, 1680px"
+                            src={dashboardMockup}
                         />
                     </div>
                 </div>

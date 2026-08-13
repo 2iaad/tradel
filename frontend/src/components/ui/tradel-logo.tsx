@@ -1,8 +1,8 @@
 import Image from "next/image"
 
 import { cn } from "@/lib/utils"
-import tradelFullIcon from "../../../public/tradel-full-icon.png"
-import tradelIcon from "../../../public/tradel-icon.png"
+import tradelFullIcon from "../../../public/brand/tradel-lockup.png"
+import tradelIcon from "../../../public/brand/tradel-mark.png"
 
 type TradelLogoProps = {
   compact?: boolean

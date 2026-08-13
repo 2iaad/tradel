@@ -28,7 +28,7 @@ export function DownloadSection({ withHeading = false }: { withHeading?: boolean
                                     alt="QR code"
                                     className="cover-img"
                                     loading="lazy"
-                                    src="/images/one-link.svg"
+                                    src="/images/landing/app-download-qr.svg"
                                 />
                             </div>
                             <a

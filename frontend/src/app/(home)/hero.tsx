@@ -1,8 +1,9 @@
 import { Fragment } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 
-import dashboardMockup from '../../../public/images/landing/dashboard-mockup.png';
+import { Safari } from '@/components/ui/safari';
+
+import dashboardMockup from '../../../public/images/landing/dashboard-mockup-0.png';
 
 export function Hero() {
     return (
@@ -36,12 +37,11 @@ export function Hero() {
                                 </Fragment>
                             ))}
                         </div>
-                        <Image
-                            alt="Tradel dashboard preview"
-                            className=""
-                            preload
-                            sizes="(max-width: 767px) 175vw, (max-width: 1555px) 108vw, 1680px"
-                            src={dashboardMockup}
+                        <Safari
+                            className="home-hero__mockup"
+                            imageAlt="Tradel dashboard showing trading performance and recent trades"
+                            imageSrc={dashboardMockup}
+                            url="www.tradel.online"
                         />
                     </div>
                 </div>

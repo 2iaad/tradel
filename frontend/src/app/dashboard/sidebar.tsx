@@ -81,7 +81,7 @@ function MainNavigation() {
                             render={<Link href="/dashboard/trades" />}
                             tooltip="Log trade"
                             size="lg"
-                            className="border border-primary/25 bg-primary/10 px-3 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] duration-200 hover:border-primary/40 hover:bg-primary/15 hover:text-primary active:bg-primary/20 active:text-primary group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:shadow-none group-data-[collapsible=icon]:hover:border-transparent group-data-[collapsible=icon]:hover:bg-sidebar-accent"
+                            className="border border-primary bg-primary px-3 font-semibold text-primary-foreground duration-200 hover:border-primary-hover hover:bg-primary-hover hover:text-primary-foreground active:bg-primary-hover active:text-primary-foreground group-data-[collapsible=icon]:justify-center [&_svg]:text-primary-foreground"
                         >
                             <CirclePlusIcon />
                             <span className="group-data-[collapsible=icon]:hidden">Log trade</span>

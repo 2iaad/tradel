@@ -130,28 +130,6 @@ function setupSmoothScroll() {
 }
 
 function setupNavigation() {
-    const logo = document.querySelector<HTMLElement>('[data-nav-logo]');
-    if (logo) {
-        gsap.set(logo, { autoAlpha: 0, yPercent: 20 });
-        ScrollTrigger.create({
-            start: () => window.innerHeight * 0.5,
-            onEnter: () =>
-                gsap.to(logo, {
-                    autoAlpha: 1,
-                    duration: 0.5,
-                    ease: 'power3.out',
-                    yPercent: 0,
-                }),
-            onLeaveBack: () =>
-                gsap.to(logo, {
-                    autoAlpha: 0,
-                    duration: 0.4,
-                    ease: 'power3.in',
-                    yPercent: 20,
-                }),
-        });
-    }
-
     if (window.matchMedia('(min-width: 768px)').matches) {
         const items = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-item]'));
 

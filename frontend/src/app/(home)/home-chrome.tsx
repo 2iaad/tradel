@@ -71,7 +71,6 @@ export function HomeNav() {
                         aria-current="page"
                         aria-label="homepage"
                         className="nav-logo w--current flex h-[38px] w-[135px] items-center"
-                        data-nav-logo=""
                         href="/"
                     >
                         <TradelLogo className="h-8 w-[135px]" priority />

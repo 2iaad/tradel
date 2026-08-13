@@ -8,6 +8,12 @@ import {
     TrendingUp,
 } from 'lucide-react';
 
+import {
+    landingSectionBodyClass,
+    LandingSection,
+    LandingSectionHeading,
+} from './landing-section';
+
 const panelClass =
     'border border-border-subtle bg-card shadow-[0_32px_90px_rgba(0,0,0,0.58)]';
 
@@ -28,20 +34,20 @@ function TinyAvatar({ label, tone = 'yellow' }: { label: string; tone?: 'yellow'
 function TradeContextVisual() {
     return (
         <div
-            className="relative mx-auto h-[375px] w-full max-w-[940px] sm:h-[440px] lg:h-[490px]"
+            className="relative mx-auto h-[570px] w-full max-w-[760px] sm:h-[420px] lg:h-[470px]"
             aria-label="A trade linked to its journal context"
         >
-            <div className="absolute left-[1%] top-[175px] hidden -rotate-12 text-right font-mono text-[0.6875rem] italic leading-tight text-white/35 lg:block">
+            <div className="absolute left-[-7%] top-[180px] hidden w-[110px] -rotate-12 text-right font-mono text-[0.6875rem] italic leading-tight text-white/35 lg:block">
                 automatic
                 <br />
                 trade context
-                <svg className="ml-auto mt-2 h-10 w-20" viewBox="0 0 64 32" fill="none" aria-hidden="true">
+                <svg className="ml-auto mt-2 h-10 w-20 translate-x-5" viewBox="0 0 64 32" fill="none" aria-hidden="true">
                     <path d="M2 5C19 6 18 25 50 20" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                     <path d="M44 16L51 20L45 24" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
             </div>
 
-            <div className="absolute left-1/2 top-[86px] w-[85%] max-w-[610px] -translate-x-[54%] -rotate-[1.5deg] transition-transform duration-500 hover:-rotate-[0.5deg] sm:top-[100px]">
+            <div className="absolute left-1/2 top-[220px] z-10 w-[92%] max-w-[520px] -translate-x-1/2 -rotate-[1.5deg] transition-transform duration-500 hover:-rotate-[0.5deg] sm:top-[78px] sm:w-[80%] lg:left-[44%] lg:top-[90px]">
                 <div className={`${panelClass} overflow-hidden rounded-xl`}>
                     <div className="flex items-center gap-3 border-b border-white/[0.07] px-4 py-3 sm:px-6 sm:py-5">
                         <TinyAvatar label="ZT" />
@@ -79,7 +85,7 @@ function TradeContextVisual() {
                 </div>
             </div>
 
-            <div className="absolute right-[1%] top-[36px] w-[42%] max-w-[260px] rotate-[6deg] transition-transform duration-500 hover:rotate-[3deg] sm:right-[3%] sm:top-[43px]">
+            <div className="absolute right-0 top-0 z-20 w-[44%] max-w-[190px] rotate-[6deg] transition-transform duration-500 hover:rotate-[3deg] sm:top-[30px] sm:w-[34%] lg:right-[-3%]">
                 <div className={`${panelClass} rounded-xl p-4 sm:p-6`}>
                     <div className="mb-3 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-white/25 sm:mb-4 sm:text-xs">Journal</div>
                     <div className="space-y-2.5 sm:space-y-4">
@@ -103,7 +109,7 @@ function TradeContextVisual() {
                 </div>
             </div>
 
-            <div className="absolute bottom-[24px] right-[3%] w-[44%] max-w-[265px] rotate-[5deg] sm:bottom-[33px] sm:right-[6%]">
+            <div className="absolute bottom-0 right-0 z-30 w-[52%] max-w-[220px] rotate-[5deg] sm:w-[36%] lg:right-[1%]">
                 <div className={`${panelClass} flex items-center gap-3 rounded-lg px-4 py-3 sm:px-5 sm:py-4`}>
                     <span className="font-mono text-sm text-primary sm:text-lg">@</span>
                     <span className="text-[0.625rem] text-white/30 sm:text-sm">Link a note or setup…</span>
@@ -116,7 +122,7 @@ function TradeContextVisual() {
 function AnalyticsVisual() {
     return (
         <div
-            className="relative mx-auto h-[375px] w-full max-w-[940px] sm:h-[440px] lg:h-[490px]"
+            className="relative mx-auto h-[340px] w-full max-w-[760px] sm:h-[400px] lg:h-[450px]"
             aria-label="Trading performance dashboard cards"
         >
             <div className="absolute left-[3%] top-[72px] w-[34%] max-w-[255px] -rotate-[5deg] transition-transform duration-500 hover:-rotate-[2deg] sm:left-[6%] sm:top-[90px]">
@@ -229,8 +235,8 @@ function ProductStatement({ children, highlight, label, detail, initials }: {
     initials: string;
 }) {
     return (
-        <div className="mx-auto w-full max-w-[680px] border-l border-white/15 pl-4 sm:pl-5">
-            <p className="text-xs leading-[1.6] text-white/45 normal-case sm:text-sm lg:text-base">
+        <div className="mx-auto w-full max-w-[560px] border-l border-white/15 pl-4">
+            <p className={landingSectionBodyClass}>
                 {children}{' '}
                 <mark className="rounded-[2px] bg-primary/20 px-0.5 text-primary/85">{highlight}</mark>
             </p>
@@ -251,62 +257,58 @@ function StorySection({ id, title, visual, statement }: {
     statement: React.ReactNode;
 }) {
     return (
-        <section id={id} className="flex min-h-[100svh] scroll-mt-20 flex-col justify-center py-20 sm:py-28 lg:py-32">
-            <h2 className="mx-auto max-w-[900px] text-center font-sans text-[clamp(1.75rem,2.0vw,3.5rem)] font-semibold leading-[1.14] tracking-[-0.025em] text-card-foreground normal-case">
-                {title}
-            </h2>
-            <div className="mt-8 sm:mt-10 lg:mt-12">{visual}</div>
+        <LandingSection id={id} className="min-h-0 py-16 sm:py-20 lg:py-24">
+            <LandingSectionHeading title={title} />
+            <div className="mt-7 sm:mt-8 lg:mt-10">{visual}</div>
             <div className="mt-3 sm:mt-4">{statement}</div>
-        </section>
+        </LandingSection>
     );
 }
 
 export function ProductStorySections() {
     return (
-        <div className="section relative z-[3] bg-background text-foreground">
-            <div className="main-c p-pad">
-                <StorySection
-                    id="journal-story"
-                    title={
-                        <>
-                            <span className="block">Connect every trade</span>
-                            <span className="block">to the decisions behind it</span>
-                        </>
-                    }
-                    visual={<TradeContextVisual />}
-                    statement={
-                        <ProductStatement
-                            highlight="Tradel keeps every execution beside the context needed when it is time to review."
-                            label="Trade review"
-                            detail="a core Tradel workflow"
-                            initials="TR"
-                        >
-                            Notes and executions should not live in different places.
-                        </ProductStatement>
-                    }
-                />
+        <>
+            <StorySection
+                id="journal-story"
+                title={
+                    <>
+                        <span className="block">Connect every trade</span>
+                        <span className="block">to the decisions behind it</span>
+                    </>
+                }
+                visual={<TradeContextVisual />}
+                statement={
+                    <ProductStatement
+                        highlight="Tradel keeps every execution beside the context needed when it is time to review."
+                        label="Trade review"
+                        detail="a core Tradel workflow"
+                        initials="TR"
+                    >
+                        Notes and executions should not live in different places.
+                    </ProductStatement>
+                }
+            />
 
-                <StorySection
-                    id="analytics-story"
-                    title={
-                        <>
-                            <span className="block">See the patterns behind your performance</span>
-                            <span className="block">without living in spreadsheets</span>
-                        </>
-                    }
-                    visual={<AnalyticsVisual />}
-                    statement={
-                        <ProductStatement
-                            highlight="See which symbols and trade directions are working—and where performance is slipping."
-                            label="Performance review"
-                            detail="built into Tradel"
-                            initials="PR"
-                        >
-                            A trading journal should deliver useful feedback, not another dashboard full of noise.
-                        </ProductStatement>
-                    }
-                />
-            </div>
-        </div>
+            <StorySection
+                id="analytics-story"
+                title={
+                    <>
+                        <span className="block">See the patterns behind your performance</span>
+                        <span className="mt-2 block text-sm text-zinc-300/40">(without living in spreadsheets)</span>
+                    </>
+                }
+                visual={<AnalyticsVisual />}
+                statement={
+                    <ProductStatement
+                        highlight="See which symbols and trade directions are working—and where performance is slipping."
+                        label="Performance review"
+                        detail="built into Tradel"
+                        initials="PR"
+                    >
+                        A trading journal should deliver useful feedback, not another dashboard full of noise.
+                    </ProductStatement>
+                }
+            />
+        </>
     );
 }

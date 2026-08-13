@@ -7,6 +7,7 @@ import { useRef } from 'react';
 import { EmailField, PasswordField, UsernameField } from '@/components/auth/fields';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { TradelLogo } from '@/components/ui/tradel-logo';
 import { Tape, TOP_TICKS, BOTTOM_TICKS } from '@/components/tape';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
@@ -190,9 +191,7 @@ function HeroCopy() {
         <div className="absolute inset-0 flex flex-col justify-between box-border px-[52px] py-11">
             <div className="flex items-center gap-2.5">
                 <span className="w-[9px] h-[9px] rounded-full bg-primary animate-[tradelPulse_2.2s_ease-out_infinite]" />
-                <span className="font-mono text-ui-sm font-semibold tracking-[0.22em] text-card-foreground">
-                    TRADEL
-                </span>
+                <TradelLogo className="h-6 w-[101px]" />
             </div>
             <div className="flex flex-col gap-3.5">
                 <h1 className="m-0 text-6xl! font-semibold leading-[1.05] tracking-[-0.02em] text-card-foreground">

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
     BookOpenCheck,
@@ -20,7 +19,7 @@ import {
     NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import tradelIcon from "../../../public/tradel-icon.png";
+import { TradelLogo } from "@/components/ui/tradel-logo";
 
 const GETTING_STARTED = [
     {
@@ -71,16 +70,11 @@ export function HomeNav() {
                     <Link
                         aria-current="page"
                         aria-label="homepage"
-                        className="nav-logo w--current flex size-10 items-center justify-center"
+                        className="nav-logo w--current flex h-[38px] w-[135px] items-center"
                         data-nav-logo=""
                         href="/"
                     >
-                        <Image
-                            src={tradelIcon}
-                            alt="Tradel"
-                            className="size-10 object-contain"
-                            priority
-                        />
+                        <TradelLogo className="h-8 w-[135px]" priority />
                     </Link>
                 </div>
 

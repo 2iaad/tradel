@@ -1,7 +1,9 @@
+import { FaqSection } from './faq-section';
 import { Hero } from './hero';
 import { HomeAnimation } from './home-animation';
 import { HomeNav } from './home-chrome';
 import { IntroSection } from './intro-section';
+import { landingSectionContainerClass, landingSectionMetaClass } from './landing-section';
 import { LighthouseSection } from './lighthouse-section';
 import { PartnersSection } from './partners-section';
 import { ProductStorySections } from './product-story-sections';
@@ -17,7 +19,7 @@ const STATS = [
 function StatsStrip() {
     return (
         <section className="section">
-            <div className="main-c p-pad">
+            <div className={landingSectionContainerClass}>
                 <div className="grid grid-cols-2 lg:grid-cols-4 border-y border-border-subtle">
                     {STATS.map((stat, i) => (
                         <div
@@ -34,7 +36,7 @@ function StatsStrip() {
                                     </span>
                                 )}
                             </div>
-                            <span className="font-mono text-ui-xs font-medium tracking-[0.16em] text-content-faint uppercase">
+                            <span className={landingSectionMetaClass}>
                                 {stat.label}
                             </span>
                         </div>
@@ -53,9 +55,10 @@ export default function Home() {
                     <HomeNav />
                     <Hero />
                     <IntroSection />
-                    <ProductStorySections />
                     <PartnersSection />
-                    <StatsStrip />
+                    <ProductStorySections />
+                    <FaqSection />
+                    {/* <StatsStrip /> */}
                     <LighthouseSection />
                 </main>
             </div>

@@ -64,37 +64,10 @@ body {
   font-weight: 500;
 }
 
-.home-hero__img-source {
-  display: block;
-  height: auto;
-  width: 100%;
-}
-
-.home-hero__brand-mask {
-  background: var(--palette-black, #050505);
-  height: 3.1%;
-  left: 18.6%;
-  pointer-events: none;
-  position: absolute;
-  top: 29.35%;
-  transform: rotate(-4deg) skewX(-10deg);
-  width: 5.1%;
-  z-index: 3;
-}
-
-.home-hero__brand-mark {
-  color: var(--palette-gray-50, #eeeeeb);
-  font-family: "PP Mori", Intervariable, Arial, sans-serif;
-  font-size: clamp(4px, 0.72em, 11px);
-  font-weight: 600;
-  left: 18.85%;
-  letter-spacing: -0.08em;
-  line-height: 1;
-  pointer-events: none;
-  position: absolute;
-  top: 29.7%;
-  transform: rotate(-4deg) skewX(-10deg);
-  z-index: 4;
+/* The mockup includes transparent space that positions the angled dashboard. */
+.home-hero__img {
+  max-width: none;
+  width: min(108vw, 105rem);
 }
 
 /* The theme now lives in the low `home-theme` cascade layer, so the app's
@@ -230,8 +203,12 @@ body {
     transform: translateY(0.6rem) scaleX(1.865) scaleY(1.06);
   }
 
-  .home-hero__brand-mark {
-    font-size: clamp(3px, 0.8vw, 6px);
+  .home-hero__img {
+    bottom: 8%;
+    left: auto;
+    margin-left: 0;
+    right: -18%;
+    width: 175vw;
   }
 }
 

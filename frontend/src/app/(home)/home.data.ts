@@ -10,19 +10,19 @@ export type BlogPost = {
 export const NEWS_POSTS: BlogPost[] = [
     {
         title: 'What Is an AI Trading Agent? Complete Guide 2026',
-        image: '/images/cdn/5247e636f6c7202c7224023c_1_AI-Trading-Agent.png',
+        image: '/images/articles/ai-trading-agent.png',
         date: 'April 21, 2026',
         category: 'Crypto',
     },
     {
         title: 'Backtesting Trading Strategies: A Practical Guide with Real Examples',
-        image: '/images/cdn/47ab28c463c5ff41dd5b3b3a_1_Backtesting-Trading-Strategies.png',
+        image: '/images/articles/backtesting-trading-strategies.png',
         date: 'April 15, 2026',
         category: 'Crypto',
     },
     {
         title: 'AI Agents in Crypto Trading FAQ: What They Are + How to Use Them',
-        image: '/images/cdn/ai_agents_in_crypto_trading_faq_1.png',
+        image: '/images/articles/ai-agents-crypto-trading-faq.png',
         date: 'April 13, 2026',
         category: 'Crypto',
     },
@@ -69,32 +69,32 @@ export type PressQuote = {
 export const PRESS_QUOTES: PressQuote[] = [
     {
         outlet: 'Bitconist',
-        logo: '/images/cdn/694cce9e357b875e39f4be05_bitconist.svg',
+        logo: '/images/partners/bitconist.svg',
         quote: 'Tradel’s AI agents function as tireless market analysts that never need sleep. “Imagine having a pro trader friend who never sleeps and is always in the market, he reads the news, analyzes it, watches community reactions, tracks whale wallets and fund movements.”',
     },
     {
         outlet: 'Bitcoin',
-        logo: '/images/cdn/694cd0ae7a6a74881bc488d2_bitcoin.svg',
+        logo: '/images/partners/bitcoin.svg',
         quote: '“The flagship tool analyzes news events, historical data, fundamental and technical indicators, and community sentiment, including whale wallet activity, to generate highly accurate trading signals. These signals are tailored to each trader’s style by unique AI agents.”',
     },
     {
         outlet: 'Crypto Daily',
-        logo: '/images/cdn/694ccfb331a3d9a7d5c9026a_crypto.svg',
+        logo: '/images/partners/crypto-daily.svg',
         quote: '“The project has multiple flagship solutions that aim to fulfill Tradel’s mission to make the blockchain industry simpler and more intuitive for everyone.”',
     },
     {
         outlet: 'CoinMarketCap',
-        logo: '/images/cdn/68aed53d749725e2986a0f39_6674528843624d79de5206dc_logo-coinmarketcap.svg',
+        logo: '/images/partners/coinmarketcap.svg',
         quote: "“Tradel's AI agents process market information substantially faster than human traders. During the February 2025 market downturn following Donald Trump's import tariff announcements, Tradel's AI agents detected price movements immediately and sent notifications to users.”",
     },
     {
         outlet: 'TradingView',
-        logo: '/images/cdn/68aed53d749725e2986a0f3f_6674528ead6df03d07e332c9_logo-trading-view.svg',
+        logo: '/images/partners/tradingview.svg',
         quote: '"Artificial intelligence models are poised to be an unprecedented improvement to trader performance which has long struggled with unprofitable strategies and approaches."',
     },
     {
         outlet: 'TechBullion',
-        logo: '/images/cdn/694cd17eb85d6f31795f267a_TechBullion.svg',
+        logo: '/images/partners/techbullion.svg',
         quote: '“At first, we didn’t have a strategy to quickly reach a million users,” explains Anthony Cerullo, Chief Business Development Officer at Tradel. “Our main goal was to launch the AI-agent technology, show how it works, explain it to the audience, and gather feedback to improve it.”',
     },
 ];
@@ -184,17 +184,17 @@ export const REVIEWS: Review[] = [
 export const ACADEMY_POSTS: BlogPost[] = [
     {
         title: 'Lesson 10.8: Stopping the Bleeding: Eliminating Revenge Trading',
-        image: '/images/cdn/Revenge_Trading_Small.jpg',
+        image: '/images/articles/academy/revenge-trading.jpg',
         date: 'April 28, 2026',
     },
     {
         title: 'Lesson 10.7: The Cost of Emotion: Fear, Greed, and FOMO',
-        image: '/images/cdn/tradel_academy_10.7_small.jpg',
+        image: '/images/articles/academy/fear-greed-fomo.jpg',
         date: 'April 21, 2026',
     },
     {
         title: 'Lesson 10.6: Leverage & The Sword',
-        image: '/images/cdn/TRADEL_ACADEMY_SMALL.jpg',
+        image: '/images/articles/academy/leverage.jpg',
         date: 'April 14, 2026',
     },
 ];

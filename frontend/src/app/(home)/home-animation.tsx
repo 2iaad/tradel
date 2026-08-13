@@ -29,27 +29,7 @@ type FrameSequence = {
 let lenis: Lenis | null = null;
 const splits: SplitText[] = [];
 
-function prepareBrandingAndAnchors() {
-    const heroImage = document.querySelector<HTMLImageElement>('#hero-img');
-
-    if (heroImage && !heroImage.closest('.home-hero__media')) {
-        const wrapper = document.createElement('div');
-        wrapper.className = `${heroImage.className} home-hero__media`;
-        heroImage.className = 'home-hero__img-source';
-        heroImage.replaceWith(wrapper);
-        wrapper.append(heroImage);
-
-        const mask = document.createElement('span');
-        mask.className = 'home-hero__brand-mask';
-        mask.setAttribute('aria-hidden', 'true');
-
-        const mark = document.createElement('span');
-        mark.className = 'home-hero__brand-mark';
-        mark.textContent = 'tradel';
-        mark.setAttribute('aria-hidden', 'true');
-        wrapper.append(mask, mark);
-    }
-
+function prepareAnchors() {
     const intro = document.querySelector<HTMLElement>('.section.is--intro');
     const lighthouse = document.querySelector<HTMLElement>('.section.is--lighthouse');
     const process = document
@@ -150,28 +130,6 @@ function setupSmoothScroll() {
 }
 
 function setupNavigation() {
-    const logo = document.querySelector<HTMLElement>('[data-nav-logo]');
-    if (logo) {
-        gsap.set(logo, { autoAlpha: 0, yPercent: 20 });
-        ScrollTrigger.create({
-            start: () => window.innerHeight * 0.5,
-            onEnter: () =>
-                gsap.to(logo, {
-                    autoAlpha: 1,
-                    duration: 0.5,
-                    ease: 'power3.out',
-                    yPercent: 0,
-                }),
-            onLeaveBack: () =>
-                gsap.to(logo, {
-                    autoAlpha: 0,
-                    duration: 0.4,
-                    ease: 'power3.in',
-                    yPercent: 20,
-                }),
-        });
-    }
-
     if (window.matchMedia('(min-width: 768px)').matches) {
         const items = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-item]'));
 
@@ -1178,7 +1136,7 @@ function initialize() {
     if (document.documentElement.classList.contains('tradel-initialized')) return;
     document.documentElement.classList.add('tradel-initialized');
 
-    prepareBrandingAndAnchors();
+    prepareAnchors();
     setupResponsiveState();
     setupSplitText();
     setupSmoothScroll();

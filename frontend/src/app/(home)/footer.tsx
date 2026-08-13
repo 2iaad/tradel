@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 
+import { TradelLogo } from '@/components/ui/tradel-logo';
 import { FOOTER_LINK_COLUMNS, type FooterLink } from './home.data';
 
 function FooterColumn({ links }: { links: FooterLink[] }) {
@@ -27,9 +28,7 @@ export function Footer() {
     return (
         <footer className="section">
             <div className="main-c p-pad">
-                <div className="full-logo tradel-logo tradel-logo--full" aria-label="Tradel">
-                    tradel
-                </div>
+                <TradelLogo className="full-logo aspect-[4.22/1]" />
                 <div className="v-32" />
                 <div className="row footer">
                     {FOOTER_LINK_COLUMNS.map((links, index) => (

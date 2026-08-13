@@ -1,6 +1,10 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
 
+import { Safari } from '@/components/ui/safari';
+
+import dashboardMockup from '../../../public/images/landing/dashboard-mockup-0.png';
+
 export function Hero() {
     return (
         <>
@@ -33,13 +37,11 @@ export function Hero() {
                                 </Fragment>
                             ))}
                         </div>
-                        <img
-                            id="hero-img"
-                            alt="Tradel trading journal"
-                            className="home-hero__img"
-                            fetchPriority="high"
-                            loading="eager"
-                            src="/images/tradel.webp"
+                        <Safari
+                            className="home-hero__mockup"
+                            imageAlt="Tradel dashboard showing trading performance and recent trades"
+                            imageSrc={dashboardMockup}
+                            url="www.tradel.online"
                         />
                     </div>
                 </div>

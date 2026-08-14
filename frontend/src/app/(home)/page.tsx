@@ -1,3 +1,5 @@
+import { CinematicFooter } from '@/components/ui/motion-footer';
+
 import { FaqSection } from './faq-section';
 import { Hero } from './hero';
 import { HomeAnimation } from './home-animation';
@@ -52,17 +54,18 @@ export default function Home() {
         <>
             <div className="page-w" data-page-wrapper="">
                 <main id="top" className="main-w" data-page-ns="home" data-page="true">
+                    <HomeAnimation />
                     <HomeNav />
                     <Hero />
                     <IntroSection />
                     <PartnersSection />
                     <ProductStorySections />
+                    <LighthouseSection />
                     <FaqSection />
                     {/* <StatsStrip /> */}
-                    <LighthouseSection />
                 </main>
             </div>
-            <HomeAnimation />
+            <CinematicFooter />
         </>
     );
 }

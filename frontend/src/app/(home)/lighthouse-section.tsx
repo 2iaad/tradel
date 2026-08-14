@@ -1,9 +1,6 @@
-import { Fragment } from 'react';
-import { AiSignalsTitle } from './ai-signals-title';
-
 export function LighthouseSection() {
     return (
-        <section className="section is--lighthouse" data-lighthouse-top="section">
+        <section className="section is--lighthouse mb-0" data-lighthouse-top="section">
             <div className="v-40" />
             <div className="lh-intro__vid">
                 <video

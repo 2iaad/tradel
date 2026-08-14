@@ -157,6 +157,10 @@ body {
   position: absolute;
 }
 
+.section.is--intro .grid-row:last-child .grid-item {
+  border-bottom: 1px solid #8c8c8c29;
+}
+
 .js-ready .process-section {
   visibility: visible;
 }

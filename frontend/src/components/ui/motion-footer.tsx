@@ -55,7 +55,7 @@ const FOOTER_STYLES = `
     color-mix(in oklch, var(--foreground) 5%, transparent) 72%,
     transparent 100%
   );
-  bottom: -2vh;
+  bottom: -7vh;
   filter:
     drop-shadow(1px 0 color-mix(in oklch, var(--foreground) 7%, transparent))
     drop-shadow(-1px 0 color-mix(in oklch, var(--foreground) 7%, transparent))
@@ -137,7 +137,7 @@ export function CinematicFooter() {
         <>
             <style dangerouslySetInnerHTML={{ __html: FOOTER_STYLES }} />
             <div
-                className="relative h-[100svh] w-full overflow-hidden"
+                className="relative h-[90svh] w-full overflow-hidden"
                 id="site-footer"
                 ref={wrapperRef}
             >
@@ -152,7 +152,7 @@ export function CinematicFooter() {
                             maskImage: `url(${tradelLockup.src})`,
                             maskPosition: 'center',
                             maskRepeat: 'no-repeat',
-                            maskSize: '100% auto',
+                            maskSize: '90% auto',
                             WebkitMaskImage: `url(${tradelLockup.src})`,
                             WebkitMaskPosition: 'center',
                             WebkitMaskRepeat: 'no-repeat',

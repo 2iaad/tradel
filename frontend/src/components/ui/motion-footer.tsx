@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Heart } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import tradelLockup from '../../../public/brand/tradel-lockup-4k.png';
 
 if (typeof window !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
@@ -45,16 +46,22 @@ const FOOTER_STYLES = `
     inset 0 -1px 2px var(--pill-inset-shadow);
 }
 
-.cinematic-footer__giant-text {
-  background: linear-gradient(180deg, color-mix(in oklch, var(--foreground) 11%, transparent), transparent 65%);
-  background-clip: text;
-  color: transparent;
-  font-size: min(26vw, 24rem);
-  font-weight: 700;
-  letter-spacing: -0.08em;
-  line-height: 0.75;
-  -webkit-background-clip: text;
-  -webkit-text-stroke: 1px color-mix(in oklch, var(--foreground) 7%, transparent);
+.cinematic-footer__giant-logo {
+  aspect-ratio: 4.22 / 1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--foreground) 17%, transparent) 0%,
+    color-mix(in oklch, var(--foreground) 12%, transparent) 42%,
+    color-mix(in oklch, var(--foreground) 5%, transparent) 72%,
+    transparent 100%
+  );
+  bottom: -2vh;
+  filter:
+    drop-shadow(1px 0 color-mix(in oklch, var(--foreground) 7%, transparent))
+    drop-shadow(-1px 0 color-mix(in oklch, var(--foreground) 7%, transparent))
+    drop-shadow(0 1px color-mix(in oklch, var(--foreground) 7%, transparent))
+    drop-shadow(0 -1px color-mix(in oklch, var(--foreground) 7%, transparent));
+  width: min(100vw, 120rem);
 }
 
 .cinematic-footer__heading {
@@ -71,20 +78,20 @@ const FOOTER_LINK_CLASS =
 
 export function CinematicFooter() {
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const giantTextRef = useRef<HTMLDivElement>(null);
+    const giantLogoRef = useRef<HTMLDivElement>(null);
     const headingRef = useRef<HTMLHeadingElement>(null);
     const linksRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
         const wrapper = wrapperRef.current;
-        const giantText = giantTextRef.current;
+        const giantLogo = giantLogoRef.current;
         const heading = headingRef.current;
         const links = linksRef.current;
-        if (!wrapper || !giantText || !heading || !links) return;
+        if (!wrapper || !giantLogo || !heading || !links) return;
 
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduceMotion) {
-            gsap.set([giantText, heading, links], { clearProps: 'all' });
+            gsap.set([giantLogo, heading, links], { clearProps: 'all' });
             return;
         }
 
@@ -97,7 +104,7 @@ export function CinematicFooter() {
                 },
             })
                 .fromTo(
-                    giantText,
+                    giantLogo,
                     { opacity: 0, y: 70 },
                     {
                         duration: 1,
@@ -138,11 +145,20 @@ export function CinematicFooter() {
                     <div className="cinematic-footer__grid pointer-events-none absolute inset-0 z-0" />
 
                     <div
-                        className="cinematic-footer__giant-text pointer-events-none absolute -bottom-[2vh] left-1/2 z-0 -translate-x-1/2 select-none whitespace-nowrap"
-                        ref={giantTextRef}
-                    >
-                        TRADEL
-                    </div>
+                        aria-hidden="true"
+                        className="cinematic-footer__giant-logo pointer-events-none absolute left-1/2 z-0 -translate-x-1/2 select-none"
+                        ref={giantLogoRef}
+                        style={{
+                            maskImage: `url(${tradelLockup.src})`,
+                            maskPosition: 'center',
+                            maskRepeat: 'no-repeat',
+                            maskSize: '100% auto',
+                            WebkitMaskImage: `url(${tradelLockup.src})`,
+                            WebkitMaskPosition: 'center',
+                            WebkitMaskRepeat: 'no-repeat',
+                            WebkitMaskSize: '100% auto',
+                        }}
+                    />
 
                     <div className="absolute inset-y-0 left-1/2 z-10 flex w-full max-w-5xl -translate-x-1/2 flex-col items-center justify-center px-5 pb-20 pt-14 md:px-6 md:pb-24">
                         <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-primary md:text-sm">

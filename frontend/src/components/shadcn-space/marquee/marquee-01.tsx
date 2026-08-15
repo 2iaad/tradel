@@ -4,30 +4,37 @@ import { Card, CardContent } from '@/components/ui/card';
 const reviews = [
     {
         name: 'Ken Masters',
+        rating: 4,
         body: '“Our productivity has nearly doubled since onboarding. Automation features removed repetitive tasks, allowing our team to focus on building instead of managing operations.”',
     },
     {
         name: 'Kira Athrun',
+        rating: 4.5,
         body: '“What surprised us most was how quickly our team adapted. Minimal learning curve, excellent documentation, and powerful features make it a must-have for modern SaaS companies.”',
     },
     {
         name: 'Lirael Nassun',
+        rating: 5,
         body: '“This is easily one of the most reliable SaaS tools we’ve adopted. The UI is intuitive, integrations are seamless, and it saves us countless hours every week.”',
     },
     {
         name: 'Jessica',
+        rating: 3.5,
         body: 'Switching to this platform streamlined our entire workflow. Setup was effortless, performance improved instantly, and our team now ships features faster without worrying about infrastructure.',
     },
     {
         name: 'Jenny',
+        rating: 4,
         body: '“We evaluated multiple solutions, but this stood out immediately. It’s fast, scalable, and thoughtfully designed for growing teams that need stability without added complexity.”',
     },
     {
         name: 'Kira Athrun',
+        rating: 4.5,
         body: '“What surprised us most was how quickly our team adapted. Minimal learning curve, excellent documentation, and powerful features make it a must-have for modern SaaS companies.”',
     },
     {
         name: 'Ken Masters',
+        rating: 4,
         body: '“Our productivity has nearly doubled since onboarding. Automation features removed repetitive tasks, allowing our team to focus on building instead of managing operations.”',
     },
 ];
@@ -37,15 +44,30 @@ const secondRow = reviews.slice(reviews.length / 2);
 
 function ReviewCard({
     name,
+    rating,
     body,
 }: {
     name: string;
+    rating: number;
     body: string;
 }) {
     return (
         <Card className="h-38 w-72 rounded-xl border border-border/30 bg-card/50 p-6 shadow-none">
             <CardContent className="flex h-full flex-col p-0">
-                <p className="text-lg tracking-wide text-primary">★★★★★</p>
+                <div
+                    aria-label={`${rating} out of 5 stars`}
+                    className="relative w-fit text-lg tracking-wide"
+                    role="img"
+                >
+                    <span aria-hidden="true" className="text-muted-foreground/30">★★★★★</span>
+                    <span
+                        aria-hidden="true"
+                        className="absolute inset-0 overflow-hidden whitespace-nowrap text-primary"
+                        style={{ width: `${(rating / 5) * 100}%` }}
+                    >
+                        ★★★★★
+                    </span>
+                </div>
                 <p className="mt-3 line-clamp-2 text-sm leading-5 text-foreground">{body}</p>
                 <p className="mt-2 text-xs text-muted-foreground">— {name}</p>
             </CardContent>
@@ -55,7 +77,7 @@ function ReviewCard({
 
 export default function TestimonialMarqueeDemo() {
     return (
-        <div className="relative mx-auto flex w-9/10 flex-col items-center justify-center overflow-hidden">
+        <div className="relative mx-auto flex max-w-500 w-9/10 flex-col items-center justify-center overflow-hidden gap-1">
             <Marquee pauseOnHover className="[--duration:20s]">
                 {firstRow.map((review) => (
                     <ReviewCard key={review.name} {...review} />

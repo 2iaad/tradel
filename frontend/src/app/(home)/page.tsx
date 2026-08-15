@@ -14,16 +14,16 @@ export default function Home() {
     return (
         <>
             <div className="page-w" data-page-wrapper="">
-                <main id="top" className="main-w overflow-clip rounded-b-4xl border-b border-white/10" data-page-ns="home" data-page="true">
+                <main id="top" className="main-w overflow-clip" data-page-ns="home" data-page="true">
                     <HomeAnimation />
                     <HomeNav />
                     <Hero />
                     <IntroSection />
                     <PartnersSection />
                     <ProductStorySections />
-                    <LighthouseSection />
                     <TestimonialMarqueeDemo />
                     <FaqSection />
+                    <LighthouseSection />
                 </main>
             </div>
             <CinematicFooter />

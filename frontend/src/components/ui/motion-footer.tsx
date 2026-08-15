@@ -137,7 +137,7 @@ export function CinematicFooter() {
         <>
             <style dangerouslySetInnerHTML={{ __html: FOOTER_STYLES }} />
             <div
-                className="relative h-[90svh] w-full overflow-hidden"
+                className="relative h-[80svh] w-full overflow-hidden"
                 id="site-footer"
                 ref={wrapperRef}
             >
@@ -160,8 +160,8 @@ export function CinematicFooter() {
                         }}
                     />
 
-                    <div className="absolute inset-y-0 left-1/2 z-10 flex w-full max-w-5xl -translate-x-1/2 flex-col items-center justify-center px-5 pb-20 pt-14 md:px-6 md:pb-24">
-                        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-primary md:text-sm">
+                    <div className="absolute inset-y-0 left-1/2 z-10 flex w-full max-w-5xl -translate-x-1/2 -translate-y-16 flex-col items-center justify-center px-5 pb-20 pt-14 md:-translate-y-36 md:px-6 md:pb-24">
+                        <p className="mb-8 text-xs uppercase tracking-[0.18em] text-primary md:text-sm">
                             Your next review starts here
                         </p>
                         <h2

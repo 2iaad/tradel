@@ -12,14 +12,14 @@ export function Hero() {
             <section className="section">
                 <div className="main-c p-pad">
                     <div className="home-hero">
-                        <div className="relative z-4 mx-auto flex max-w-6xl items-start justify-between gap-24 pt-20">
-                            <h1 className="m-0 max-w-4xl flex-1 font-heading text-5xl leading-none font-semibold tracking-tight text-card-foreground normal-case">
+                        <div className="mx-auto flex flex-col max-w-6xl items-center gap-4 pt-20">
+                            <h1 className="max-w-2xl flex flex-col items-center text-5xl font-bold tracking-normal text-card-foreground normal-case">
                                 <span className="block">Journal every trade.</span>
                                 <span className="block">Build your trading edge.</span>
                             </h1>
 
                             <div className="max-w-md flex-1 pt-1">
-                                <p className="font-sans text-ui-lg leading-relaxed text-content-faint normal-case">
+                                <p className="text-ui-lg text-center leading-relaxed text-white/50 normal-case">
                                     Log your trades, review clear analytics, and understand what is
                                     improving your performance, all in one place.
                                 </p>

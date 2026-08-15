@@ -1,5 +1,6 @@
 volumes
 **/.todo
+.claude
 
 # compiled output
 dist

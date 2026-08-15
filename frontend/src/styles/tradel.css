@@ -122,13 +122,6 @@ body {
   border-color: color-mix(in srgb, var(--brand) 45%, transparent);
 }
 
-.grid-item::after {
-  background: linear-gradient(
-    color-mix(in srgb, var(--palette-gray-500) 16%, transparent),
-    color-mix(in srgb, var(--brand) 4%, transparent)
-  );
-}
-
 .glow-w__borders,
 .glow-w__glow,
 .glow-w__mask {
@@ -146,19 +139,6 @@ body {
 .lh-phone__wrap .phone,
 .lh-phone__wrap .lh-notch {
   filter: hue-rotate(-105deg);
-}
-
-/* Single frosted layer under the intro grid cells — one backdrop-filter
-   instead of one per cell; cell borders stay crisp on top. */
-.bg-cover__blur {
-  -webkit-backdrop-filter: blur(1rem);
-  backdrop-filter: blur(1rem);
-  inset: 0;
-  position: absolute;
-}
-
-.section.is--intro .grid-row:last-child .grid-item {
-  border-bottom: 1px solid #8c8c8c29;
 }
 
 .js-ready .process-section {

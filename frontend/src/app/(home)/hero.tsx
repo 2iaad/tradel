@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import { Safari } from '@/components/ui/safari';
 
 import dashboardMockup from '../../../public/images/landing/dashboard-mockup-0.png';
@@ -11,18 +12,34 @@ export function Hero() {
             <section className="section">
                 <div className="main-c p-pad">
                     <div className="home-hero">
-                        <div className="home-hero__top">
-                            {/* <div
-                                id="hero-logo"
-                                className="full-logo is--home__hero tradel-logo tradel-logo--hero"
-                                aria-label="Tradel"
-                            >
-                                tradel
-                            </div> */}
-                            {/* <div id="hero-top" className="flex-h a--top j--between">
-                                <h1 className="p-reg h-1 fw--reg">JOURNAL EVERY TRADE YOU TAKE</h1>
-                                <p className="p-reg fw--reg">LOG TRADES / SEE THE ANALYTICS</p>
-                            </div> */}
+                        <div className="mx-auto flex flex-col max-w-6xl items-center gap-4 pt-20">
+                            <h1 className="max-w-2xl flex flex-col items-center text-5xl font-bold tracking-normal text-card-foreground normal-case">
+                                <span className="block">Journal every trade.</span>
+                                <span className="block">Build your trading edge.</span>
+                            </h1>
+
+                            <div className="max-w-md flex-1 pt-1">
+                                <p className="text-ui-lg text-center leading-relaxed text-white/50 normal-case">
+                                    Log your trades, review clear analytics, and understand what is
+                                    improving your performance, all in one place.
+                                </p>
+
+                                <div className="mt-8 flex justify-center flex-wrap gap-3">
+                                    <Button
+                                        nativeButton={false}
+                                        render={<Link href="/register" />}
+                                    >
+                                        Start your journal
+                                    </Button>
+                                    <Button
+                                        nativeButton={false}
+                                        render={<Link href="/demo" />}
+                                        variant="outline"
+                                    >
+                                        View live demo
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                         <div className="bg">
                             {['var-4', 'var-2', 'var-5', 'var-6'].map((variant) => (
@@ -46,34 +63,6 @@ export function Hero() {
                     </div>
                 </div>
             </section>
-            <div className="hero-bottom__wrap">
-                {/* Keep both entry points centered above the theme's clipped edge. */}
-                <div className="home-hero__bottom justify-center gap-3 bottom-16 max-[479px]:flex-col max-[479px]:gap-2">
-                    <Link
-                        className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block !inline-flex !border !border-white/25 !bg-black/35 !text-white"
-                        data-nav-item=""
-                        href="/demo"
-                    >
-                        <div className="new-button_label w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80">
-                            {' VIEW LIVE DEMO '}
-                        </div>
-                    </Link>
-                    <a
-                        className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block"
-                        data-nav-item=""
-                        data-wf--button--variant="green"
-                        href="/register"
-                        scramble-link=""
-                    >
-                        <div
-                            className="new-button_label w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80"
-                            scramble-text=""
-                        >
-                            {' START YOUR JOURNAL '}
-                        </div>
-                    </a>
-                </div>
-            </div>
         </>
     );
 }

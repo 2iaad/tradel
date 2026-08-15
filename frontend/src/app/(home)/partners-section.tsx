@@ -2,7 +2,7 @@ export function PartnersSection() {
     return (
         <section className="section">
             <div className="main-c p-pad" data-download-w="">
-                <div className="v-240" />
+                <div className="v-200" />
                 <div className="qqqqq">
                     <div className="partner-title">
                         <div className="corner is--tl" /> <div className="corner is--tr" />

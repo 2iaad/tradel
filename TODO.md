@@ -56,3 +56,10 @@ Backend-driven stats/breakdowns. Equity curve already ships client-side — no
 - [ ] `CLAUDE.md` — add Trades + Notes module sections (accounts section already current)
 - [ ] swap hardcoded `http://localhost:3000/api` in `lib/api.ts` for `NEXT_PUBLIC_API_URL`
 - [ ] add new env vars to `.env.example` + `env.validation.ts` (throttler, mailer, `NEXT_PUBLIC_API_URL`)
+
+
+for ui:
+
+manage empty state for componenets:
+
+use : https://shadcnspace.com/blocks/dashboard-ui/empty-state when there is not trades yet.

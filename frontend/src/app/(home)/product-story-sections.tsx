@@ -257,10 +257,10 @@ function StorySection({ id, title, visual, statement }: {
     statement: React.ReactNode;
 }) {
     return (
-        <LandingSection id={id} className="min-h-0 py-16 sm:py-20 lg:py-24">
+        <LandingSection id={id} className="min-h-0 py-0">
             <LandingSectionHeading title={title} />
-            <div className="mt-7 sm:mt-8 lg:mt-10">{visual}</div>
-            <div className="mt-3 sm:mt-4">{statement}</div>
+            <div className="mt-0">{visual}</div>
+            <div className="mt-4">{statement}</div>
         </LandingSection>
     );
 }

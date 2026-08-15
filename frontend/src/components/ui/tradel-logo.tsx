@@ -1,7 +1,7 @@
 import Image from "next/image"
 
 import { cn } from "@/lib/utils"
-import tradelFullIcon from "../../../public/brand/tradel-lockup.png"
+import tradelFullIcon from "../../../public/brand/tradel-lockup-4k.png"
 import tradelIcon from "../../../public/brand/tradel-mark.png"
 
 type TradelLogoProps = {
@@ -35,7 +35,7 @@ export function TradelLogo({
       <Image
         src={tradelFullIcon}
         alt=""
-        className="absolute left-1/2 top-1/2 h-[260%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2"
+        className="absolute left-1/2 top-1/2 h-auto w-full max-w-none -translate-x-1/2 -translate-y-1/2"
         priority={priority}
       />
     </span>

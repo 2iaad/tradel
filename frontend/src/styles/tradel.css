@@ -66,10 +66,10 @@ body {
 
 /* Hero media stays centered and leaves a protected area for the CTA row. */
 .home-hero .home-hero__mockup {
-  bottom: 4rem;
+  bottom: -3rem;
   filter: drop-shadow(0 2rem 4rem rgb(0 0 0 / 45%));
   left: 50%;
-  max-width: 60rem;
+  max-width: 70rem;
   position: absolute;
   transform: translateX(-50%);
   width: min(88vw, calc((100svh - 14rem) * 1.5976), 75rem);

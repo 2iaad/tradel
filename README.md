@@ -14,7 +14,7 @@
   Born in Morocco 🇲🇦 · For traders everywhere
 </p>
 <p align="center">
-  <img src="frontend/public/images/under-construction-sign.png" alt="Tradel is under active construction" width="100" />
+  <img src="frontend/public/images/docs/under-construction-sign.png" alt="Tradel is under active construction" width="100" />
 </p>
 <p align="center">
   <strong>Tradel is under active development.</strong><br />
@@ -28,7 +28,7 @@ A winning trade is not always a good trade. A losing trade is not always a bad t
 Tradel keeps your trades, notes, accounts, and performance data in one place. It turns a list of entries and exits into a clear review process, so you can see what works, what does not, and what needs to change.
 
 <p align="center">
-  <img src="frontend/public/images/github-showcast0.png" alt="Tradel dashboard with performance statistics, an equity curve, and recent trades" width="100%" />
+  <img src="frontend/public/images/docs/project-showcast.png" alt="Tradel dashboard with performance statistics, an equity curve, and recent trades" width="90%" />
 </p>
 
 ## How it works

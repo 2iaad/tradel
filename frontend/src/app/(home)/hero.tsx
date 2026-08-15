@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import { Safari } from '@/components/ui/safari';
 
 import dashboardMockup from '../../../public/images/landing/dashboard-mockup-0.png';
@@ -49,15 +50,17 @@ export function Hero() {
             <div className="hero-bottom__wrap">
                 {/* Keep both entry points centered above the theme's clipped edge. */}
                 <div className="home-hero__bottom justify-center gap-3 bottom-16 max-[479px]:flex-col max-[479px]:gap-2">
-                    <Link
-                        className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block !inline-flex !border !border-white/25 !bg-black/35 !text-white"
+                    <Button
+                        className="bg-white/5 text-white backdrop-blur-md hover:bg-white/5 hover:text-white dark: dark:bg-white/5 dark:hover:bg-white/5"
                         data-nav-item=""
-                        href="/demo"
+                        nativeButton={false}
+                        render={<Link href="/demo" />}
+                        variant="outline"
                     >
                         <div className="new-button_label w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80">
                             {' VIEW LIVE DEMO '}
                         </div>
-                    </Link>
+                    </Button>
                     <a
                         className="new-button w-variant-0a89d460-1aa3-4899-fcc8-04678a30ad80 w-inline-block"
                         data-nav-item=""

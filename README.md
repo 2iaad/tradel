@@ -64,6 +64,27 @@ Tradel is open source because traders should be able to understand and control t
 
 The current version is free to use and includes the main journal and review experience. The [product roadmap](PRODUCT_ROADMAP.md) shows what is planned next, including broker imports, deeper risk tracking, playbooks, review routines, and more flexible reports.
 
+## Generate the current database diagram
+
+After applying the migrations, generate DBML from the live PostgreSQL schema:
+
+```bash
+cd backend
+npm run migrate:up
+npm run schema:generate
+```
+
+The generator loads `backend/.env`, connects with `DB_URL` (or `DATABASE_URL`), and rewrites `backend/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the ERD. Because the live PostgreSQL catalog is introspected, migration changes such as dropped or renamed tables and columns are already resolved.
+
+You can select another environment or output file without editing the script:
+
+```bash
+DB_URL='postgresql://user:password@host:5432/database' npm run schema:generate
+npm run schema:generate -- ../docs/database.dbml
+```
+
+The `public` schema is included by default. Set `DBML_SCHEMAS` to a comma-separated list when the database uses additional schemas.
+
 Want to help? Read the [contribution guide](CONTRIBUTING.md) and join the project as a trader, designer, writer, or developer.
 
 > Tradel is a journaling and analysis tool. It does not provide financial advice or promise profitable results.

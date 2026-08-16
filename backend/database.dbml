@@ -1,0 +1,81 @@
+Table "pgmigrations" {
+  "id" int4 [not null, increment]
+  "name" varchar(255) [not null]
+  "run_on" timestamp [not null]
+}
+
+Table "users" {
+  "id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "username" varchar(15) [unique, not null]
+  "email" varchar(254) [unique, not null]
+  "password_hash" text [not null]
+  "created_at" timestamptz [not null, default: `now()`]
+}
+
+Table "refresh_tokens" {
+  "id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "user_id" uuid [not null]
+  "token_hash" text [not null]
+  "expires_at" timestamptz [not null]
+  "revoked_at" timestamptz
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    user_id [type: btree, name: "idx_refresh_tokens_user_id"]
+  }
+}
+
+Table "accounts" {
+  "id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "user_id" uuid [not null]
+  "name" varchar(50) [not null]
+  "broker" varchar(60)
+  "currency" varchar(3) [not null, default: 'USD']
+  "created_at" timestamptz [not null, default: `now()`]
+  "starting_balance" numeric(14,2) [not null, default: 0]
+
+  Indexes {
+    (user_id, name) [type: btree, unique, name: "idx_accounts_user_id_name"]
+  }
+}
+
+Table "trades" {
+  "id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "account_id" uuid [not null]
+  "symbol" varchar(20) [not null]
+  "side" varchar(5) [not null]
+  "entry" numeric [not null]
+  "exit" numeric
+  "lots" numeric [not null]
+  "risk_reward" numeric
+  "pnl" numeric
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (id, account_id) [type: btree, unique, name: "trades_id_account_id_key"]
+    account_id [type: btree, name: "idx_trades_account_id"]
+  }
+}
+
+Table "notes" {
+  "id" uuid [pk, not null, default: `gen_random_uuid()`]
+  "account_id" uuid [not null]
+  "trade_id" uuid [not null]
+  "title" varchar(50) [not null]
+  "body" text [not null]
+  "tags" "text[]" [default: 'ARRAY[text[]']
+  "created_at" timestamptz [not null, default: `now()`]
+
+  Indexes {
+    account_id [type: btree, name: "idx_notes_account_id"]
+    trade_id [type: btree, name: "idx_notes_trade_id"]
+  }
+}
+
+Ref "accounts_user_id_fkey":"users"."id" <? "accounts"."user_id" [delete: cascade]
+
+Ref "notes_trade_id_account_id_fkey":"trades".("account_id", "id") <? "notes".("account_id", "trade_id") [delete: cascade]
+
+Ref "refresh_tokens_user_id_fkey":"users"."id" <? "refresh_tokens"."user_id" [delete: cascade]
+
+Ref "trades_account_id_fkey":"accounts"."id" <? "trades"."account_id" [delete: cascade]

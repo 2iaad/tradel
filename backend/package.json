@@ -24,7 +24,8 @@
         "migrate": "node-pg-migrate -d DB_URL",
         "migrate:create": "node-pg-migrate create --migration-file-language sql",
         "migrate:up": "node-pg-migrate up -d DB_URL",
-        "migrate:down": "node-pg-migrate down -d DB_URL"
+        "migrate:down": "node-pg-migrate down -d DB_URL",
+        "schema:generate": "node scripts/generate-dbml.mjs"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.1",
@@ -48,6 +49,7 @@
         "zod": "^4.4.3"
     },
     "devDependencies": {
+        "@dbml/cli": "^10.1.0",
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.18.0",
         "@nestjs/cli": "^11.0.0",

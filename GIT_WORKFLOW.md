@@ -55,7 +55,6 @@ Branch name follows `type/short-description` — matches your commit `[type]`
 convention:
 
 ```bash
-git checkout master
 
 
 Do the work, then commit. Reference the issue in the body so it's traceable:

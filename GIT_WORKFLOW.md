@@ -182,4 +182,3 @@ git checkout master && git pull
   the history and know *why* a change exists.
 - **`master` is never touched directly** — every change is reviewed via a PR.
 - **Issues auto-close** — no stale open issues, no manual bookkeeping.
-- **Clean history** — squash means one readable commit per unit of work.

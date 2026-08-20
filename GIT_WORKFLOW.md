@@ -49,13 +49,6 @@ The command prints the new issue URL and number, e.g. `#31`. Note that number.
 
 ---
 
-## 2. Branch, work, commit
-
-Branch name follows `type/short-description` — matches your commit `[type]`
-convention:
-
-
-
 Do the work, then commit. Reference the issue in the body so it's traceable:
 
 ```bash

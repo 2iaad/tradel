@@ -181,4 +181,3 @@ git checkout master && git pull
 - **Traceability:** issue → branch → PR → commit are all linked. Anyone can walk
   the history and know *why* a change exists.
 - **`master` is never touched directly** — every change is reviewed via a PR.
-- **Issues auto-close** — no stale open issues, no manual bookkeeping.

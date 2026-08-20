@@ -58,7 +58,7 @@ convention:
 git checkout master
 git pull                          # start from the latest master
 git checkout -b feat/password-reset
-```
+
 
 Do the work, then commit. Reference the issue in the body so it's traceable:
 

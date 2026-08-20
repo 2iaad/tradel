@@ -117,40 +117,6 @@ description. A tech lead prefers the described PR.
 
 ---
 
-## 4. Review, then merge
-
-Never merge your own PR blindly on a team — request review first:
-
-```bash
-gh pr view --web           # open in browser to eyeball the diff
-gh pr checks               # confirm CI passed before merging
-```
-
-Merge with **squash** (cleanest history — the whole PR becomes one commit on
-`master`) and delete the branch:
-
-```bash
-gh pr merge --squash --delete-branch
-```
-
-- `--squash` — collapses all branch commits into one on `master`. Most teams
-  default to this: linear, readable history, one commit per PR/issue.
-- `--delete-branch` — removes the merged branch locally + remotely (housekeeping).
-- Alternatives: `--merge` (keeps every commit + a merge commit), `--rebase`
-  (replays commits, no merge commit). Pick the one your team standardizes on;
-  **squash is the safe default**.
-
-On merge, issue `#31` closes automatically (from `Closes #31`).
-
-Sync your local master afterward:
-
-```bash
-git checkout master
-git pull
-```
-
----
-
 ## The whole loop, condensed
 
 ```bash
@@ -174,10 +140,3 @@ gh pr checks
 gh pr merge --squash --delete-branch
 git checkout master && git pull
 ```
-
----
-
-
-- **Traceability:** issue → branch → PR → commit are all linked. Anyone can walk
-  the history and know *why* a change exists.
-- **`master` is never touched directly** — every change is reviewed via a PR.

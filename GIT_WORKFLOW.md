@@ -56,7 +56,6 @@ convention:
 
 ```bash
 git checkout master
-git pull                          # start from the latest master
 
 
 Do the work, then commit. Reference the issue in the body so it's traceable:

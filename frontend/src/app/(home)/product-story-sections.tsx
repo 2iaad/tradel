@@ -8,6 +8,8 @@ import {
     TrendingUp,
 } from 'lucide-react';
 
+import { BlurReveal } from '@/components/ui/blur-reveal';
+
 import {
     landingSectionBodyClass,
     LandingSection,
@@ -258,9 +260,15 @@ function StorySection({ id, title, visual, statement }: {
 }) {
     return (
         <LandingSection id={id} className="min-h-0 py-0">
-            <LandingSectionHeading title={title} />
-            <div className="mt-0">{visual}</div>
-            <div className="mt-4">{statement}</div>
+            <BlurReveal className="block" delay={0}>
+                <LandingSectionHeading title={title} />
+            </BlurReveal>
+            <BlurReveal className="block" delay={0.18}>
+                <div className="mt-0">{visual}</div>
+            </BlurReveal>
+            <BlurReveal className="block" delay={0.36}>
+                <div className="mt-4">{statement}</div>
+            </BlurReveal>
         </LandingSection>
     );
 }

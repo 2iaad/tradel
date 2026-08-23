@@ -1,4 +1,5 @@
 import { FaqPro, type FaqProItem } from '@/components/ui/faq-pro';
+import { BlurReveal } from '@/components/ui/blur-reveal';
 
 import { LandingSection, LandingSectionHeading } from './landing-section';
 
@@ -57,20 +58,24 @@ const FAQ_ITEMS: FaqProItem[] = [
 export function FaqSection() {
     return (
         <LandingSection id="faq">
-            <LandingSectionHeading
-                eyebrow="New to Tradel?"
-                title="Questions before your first trade log"
-                description="Understand what the platform does, why journaling matters, and how to get started."
-            />
-            <FaqPro
-                items={FAQ_ITEMS}
-                defaultOpenFirst
-                searchPlaceholder="Search Tradel questions..."
-                noResultsMessage="No matching Tradel questions."
-                themed={false}
-                size="default"
-                className="mt-10 max-w-[860px] sm:mt-12"
-            />
+            <BlurReveal className="block" delay={0}>
+                <LandingSectionHeading
+                    eyebrow="New to Tradel?"
+                    title="Questions before your first trade log"
+                    description="Understand what the platform does, why journaling matters, and how to get started."
+                />
+            </BlurReveal>
+            <BlurReveal className="block" delay={0.2}>
+                <FaqPro
+                    items={FAQ_ITEMS}
+                    defaultOpenFirst
+                    searchPlaceholder="Search Tradel questions..."
+                    noResultsMessage="No matching Tradel questions."
+                    themed={false}
+                    size="default"
+                    className="mt-10 max-w-[860px] sm:mt-12"
+                />
+            </BlurReveal>
         </LandingSection>
     );
 }

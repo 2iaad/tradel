@@ -1,3 +1,6 @@
+tradel-before-orm.dump
+PRISMA_MIGRATION_GUIDE.md
+
 volumes
 **/.todo
 .claude

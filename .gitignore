@@ -1,5 +1,6 @@
 tradel-before-orm.dump
 PRISMA_MIGRATION_GUIDE.md
+/backend/src/generated/prisma/
 
 volumes
 **/.todo

@@ -7,6 +7,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { TradesModule } from './trades/trades.module';
 import { NotesModule } from './notes/notes.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
     imports: [
@@ -21,6 +22,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
         TradesModule,
         NotesModule,
         AnalyticsModule,
+        PrismaModule,
     ], // other modules this module depends on
 })
 export class AppModule {}

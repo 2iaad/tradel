@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import type { users as User } from 'src/generated/prisma/client';
+import { Prisma, type users as User } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -15,11 +15,15 @@ export class UsersRepository {
             return await this.prisma.users.create({
                 data: { username, email, password_hash },
             });
-        } catch (e: any) {
-            if (e.code === '23505')
-                // because we are using UNIQUE in the sql table
+        } catch (error: unknown) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
                 throw new ConflictException('Username or email already in use');
-            throw e;
+            }
+
+            throw error;
         }
-    } // returns user
+    }
 }

@@ -1,14 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
+import type { users as User } from 'src/generated/prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-
-interface User {
-    id: string;
-    username: string;
-    email: string;
-    password_hash: string;
-    create_at: Date;
-}
 
 @Injectable()
 export class UsersRepository {
@@ -18,8 +11,7 @@ export class UsersRepository {
     ) {}
 
     async findByEmail(email: string): Promise<User | null> {
-        const { rows } = await this.db.query<User>(`SELECT * FROM users WHERE email = $1`, [email]);
-        return rows[0] ?? null; // or obj.rows[0];
+        return this.prisma.users.findUnique({ where: { email } });
     }
 
     async create(username: string, email: string, password_hash: string): Promise<User> {

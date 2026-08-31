@@ -1,5 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 interface User {
     id: string;
@@ -11,7 +12,10 @@ interface User {
 
 @Injectable()
 export class UsersRepository {
-    constructor(private readonly db: DatabaseService) {}
+    constructor(
+        private readonly db: DatabaseService,
+        private readonly prisma: PrismaService,
+    ) {}
 
     async findByEmail(email: string): Promise<User | null> {
         const { rows } = await this.db.query<User>(`SELECT * FROM users WHERE email = $1`, [email]);

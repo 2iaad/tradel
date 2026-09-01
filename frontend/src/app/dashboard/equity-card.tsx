@@ -186,7 +186,7 @@ function MetricDivider() {
 
 function ChartEmptyState() {
     return (
-        <div className="flex h-[280px] flex-col items-center justify-center gap-3 text-center">
+        <div className="flex h-[220px] flex-col items-center justify-center gap-3 px-4 text-center sm:h-[280px]">
             <div className="flex size-10 items-center justify-center rounded-lg border border-border-subtle bg-muted text-content-faint">
                 <ChartNoAxesCombined aria-hidden="true" className="size-5" />
             </div>
@@ -225,7 +225,7 @@ export function EquityCard() {
 
     return (
         <Card className={`${cardCls} gap-0 py-0`}>
-            <CardHeader className="gap-0 px-[22px] pb-3 pt-5">
+            <CardHeader className="gap-0 px-4 pb-3 pt-4 sm:px-[22px] sm:pt-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                         <CardTitle className={cardTitleCls}>
@@ -254,7 +254,7 @@ export function EquityCard() {
                 </div>
 
                 {hasTrades && (
-                    <div className="mt-4 flex items-center gap-4 sm:gap-5">
+                    <div className="mt-4 flex items-center justify-between gap-2 sm:justify-start sm:gap-5">
                         {mode === 'equity' ? (
                             <>
                                 <Metric
@@ -304,7 +304,7 @@ export function EquityCard() {
                 {!hasTrades ? (
                     <ChartEmptyState />
                 ) : (
-                    <div className="h-[280px] w-full" aria-label={mode === 'equity' ? 'Equity curve chart' : 'Daily profit and loss chart'}>
+                    <div className="h-[220px] w-full sm:h-[280px]" aria-label={mode === 'equity' ? 'Equity curve chart' : 'Daily profit and loss chart'}>
                         <ResponsiveContainer width="100%" height="100%">
                             {mode === 'equity' ? (
                                 <AreaChart
@@ -477,7 +477,7 @@ export function EquityCard() {
             </CardContent>
 
             {hasTrades && (
-                <CardFooter className={cardFooterCls}>
+                <CardFooter className={`${cardFooterCls} px-4 sm:px-[22px]`}>
                     <div className="flex w-full items-end justify-between gap-4">
                         {mode === 'equity' ? (
                             <>

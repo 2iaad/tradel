@@ -16,10 +16,7 @@ export class UsersRepository {
                 data: { username, email, password_hash },
             });
         } catch (error: unknown) {
-            if (
-                error instanceof Prisma.PrismaClientKnownRequestError &&
-                error.code === 'P2002'
-            ) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
                 throw new ConflictException('Username or email already in use');
             }
 

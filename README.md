@@ -64,17 +64,41 @@ Tradel is open source because traders should be able to understand and control t
 
 The current version is free to use and includes the main journal and review experience. The [product roadmap](PRODUCT_ROADMAP.md) shows what is planned next, including broker imports, deeper risk tracking, playbooks, review routines, and more flexible reports.
 
-## Generate the current database diagram
+## Technology
 
-After applying the migrations, generate DBML from the live PostgreSQL schema:
+- **Frontend:** Next.js, React, TypeScript, and Tailwind CSS
+- **Backend:** NestJS and TypeScript
+- **Database:** PostgreSQL with Prisma ORM
+- **API documentation:** Swagger
+
+## Database and Prisma
+
+The backend uses Prisma Client for the main application repositories: users, refresh tokens, accounts, trades, and notes. These repositories use Prisma queries instead of handwritten CRUD SQL. The Prisma schema is stored in `backend/prisma/schema.prisma`.
+
+After installing backend dependencies, generate Prisma Client:
 
 ```bash
 cd backend
-npm run migrate:up
+npm run prisma:generate
+```
+
+You can inspect the database with Prisma Studio:
+
+```bash
+npm run prisma:studio
+```
+
+The analytics repository still uses PostgreSQL report queries for grouped statistics and calendar data. Moving those reports to Prisma's safe raw-query API is a separate migration step.
+
+### Generate the current database diagram
+
+With PostgreSQL running and `DB_URL` set in `backend/.env`, generate DBML from the live database:
+
+```bash
 npm run schema:generate
 ```
 
-The generator loads `backend/.env`, connects with `DB_URL` (or `DATABASE_URL`), and rewrites `backend/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the ERD. Because the live PostgreSQL catalog is introspected, migration changes such as dropped or renamed tables and columns are already resolved.
+The generator rewrites `backend/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the database diagram. It reads the live PostgreSQL schema, so the diagram matches the database currently selected by `DB_URL`.
 
 You can select another environment or output file without editing the script:
 

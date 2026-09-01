@@ -1,18 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
+import { Prisma, type trades as Trade } from 'src/generated/prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-export interface Trade {
-    id: string;
-    account_id: string;
-    symbol: string;
-    side: string;
-    entry: string;
-    exit: string | null;
-    lots: string;
-    risk_reward: string | null;
-    pnl: string | null;
-    created_at: Date;
-}
+export type { Trade };
 
 export interface CreateTradeFields {
     symbol: string;
@@ -36,87 +26,54 @@ export interface UpdateTradeFields {
 
 @Injectable()
 export class TradesRepository {
-    constructor(private readonly db: DatabaseService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async create(account_id: string, fields: CreateTradeFields): Promise<Trade> {
-        const { rows } = await this.db.query<Trade>(
-            `INSERT INTO trades (account_id, symbol, side, entry, exit, lots, risk_reward, pnl)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING *`,
-            [
+        return this.prisma.trades.create({
+            data: {
                 account_id,
-                fields.symbol,
-                fields.side,
-                fields.entry,
-                fields.exit ?? null,
-                fields.lots,
-                fields.risk_reward ?? null,
-                fields.pnl ?? null,
-            ],
-        );
-        return rows[0];
+                symbol: fields.symbol,
+                side: fields.side,
+                entry: fields.entry,
+                exit: fields.exit ?? null,
+                lots: fields.lots,
+                risk_reward: fields.risk_reward ?? null,
+                pnl: fields.pnl ?? null,
+            },
+        });
     }
 
     async findOne(id: string, account_id: string): Promise<Trade | null> {
-        const { rows } = await this.db.query<Trade>(
-            `SELECT * FROM trades WHERE id = $1 AND account_id = $2`,
-            [id, account_id],
-        );
-        return rows[0] ?? null;
+        return this.prisma.trades.findFirst({ where: { id, account_id } });
     }
 
     async findAllByAccount(account_id: string): Promise<Trade[]> {
-        const { rows } = await this.db.query<Trade>(
-            `SELECT * FROM trades WHERE account_id = $1 ORDER BY created_at DESC`,
-            [account_id],
-        );
-        return rows;
+        return this.prisma.trades.findMany({
+            where: { account_id },
+            orderBy: { created_at: 'desc' },
+        });
     }
 
     async update(id: string, account_id: string, fields: UpdateTradeFields): Promise<Trade | null> {
-        // Build the SET clause only from the fields that were actually passed,
-        // so PATCH with a partial body doesn't overwrite columns with undefined.
-        const columns: string[] = [];
-        const values: unknown[] = [];
-        let i = 1;
-
-        for (const key of [
-            'symbol',
-            'side',
-            'entry',
-            'exit',
-            'lots',
-            'risk_reward',
-            'pnl',
-        ] as const) {
-            if (fields[key] !== undefined) {
-                columns.push(`${key} = $${i}`);
-                values.push(fields[key]);
-                i++;
-            }
-        }
-
-        // Nothing to update: just return the current row (still owner-scoped).
-        if (columns.length === 0) {
+        if (Object.values(fields).every((value) => value === undefined)) {
             return this.findOne(id, account_id);
         }
 
-        values.push(id, account_id);
-
-        const { rows } = await this.db.query<Trade>(
-            `UPDATE trades SET ${columns.join(', ')}
-            WHERE id = $${i} AND account_id = $${i + 1}
-            RETURNING *`,
-            values,
-        );
-        return rows[0] ?? null;
+        try {
+            return await this.prisma.trades.update({
+                where: { id, account_id },
+                data: fields,
+            });
+        } catch (error: unknown) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                return null;
+            }
+            throw error;
+        }
     }
 
     async remove(id: string, account_id: string): Promise<boolean> {
-        const { rowCount } = await this.db.query(
-            `DELETE FROM trades WHERE id = $1 AND account_id = $2`,
-            [id, account_id],
-        );
-        return rowCount !== null && rowCount > 0;
+        const { count } = await this.prisma.trades.deleteMany({ where: { id, account_id } });
+        return count > 0;
     }
 }

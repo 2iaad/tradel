@@ -1,51 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
+import type { refresh_tokens as RefreshToken } from 'src/generated/prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-export interface RefreshToken {
-    id: string;
-    user_id: string;
-    token_hash: string;
-    expires_at: Date;
-    revoked_at: Date | null;
-    created_at: Date;
-}
+export type { RefreshToken };
 
 @Injectable()
 export class RefreshTokenRepository {
-    constructor(private readonly db: DatabaseService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async create(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
-        await this.db.query(
-            `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
-             VALUES ($1, $2, $3)`,
-            [userId, tokenHash, expiresAt],
-        );
+        await this.prisma.refresh_tokens.create({
+            data: {
+                user_id: userId,
+                token_hash: tokenHash,
+                expires_at: expiresAt,
+            },
+        });
     }
 
-    /** Look up by the token's sha256 hash, joining the user's email for the new access token. */
+    /** Look up by the token's sha256 hash and flatten the owning user's email. */
     async findByHash(tokenHash: string): Promise<(RefreshToken & { email: string }) | null> {
-        const { rows } = await this.db.query<RefreshToken & { email: string }>(
-            `SELECT rt.*, u.email
-             FROM refresh_tokens rt
-             JOIN users u ON u.id = rt.user_id
-             WHERE rt.token_hash = $1`,
-            [tokenHash],
-        );
-        return rows[0] ?? null;
+        const token = await this.prisma.refresh_tokens.findFirst({
+            where: { token_hash: tokenHash },
+            include: {
+                users: {
+                    select: { email: true },
+                },
+            },
+        });
+
+        if (!token) return null;
+
+        const { users, ...refreshToken } = token;
+        return { ...refreshToken, email: users.email };
     }
 
     async revokeByHash(tokenHash: string): Promise<void> {
-        await this.db.query(
-            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1 AND revoked_at IS NULL`,
-            [tokenHash],
-        );
+        await this.prisma.refresh_tokens.updateMany({
+            where: {
+                token_hash: tokenHash,
+                revoked_at: null,
+            },
+            data: { revoked_at: new Date() },
+        });
     }
 
     async revokeAllForUser(userId: string): Promise<void> {
-        // log the user out from all devices
-        await this.db.query(
-            `UPDATE refresh_tokens SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL`,
-            [userId],
-        );
+        await this.prisma.refresh_tokens.updateMany({
+            where: {
+                user_id: userId,
+                revoked_at: null,
+            },
+            data: { revoked_at: new Date() },
+        });
     }
 }

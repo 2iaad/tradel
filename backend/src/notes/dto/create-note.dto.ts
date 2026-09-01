@@ -1,5 +1,4 @@
 import {
-    IsUUID,
     IsArray,
     IsNotEmpty,
     IsOptional,
@@ -24,7 +23,4 @@ export class CreateNoteDto {
     @IsString({ each: true })
     @MaxLength(20, { each: true })
     tags?: string[];
-
-    @IsUUID()
-    tradeId!: string;
 }

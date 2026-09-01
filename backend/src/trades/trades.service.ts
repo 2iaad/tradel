@@ -47,10 +47,25 @@ export class TradesService {
 
     async update(id: string, accountId: string, userId: string, dto: UpdateTradeDto) {
         await this.verifyAccountOwnership(accountId, userId);
-        const pnl =
-            dto.exit !== undefined
-                ? this.computePnl(dto.side, dto.entry, dto.exit, dto.lots)
-                : undefined;
+        const current = await this.trades.findOne(id, accountId);
+        if (!current) {
+            throw new NotFoundException('Trade not found');
+        }
+
+        const changesPnlInput =
+            dto.side !== undefined ||
+            dto.entry !== undefined ||
+            dto.exit !== undefined ||
+            dto.lots !== undefined;
+        const currentExit = current.exit === null ? undefined : Number(current.exit);
+        const pnl = changesPnlInput
+            ? this.computePnl(
+                  dto.side ?? current.side,
+                  dto.entry ?? Number(current.entry),
+                  dto.exit ?? currentExit,
+                  dto.lots ?? Number(current.lots),
+              )
+            : undefined;
         const trade = await this.trades.update(id, accountId, {
             symbol: dto.symbol,
             side: dto.side,

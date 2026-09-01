@@ -1,23 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
+import { Prisma, type notes as Note } from 'src/generated/prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-export interface Note {
-    id: string;
-    account_id: string;
-    trade_id: string;
-    title: string;
-    body: string;
-    tags: string[];
-    created_at: Date;
-}
+export type { Note };
 
-interface CreateNoteFields {
+export interface CreateNoteFields {
     title: string;
     body: string;
     tags?: string[];
 }
 
-interface UpdateNoteFields {
+export interface UpdateNoteFields {
     title?: string;
     body?: string;
     tags?: string[];
@@ -25,57 +18,51 @@ interface UpdateNoteFields {
 
 @Injectable()
 export class NotesRepository {
-    constructor(private readonly db: DatabaseService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async create(account_id: string, trade_id: string, fields: CreateNoteFields): Promise<Note> {
-        const { rows } = await this.db.query<Note>(
-            `INSERT INTO notes (account_id, trade_id, title, body, tags)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *`,
-            [account_id, trade_id, fields.title, fields.body, fields.tags ?? []],
-        );
-        return rows[0];
+        return this.prisma.notes.create({
+            data: {
+                account_id,
+                trade_id,
+                title: fields.title,
+                body: fields.body,
+                tags: fields.tags ?? [],
+            },
+        });
     }
 
     async findOne(id: string, account_id: string): Promise<Note | null> {
-        const { rows } = await this.db.query<Note>(
-            `SELECT * FROM notes WHERE id = $1 AND account_id = $2`,
-            [id, account_id],
-        );
-        return rows[0] ?? null; // ?? null incase the note not found
+        return this.prisma.notes.findFirst({ where: { id, account_id } });
     }
 
     async findAllByAccount(account_id: string): Promise<Note[]> {
-        const { rows } = await this.db.query<Note>(
-            `SELECT * FROM notes WHERE account_id = $1
-            ORDER BY created_at DESC`,
-            [account_id],
-        );
-        return rows;
+        return this.prisma.notes.findMany({
+            where: { account_id },
+            orderBy: { created_at: 'desc' },
+        });
     }
 
     async update(id: string, account_id: string, fields: UpdateNoteFields): Promise<Note | null> {
-        const { rows } = await this.db.query<Note>(
-            `UPDATE notes SET
-            title = COALESCE($1, title),
-            body = COALESCE($2, body),
-            tags = COALESCE($3, tags)
+        if (Object.values(fields).every((value) => value === undefined)) {
+            return this.findOne(id, account_id);
+        }
 
-            WHERE id = $4 AND account_id = $5
-
-            RETURNING *`,
-            [fields.title ?? null, fields.body ?? null, fields.tags ?? null, id, account_id],
-        );
-        // COALESCE($1, title) in Postgres means use the value that is not null.
-
-        return rows[0] ?? null;
+        try {
+            return await this.prisma.notes.update({
+                where: { id, account_id },
+                data: fields,
+            });
+        } catch (error: unknown) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                return null;
+            }
+            throw error;
+        }
     }
 
     async remove(id: string, account_id: string): Promise<boolean> {
-        const { rowCount } = await this.db.query(
-            `DELETE FROM notes WHERE id = $1 AND account_id = $2`,
-            [id, account_id],
-        );
-        return rowCount !== null && rowCount > 0;
+        const { count } = await this.prisma.notes.deleteMany({ where: { id, account_id } });
+        return count > 0;
     }
 }

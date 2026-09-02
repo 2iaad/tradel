@@ -11,10 +11,16 @@ export default function DashboardPage() {
 
     return (
         <div className="flex min-w-0 flex-1 flex-col">
-            <div className="grid gap-4 px-3 py-4 sm:px-4 md:gap-6 md:py-6 lg:px-6">
-                <StatCards s={stats} />
-                <EquityCard />
-                <TradesTable rows={recent} loading={loading} />
+            <div className="@container/main flex min-w-0 flex-1 flex-col gap-2">
+                <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                    <StatCards s={stats} />
+                    <div className="px-4 lg:px-6">
+                        <EquityCard />
+                    </div>
+                    <div className="px-4 lg:px-6">
+                        <TradesTable rows={recent} loading={loading} />
+                    </div>
+                </div>
             </div>
         </div>
     );

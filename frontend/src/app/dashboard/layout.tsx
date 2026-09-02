@@ -48,11 +48,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }
         >
             <Sidebar />
-            <SidebarInset>
-                <header className="flex h-(--header-height) shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-                    <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
-                        <SidebarTrigger className="-ml-1" />
-                        <h1 className="text-base font-medium normal-case">{title}</h1>
+            <SidebarInset className="min-w-0 overflow-x-hidden">
+                <header className="flex h-12 shrink-0 items-center border-b border-border-subtle md:h-(--header-height) md:border-b-0">
+                    <div className="flex min-w-0 w-full items-center gap-2 px-3 sm:px-4 lg:px-6">
+                        <SidebarTrigger className="-ml-1 size-9 md:size-8" />
+                        <h1 className="truncate text-base font-medium normal-case">{title}</h1>
                     </div>
                 </header>
                 {hasDashboardSession(session) && children}

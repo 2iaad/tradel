@@ -61,7 +61,7 @@ export function NoteModal({
 
     return (
         <Dialog open onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[440px] border-border bg-card p-7 text-card-foreground">
+            <DialogContent className="max-w-[440px] border-border bg-card p-4 text-card-foreground sm:p-7">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-semibold tracking-[-0.01em] text-card-foreground">
                         {editing ? 'Edit note' : 'Add a note'}

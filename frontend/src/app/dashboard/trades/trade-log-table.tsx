@@ -533,7 +533,7 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                 </div>
             </div>
 
-            <TabsContent value={currentView} className="relative flex flex-col gap-4 overflow-auto">
+            <TabsContent value={currentView} className="relative flex min-w-0 flex-col gap-4 overflow-auto">
                 <div className="overflow-hidden rounded-lg border">
                     <DndContext
                         collisionDetection={closestCenter}
@@ -576,11 +576,11 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                     </DndContext>
                 </div>
 
-                <div className="flex items-center justify-between px-4">
+                <div className="flex flex-col gap-3 px-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
                     <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
                         {table.getFilteredSelectedRowModel().rows.length} of {data.length} row(s) selected.
                     </div>
-                    <div className="flex w-full items-center gap-8 lg:w-fit">
+                    <div className="flex w-full flex-wrap items-center gap-4 lg:w-fit lg:gap-8">
                         <div className="hidden items-center gap-2 lg:flex">
                             <Label htmlFor="rows-per-page" className="text-sm font-medium">Rows per page</Label>
                             <Select

@@ -132,7 +132,7 @@ function SectionHeader({
     children?: React.ReactNode;
 }) {
     return (
-        <div className="flex items-start justify-between gap-5 px-[22px] pb-3 pt-5">
+        <div className="flex flex-col gap-3 px-4 pb-3 pt-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5 sm:px-[22px] sm:pt-5">
             <div className="min-w-0">
                 <h2 className={cardTitleCls}>
                     {title}
@@ -290,11 +290,11 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                     ))}
                 </div>
             </SectionHeader>
-            <div className="px-6 pt-3">
+            <div className="px-4 pt-3 sm:px-6">
                 {data.length ? (
-                    <div ref={node} role="img" aria-label="P&L breakdown by symbol" className="h-[430px] w-full" />
+                    <div ref={node} role="img" aria-label="P&L breakdown by symbol" className="h-[320px] w-full sm:h-[430px]" />
                 ) : (
-                    <div className="flex h-[430px] items-center justify-center text-ui-sm text-content-faint">No symbol data yet</div>
+                    <div className="flex h-[320px] items-center justify-center text-ui-sm text-content-faint sm:h-[430px]">No symbol data yet</div>
                 )}
             </div>
             <div className={`${cardFooterCls} grid grid-cols-3`}>
@@ -376,9 +376,9 @@ function TradeDistribution({ rows }: SymbolsProps) {
     return (
         <Card className={`${cardCls} overflow-hidden p-0`}>
             <SectionHeader title="Trade Distribution" description="Trade count distribution across symbols" />
-            <div className="grid min-h-[490px] grid-cols-[1.04fr_0.96fr] items-center gap-3 px-8 py-4">
+            <div className="grid min-h-[490px] grid-cols-1 items-center gap-3 px-4 py-4 sm:grid-cols-[1.04fr_0.96fr] sm:px-8">
                 {data.length ? (
-                    <div className="relative h-[390px] min-w-0">
+                    <div className="relative h-[300px] min-w-0 sm:h-[390px]">
                         <div ref={node} role="img" aria-label="Trade count distribution by symbol" className="h-full w-full" />
                         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-1">
                             <span className="text-display-md font-semibold leading-none text-content">{total}</span>
@@ -386,7 +386,7 @@ function TradeDistribution({ rows }: SymbolsProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="col-span-2 flex h-[390px] items-center justify-center text-ui-sm text-content-faint">No trade data yet</div>
+                    <div className="flex h-[300px] items-center justify-center text-ui-sm text-content-faint sm:col-span-2 sm:h-[390px]">No trade data yet</div>
                 )}
                 <div className="flex min-w-0 flex-col gap-4">
                     {data.map((row, index) => {

@@ -17,14 +17,14 @@ export function PageHeader({
 }) {
     return (
         <div className="flex flex-col gap-5">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-col gap-1.5">
                     <div className={kickerCls}>{kicker}</div>
-                    <h1 className="m-0 text-display-sm font-semibold tracking-[-0.01em] text-card-foreground">
+                    <h1 className="m-0 text-2xl font-semibold tracking-[-0.01em] text-card-foreground sm:text-display-sm">
                         {title}
                     </h1>
                 </div>
-                <div className="flex items-center gap-3.5">
+                <div className="flex w-full items-center justify-between gap-3.5 sm:w-auto sm:justify-end">
                     <span className="font-mono text-ui-xs font-medium tracking-[0.1em] text-content-faint">
                         {dateStamp()}
                     </span>

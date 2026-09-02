@@ -26,7 +26,7 @@ function AccountRow({
     const iconCls =
         'bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors';
     return (
-        <div className="flex items-center justify-between gap-4 px-5 py-4 border-t border-border-faint first:border-t-0">
+        <div className="flex items-center justify-between gap-3 px-4 py-4 border-t border-border-faint first:border-t-0 sm:gap-4 sm:px-5">
             <div className="flex flex-col gap-1 min-w-0">
                 <span className="flex items-center gap-2">
                     <span className="text-ui-md font-medium text-content truncate">
@@ -79,7 +79,7 @@ export default function SettingsPage() {
     const [deleting, setDeleting] = useState<Account | null>(null);
 
     return (
-        <div className="w-full max-w-[820px] box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="box-border mx-auto flex w-full max-w-[820px] flex-col gap-5 px-3 pt-4 pb-8 sm:px-4 sm:pt-8 sm:pb-12 lg:px-6">
             <PageHeader kicker="SETTINGS" title="Accounts">
                 <Button
                     type="button"

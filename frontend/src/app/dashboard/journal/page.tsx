@@ -37,7 +37,7 @@ function NoteCard({
         year: 'numeric',
     });
     return (
-        <Card className={`${cardCls} p-5 flex flex-col gap-2.5`}>
+        <Card className={`${cardCls} flex flex-col gap-2.5 p-4 sm:p-5`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                     <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-semibold tracking-[0.08em] text-primary whitespace-nowrap">
@@ -170,18 +170,18 @@ export default function JournalPage() {
     }, [notes, q, tag]);
 
     return (
-        <div className="w-full max-w-11/12 box-border mx-auto px-9 pt-8 pb-12 flex flex-col gap-5">
+        <div className="box-border mx-auto flex w-full max-w-7xl flex-col gap-5 px-3 pt-4 pb-8 sm:px-4 sm:pt-8 sm:pb-12 lg:px-6">
             <PageHeader kicker="" title="Trade notes" />
 
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search notes…"
-                className="h-auto flex-1 min-w-[200px] max-w-[320px] box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder"
+                className="h-auto w-full box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder sm:max-w-[320px] sm:flex-1"
             />
                 <Select value={tag} onValueChange={(value) => value && setTag(value)}>
-                    <SelectTrigger className="h-auto min-w-[130px] border-border-subtle bg-muted px-3 py-2.5 font-mono text-ui-sm text-secondary-foreground hover:bg-muted">
+                    <SelectTrigger className="h-auto w-full min-w-[130px] border-border-subtle bg-muted px-3 py-2.5 font-mono text-ui-sm text-secondary-foreground hover:bg-muted sm:w-auto">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -213,7 +213,7 @@ export default function JournalPage() {
                     )}
                 </Card>
             ) : (
-                <div className="grid grid-cols-2 gap-6 max-[720px]:grid-cols-1">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                     {rows.map((n) => (
                         <NoteCard
                             key={n.id}

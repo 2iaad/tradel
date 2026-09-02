@@ -52,7 +52,7 @@ function Chip({
 
 function ChipStrip({ s }: { s: Log['summary'] }) {
     return (
-        <Card className="flex flex-row items-center gap-2 border-0 bg-transparent py-0.5 ring-0">
+        <Card className="flex w-full flex-row items-center gap-2 overflow-x-auto border-0 bg-transparent py-0.5 ring-0">
             <Chip
                 icon={<BarChart3 aria-hidden="true" className="size-3" />}
                 label=""
@@ -103,7 +103,7 @@ export default function TradesPage() {
                         <PageHeader kicker="" title="Trade log" />
                     </div>
                     <StatCards s={stats} />
-                    <div className="flex flex-col gap-5 px-4 lg:px-6">
+                    <div className="flex min-w-0 flex-col gap-5 px-3 sm:px-4 lg:px-6">
                         <ChipStrip s={log.summary} />
                         <FilterToolbar log={log} />
                         <TradeLogTable log={log} dense={false} />

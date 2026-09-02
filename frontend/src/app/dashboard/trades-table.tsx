@@ -88,18 +88,22 @@ function EmptyRows({ loading }: { loading: boolean }) {
 // Recent-trades card for the signed-in dashboard, backed by the trades API.
 export function TradesTable({ rows, loading }: { rows: TradeLogRow[]; loading: boolean }) {
     return (
-        <Card className={`${cardCls} pt-5 pb-1.5 flex flex-col`}>
-            <div className="flex items-center justify-between px-[22px] pb-3.5">
+        <Card className={`${cardCls} flex flex-col pt-4 pb-1.5 sm:pt-5`}>
+            <div className="flex items-center justify-between px-4 pb-3.5 sm:px-[22px]">
                 <h2 className={h2Cls}>Recent 5 trades</h2>
                 <Button nativeButton={false} render={<Link href="/dashboard/trades" />} variant="ghost" size="sm" className={`${ghostBtnCls} h-auto px-0 hover:bg-transparent`}>
                     VIEW ALL →
                 </Button>
             </div>
-            <TableHead />
-            {rows.length === 0 && <EmptyRows loading={loading} />}
-            {rows.map((t) => (
-                <TradeRow key={t.id} t={t} />
-            ))}
+            <div className="overflow-x-auto">
+                <div className="min-w-[720px]">
+                    <TableHead />
+                    {rows.length === 0 && <EmptyRows loading={loading} />}
+                    {rows.map((t) => (
+                        <TradeRow key={t.id} t={t} />
+                    ))}
+                </div>
+            </div>
         </Card>
     );
 }

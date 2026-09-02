@@ -60,7 +60,7 @@ export function AccountModal({
 
     return (
         <Dialog open onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[400px] border-border bg-card p-7 text-card-foreground">
+            <DialogContent className="max-w-[400px] border-border bg-card p-4 text-card-foreground sm:p-7">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-semibold tracking-[-0.01em] text-card-foreground">
                         {editing ? 'Edit account' : 'Add an account'}
@@ -151,7 +151,7 @@ export function DeleteAccountModal({
 
     return (
         <Dialog open onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-[380px] border-border bg-card p-7 text-card-foreground">
+            <DialogContent className="max-w-[380px] border-border bg-card p-4 text-card-foreground sm:p-7">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-semibold text-card-foreground">
                         Delete “{account.name}”?

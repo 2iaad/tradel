@@ -21,7 +21,7 @@ import { clearDemoSession } from '@/stores/session';
 type Mode = 'login' | 'register' | 'reset';
 
 const formCls =
-    'flex-[0_0_33.3333%] box-border flex flex-col justify-center gap-[18px] px-[clamp(40px,7vw,120px)]';
+    'flex-[0_0_33.3333%] box-border flex flex-col justify-center gap-[18px] px-6 sm:px-[clamp(40px,7vw,120px)]';
 
 const MODES: Mode[] = ['login', 'register', 'reset'];
 const AUTH_SUCCESS_HOLD_MS = 900;
@@ -275,7 +275,7 @@ function HeroPanel({ shifted }: { shifted: boolean }) {
 
     return (
         <div
-            className={`absolute inset-y-0 left-0 w-1/2 overflow-hidden bg-background z-[1] ${paneEase}`}
+            className={`absolute inset-y-0 left-0 z-[1] hidden w-1/2 overflow-hidden bg-background md:block ${paneEase}`}
             style={{ transform: `translateX(${shifted ? '100%' : '0%'})` }}
         >
             <canvas
@@ -296,8 +296,7 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
     const shifted = mode !== 'login';
     return (
         <div
-            className={`absolute inset-y-0 left-1/2 w-1/2 overflow-hidden bg-background border-l border-border-subtle z-[2] ${paneEase}`}
-            style={{ transform: `translateX(${shifted ? '-100%' : '0%'})` }}
+            className={`absolute inset-y-0 left-0 z-[2] w-full translate-x-0 overflow-hidden border-border-subtle bg-background md:left-1/2 md:w-1/2 md:border-l ${paneEase} ${shifted ? 'md:-translate-x-full' : ''}`}
         >
             <div
                 className="flex w-[300%] h-full transition-transform duration-[650ms] ease-[cubic-bezier(0.77,0,0.18,1)]"
@@ -315,7 +314,7 @@ export default function AuthLayout() {
     const [mode, setMode] = useAuthMode();
 
     return (
-        <div className="relative w-full h-screen min-h-[640px] bg-background overflow-hidden">
+        <div className="relative h-screen min-h-[640px] w-full overflow-hidden bg-background">
             <Tape
                 items={TOP_TICKS}
                 duration="46s"

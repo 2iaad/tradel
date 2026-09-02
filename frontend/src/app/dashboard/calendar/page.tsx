@@ -75,13 +75,13 @@ export default function CalendarPage() {
     const tradingDays = useMemo(() => days.filter((day) => day.trades > 0).length, [days]);
 
     return (
-        <div className="box-border mx-auto flex w-full max-w-11/12 flex-col gap-5 px-9 pt-8 pb-12">
+        <div className="box-border mx-auto flex w-full max-w-7xl flex-col gap-5 px-3 pt-4 pb-8 sm:px-4 sm:pt-8 sm:pb-12 lg:px-6">
             <PageHeader kicker="PERFORMANCE CALENDAR" title="Daily P&L">
                 <MonthNav month={month} onShift={(n) => load(shiftMonth(month, n))} />
             </PageHeader>
             <Card className={`${cardCls} flex flex-col overflow-hidden`}>
-                <div className="flex items-center justify-between gap-4 border-b border-border-faint px-[22px] py-4">
-                    <div className="flex items-center gap-5 font-mono text-ui-xs text-content-faint">
+                <div className="flex flex-col gap-3 border-b border-border-faint px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-[22px]">
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-ui-xs text-content-faint">
                         <span>
                             TRADING DAYS&nbsp;
                             <strong className="font-semibold text-secondary-foreground">{tradingDays}</strong>
@@ -105,7 +105,7 @@ export default function CalendarPage() {
                 <div className="px-2 py-3">
                     <CalendarChart days={days} loading={loading} month={month} />
                 </div>
-                <div className="flex items-center justify-between px-[22px] py-3">
+                <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-[22px]">
                     <span className="font-mono text-ui-xs text-loss">
                         {error ?? ''}
                     </span>

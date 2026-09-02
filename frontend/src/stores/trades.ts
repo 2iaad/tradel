@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoTrades } from '@/lib/demo-data';
+import { buildDemoTrades, isDemoAccountId } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 
@@ -87,6 +87,10 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
             });
             return;
         }
+        if (isDemoAccountId(accId)) {
+            set({ trades: [], loadedFor: null, loading: false, error: null });
+            return;
+        }
         if (status !== 'user') {
             set({ loading: false });
             return;
@@ -115,6 +119,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
         }
         const accId = activeId();
         if (!accId) throw new Error('No account selected');
+        if (isDemoAccountId(accId)) throw new Error('No account selected');
         return (await api.get<ApiTrade>(`/accounts/${accId}/trades/${id}`)).data;
     },
 
@@ -181,6 +186,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
     removeTrade: async (id) => {
         const accId = activeId();
         if (!accId) return;
+        if (isDemoAccountId(accId)) return;
         if (useSessionStore.getState().session.status === 'demo') {
             set({ trades: get().trades.filter((trade) => trade.id !== id) });
             return;

@@ -6,6 +6,9 @@ import type { ApiTrade } from '@/stores/trades';
 
 export const DEMO_ACCOUNT_ID = 'demo-account-main';
 
+export const isDemoAccountId = (id: string | null) =>
+    id !== null && id.startsWith('demo-account-');
+
 export const DEMO_ACCOUNT: Account = {
     id: DEMO_ACCOUNT_ID,
     name: 'Demo Portfolio',

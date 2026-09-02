@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
-import { DEMO_ACCOUNT } from '@/lib/demo-data';
+import { DEMO_ACCOUNT, isDemoAccountId } from '@/lib/demo-data';
 import { useSessionStore } from '@/stores/session';
 
 // Trading account as returned by the accounts API.
@@ -69,11 +69,13 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
             set({ loading: false });
             return;
         }
-        set({ loading: true, error: null });
+        // A demo account can still be selected for one render after leaving
+        // demo mode. Clear it before any real-account request is made.
+        set({ accounts: [], activeId: null, loading: true, error: null });
         try {
             const { data } = await api.get<Account[]>('/accounts');
             const persisted = readActive();
-            const active = data.some((a) => a.id === persisted)
+            const active = !isDemoAccountId(persisted) && data.some((a) => a.id === persisted)
                 ? persisted
                 : (data[0]?.id ?? null);
             writeActive(active);

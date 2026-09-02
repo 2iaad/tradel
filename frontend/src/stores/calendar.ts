@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoCalendar } from '@/lib/demo-data';
+import { buildDemoCalendar, isDemoAccountId } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { useTradesStore } from '@/stores/trades';
@@ -48,6 +48,10 @@ export const useCalendarStore = create<CalendarStore>((set) => ({
                 .getState()
                 .trades.filter((trade) => trade.account_id === accId);
             set({ days: buildDemoCalendar(trades, month), loading: false, error: null });
+            return;
+        }
+        if (isDemoAccountId(accId)) {
+            set({ days: [], loading: false, error: null });
             return;
         }
         if (status !== 'user') {

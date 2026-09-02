@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoNotes } from '@/lib/demo-data';
+import { buildDemoNotes, isDemoAccountId } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { useTradesStore } from '@/stores/trades';
@@ -64,6 +64,10 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
                 loading: false,
                 error: null,
             });
+            return;
+        }
+        if (isDemoAccountId(accId)) {
+            set({ notes: [], loadedFor: null, loading: false, error: null });
             return;
         }
         if (status !== 'user') {

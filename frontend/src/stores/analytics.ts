@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoAnalytics } from '@/lib/demo-data';
+import { buildDemoAnalytics, isDemoAccountId } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { useTradesStore } from '@/stores/trades';
@@ -57,6 +57,10 @@ export const useAnalyticsStore = create<AnalyticsStore>((set) => ({
                 .getState()
                 .trades.filter((trade) => trade.account_id === accId);
             set({ ...buildDemoAnalytics(trades), loading: false, error: null });
+            return;
+        }
+        if (isDemoAccountId(accId)) {
+            set({ summary: null, bySymbol: [], bySide: [], loading: false, error: null });
             return;
         }
         if (status !== 'user') {

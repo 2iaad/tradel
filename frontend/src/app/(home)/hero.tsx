@@ -13,13 +13,13 @@ export function Hero() {
             <section className="section">
                 <div className="main-c p-pad">
                     <div className="home-hero">
-                        <div className="mx-auto flex flex-col max-w-6xl items-center gap-4 pt-20">
-                            <h1 className="max-w-2xl flex flex-col items-center text-5xl font-bold tracking-normal text-card-foreground normal-case">
+                        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-2 pt-12 sm:pt-20">
+                            <h1 className="flex max-w-2xl flex-col items-center text-center text-4xl font-bold tracking-normal text-card-foreground normal-case sm:text-5xl">
                                 <BlurReveal delay={0.1}>Journal every trade.</BlurReveal>
                                 <BlurReveal delay={0.25}>Build your trading edge.</BlurReveal>
                             </h1>
 
-                            <div className="max-w-md flex-1 pt-1">
+                            <div className="w-full max-w-md flex-1 pt-1">
                                 <BlurReveal delay={0.4} className="block">
                                     <p className="text-ui-lg text-center leading-relaxed text-white/50 normal-case">
                                         Log your trades, review clear analytics, and understand what is improving

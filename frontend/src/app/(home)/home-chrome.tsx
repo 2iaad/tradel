@@ -89,15 +89,15 @@ const navigationLabelClass =
 export function HomeNav() {
     return (
         <nav className="nav-w" theme="light" aria-label="Primary">
-            <div className="nav-inner flex items-center py-3">
+            <div className="nav-inner flex items-center px-3 py-3 sm:px-6">
                 <div className="flex flex-1 items-center justify-start">
                     <Link
                         aria-current="page"
                         aria-label="homepage"
-                        className="nav-logo w--current flex h-[38px] w-[135px] items-center"
+                        className="nav-logo w--current flex h-[38px] w-[110px] items-center sm:w-[135px]"
                         href="/"
                     >
-                        <TradelLogo className="h-8 w-[135px]" priority />
+                        <TradelLogo className="h-7 w-[110px] sm:h-8 sm:w-[135px]" priority />
                     </Link>
                 </div>
 
@@ -188,7 +188,7 @@ export function HomeNav() {
                             nativeButton={false}
                             render={<Link href="/login" />}
                             variant="ghost"
-                            className="nav-link m-0 text-white hover:bg-transparent hover:text-white"
+                            className="nav-link m-0 text-white hover:bg-transparent hover:text-white max-[480px]:hidden"
                             data-nav-item=""
                         >
                             Log in
@@ -197,7 +197,7 @@ export function HomeNav() {
                             nativeButton={false}
                             render={<Link href="/register" />}
                             variant="outline"
-                            className="bg-white/5 text-white backdrop-blur-md hover:bg-white/5 hover:text-white dark: dark:bg-white/5 dark:hover:bg-white/5"
+                            className="bg-white/5 px-3 text-xs text-white backdrop-blur-md hover:bg-white/5 hover:text-white sm:px-4 sm:text-sm dark: dark:bg-white/5 dark:hover:bg-white/5"
                             data-nav-item=""
                         >
                             Create account

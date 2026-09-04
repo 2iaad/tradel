@@ -11,5 +11,8 @@ RUN chmod +x /usr/local/bin/init.sh
 
 EXPOSE 5432
 
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=5 \
+    CMD ["pg_isready", "-U", "postgres", "-h", "127.0.0.1", "-p", "5432"]
+
 USER postgres
 ENTRYPOINT ["/usr/local/bin/init.sh"]

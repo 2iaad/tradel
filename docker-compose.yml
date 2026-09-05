@@ -1,26 +1,30 @@
 services:
     postgres:
-        build: ./database
-        image: my-postgres-image
-        container_name: my-postgres-container
-        env_file:
-            - backend/.env
+        # build: ./database
+        image: postgres:16
+        container_name: pg-container
         ports:
             - '5432:5432'
-        networks:
-            - tradel
+        # env_file:
+        #     - backend/.env
+        environment:
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        healthcheck:
+            test: ['CMD', 'pg_isready']
+            interval: 10s
+            timeout: 7s
+            retries: 5
+            start_period: 10s
+        # networks:
+        #     - tradel
         volumes:
             - postgresdb:/var/lib/postgresql/data
 
 volumes:
     postgresdb:
-        name: my-postgres-volume
-        driver: local
-        driver_opts:
-            device: /home/ziyad/Desktop/tradel/volumes
-            o: bind
-            type: none
 
-networks:
-    tradel:
-        name: my-tradel-network
+# networks:
+#     tradel:
+#         name: my-tradel-network

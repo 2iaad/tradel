@@ -26,6 +26,8 @@ export interface AccountPayload {
 // ponytail: active account id persisted in localStorage — no server-side
 // "last selected" column until multi-device sync is a real requirement.
 const ACTIVE_KEY = 'tradel.activeAccount';
+// Invalidates account requests started before a session change or a newer load.
+let loadVersion = 0;
 const readActive = () =>
     typeof window === 'undefined' ? null : localStorage.getItem(ACTIVE_KEY);
 const writeActive = (id: string | null) => {
@@ -55,6 +57,7 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
     // GET /accounts, then resolve the active id: keep the persisted one if it
     // still exists, else fall back to the first account (or null when empty).
     load: async () => {
+        const version = ++loadVersion;
         const status = useSessionStore.getState().session.status;
         if (status === 'demo') {
             set({
@@ -66,12 +69,13 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
             return;
         }
         if (status !== 'user') {
-            set({ loading: false });
+            set({ accounts: [], activeId: null, loading: false, error: null });
             return;
         }
         set({ loading: true, error: null });
         try {
             const { data } = await api.get<Account[]>('/accounts');
+            if (version !== loadVersion) return;
             const persisted = readActive();
             const active = data.some((a) => a.id === persisted)
                 ? persisted
@@ -79,9 +83,10 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
             writeActive(active);
             set({ accounts: data, activeId: active });
         } catch (err) {
+            if (version !== loadVersion) return;
             set({ error: apiMessage(err) });
         } finally {
-            set({ loading: false });
+            if (version === loadVersion) set({ loading: false });
         }
     },
 
@@ -157,3 +162,16 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
         set({ activeId: id });
     },
 }));
+
+// Stores survive client navigation. Drop the previous session's account before
+// dashboard effects can request its trades using the new user's credentials.
+useSessionStore.subscribe(({ session }, { session: previous }) => {
+    if (session.status === previous.status && session.email === previous.email) return;
+    ++loadVersion;
+    useAccountStore.setState({
+        accounts: [],
+        activeId: null,
+        loading: session.status === 'user' || session.status === 'demo',
+        error: null,
+    });
+});

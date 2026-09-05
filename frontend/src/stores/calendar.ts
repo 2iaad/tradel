@@ -43,19 +43,15 @@ export const useCalendarStore = create<CalendarStore>((set) => ({
         set({ month });
         const status = useSessionStore.getState().session.status;
         const accId = activeId();
+        if (!accId || (status !== 'user' && status !== 'demo')) {
+            set({ days: [], loading: false, error: null });
+            return;
+        }
         if (status === 'demo') {
             const trades = useTradesStore
                 .getState()
                 .trades.filter((trade) => trade.account_id === accId);
             set({ days: buildDemoCalendar(trades, month), loading: false, error: null });
-            return;
-        }
-        if (status !== 'user') {
-            set({ loading: false });
-            return;
-        }
-        if (!accId) {
-            set({ days: [], loading: false });
             return;
         }
         set({ loading: true, error: null });

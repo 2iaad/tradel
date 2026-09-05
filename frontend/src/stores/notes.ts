@@ -50,6 +50,10 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
     load: async () => {
         const status = useSessionStore.getState().session.status;
         const accId = activeId();
+        if (!accId || (status !== 'user' && status !== 'demo')) {
+            set({ notes: [], loadedFor: null, loading: false, error: null });
+            return;
+        }
         if (status === 'demo') {
             if (get().loadedFor === accId) {
                 set({ loading: false });
@@ -64,14 +68,6 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
                 loading: false,
                 error: null,
             });
-            return;
-        }
-        if (status !== 'user') {
-            set({ loading: false });
-            return;
-        }
-        if (!accId) {
-            set({ notes: [], loadedFor: null, loading: false });
             return;
         }
         set({ loading: true, error: null });

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AccountsRepository } from 'src/accounts/accounts.repository';
+import { Prisma } from 'src/generated/prisma/client';
 import { TradesRepository } from './trades.repository';
 import { CreateTradeDto } from './dto/create-trade.dto';
 import { UpdateTradeDto } from './dto/update-trade.dto';
@@ -20,14 +21,13 @@ export class TradesService {
 
     async create(accountId: string, userId: string, dto: CreateTradeDto) {
         await this.verifyAccountOwnership(accountId, userId);
-        const pnl = this.computePnl(dto.side, dto.entry, dto.exit, dto.lots);
         return this.trades.create(accountId, {
             symbol: dto.symbol,
             side: dto.side,
             entry: dto.entry,
             exit: dto.exit,
             lots: dto.lots,
-            pnl,
+            pnl: this.computePnl(dto.side, dto.entry, dto.exit ?? null, dto.lots),
         });
     }
 
@@ -57,13 +57,12 @@ export class TradesService {
             dto.entry !== undefined ||
             dto.exit !== undefined ||
             dto.lots !== undefined;
-        const currentExit = current.exit === null ? undefined : Number(current.exit);
         const pnl = changesPnlInput
             ? this.computePnl(
                   dto.side ?? current.side,
-                  dto.entry ?? Number(current.entry),
-                  dto.exit ?? currentExit,
-                  dto.lots ?? Number(current.lots),
+                  dto.entry ?? current.entry,
+                  dto.exit ?? current.exit,
+                  dto.lots ?? current.lots,
               )
             : undefined;
         const trade = await this.trades.update(id, accountId, {
@@ -89,16 +88,19 @@ export class TradesService {
         }
     }
 
-    // pnl only computable once both entry and exit are known.
     private computePnl(
-        side: string | undefined,
-        entry: number | undefined,
-        exit: number | undefined,
-        lots: number | undefined,
-    ): number | undefined {
-        if (entry === undefined || exit === undefined || lots === undefined) return undefined;
+        side: string,
+        entry: Prisma.Decimal | number,
+        exit: Prisma.Decimal | number | null,
+        lots: Prisma.Decimal | number,
+    ): Prisma.Decimal | null {
+        if (exit === null) return null;
+
         const direction = side === 'SHORT' ? -1 : 1;
-        // round to cents — money value, avoid binary-float drift into the NUMERIC column
-        return Math.round((exit - entry) * lots * direction * 100) / 100;
+        return new Prisma.Decimal(exit)
+            .minus(entry)
+            .times(lots)
+            .times(direction)
+            .toDecimalPlaces(2);
     }
 }

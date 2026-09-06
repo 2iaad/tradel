@@ -1,2 +1,2 @@
-release: PGSSLMODE=no-verify DB_URL="$DATABASE_URL" npm run migrate:up
+release: npm run prisma:migrate:deploy
 web: npm run start:prod

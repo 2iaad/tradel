@@ -41,9 +41,11 @@ function toPayload(f: FormData): AccountPayload {
 export function AccountModal({
     account,
     onClose,
+    onSaved,
 }: {
     account: Account | null;
     onClose: () => void;
+    onSaved?: () => void;
 }) {
     const create = useAccountStore((s) => s.create);
     const rename = useAccountStore((s) => s.rename);
@@ -56,7 +58,10 @@ export function AccountModal({
         } catch (err) {
             throw new Error(apiMessage(err));
         }
-    }, onClose);
+    }, () => {
+        onSaved?.();
+        onClose();
+    });
 
     return (
         <Dialog open onOpenChange={(open) => !open && onClose()}>

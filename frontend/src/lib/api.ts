@@ -41,5 +41,7 @@ api.interceptors.response.use(undefined, async (error) => {
 // Human-readable message from an API error (class-validator sends arrays).
 export function apiMessage(err: unknown): string {
     const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
-    return Array.isArray(m) ? m[0] : (m ?? 'Something went wrong');
+    if (Array.isArray(m)) return m[0];
+    if (typeof m === 'string') return m;
+    return err instanceof Error ? err.message : 'Something went wrong';
 }

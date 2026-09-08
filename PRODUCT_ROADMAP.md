@@ -380,4 +380,3 @@ For interviews, document each major feature with:
 - tests, performance measurements, and failure handling;
 - screenshots or a short demo;
 - what you would change at larger scale.
-

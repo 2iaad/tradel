@@ -5,6 +5,7 @@ journal UI, equity curve (client-side, real data). Remaining below is
 dependency-ordered.
 
 Conventions (reuse, don't reinvent):
+
 - state → zustand stores in `apps/web/src/stores/`, actions do the API calls
 - http → `apps/web/src/lib/api.ts` (`api`, `apiMessage`) — 401 refresh-retry handled
 - styling → `apps/web/src/lib/ui.ts` (`inputCls`, `btnCls`, `cardCls`, `ctaCls`, `G`, `R`, …)
@@ -21,10 +22,10 @@ Backend-driven stats/breakdowns. Equity curve already ships client-side — no
 `/analytics/equity` endpoint unless a server source-of-truth is wanted.
 
 - [ ] backend `src/analytics/` module (Controller → Service → Repository, `@UseGuards(JwtGuard)`, scope by `req.user.sub` + `accountId`):
-  - `GET /accounts/:accountId/analytics/summary` → net P&L, win rate, profit factor, expectancy, avg R, counts
-  - `GET /accounts/:accountId/analytics/calendar?month=` → daily `{date, pnl, trades}`, grouped by `created_at`
-  - `GET /accounts/:accountId/analytics/breakdown?by=symbol|side`
-  - guard divide-by-zero (no closed trades → null/`—`, not `NaN`)
+    - `GET /accounts/:accountId/analytics/summary` → net P&L, win rate, profit factor, expectancy, avg R, counts
+    - `GET /accounts/:accountId/analytics/calendar?month=` → daily `{date, pnl, trades}`, grouped by `created_at`
+    - `GET /accounts/:accountId/analytics/breakdown?by=symbol|side`
+    - guard divide-by-zero (no closed trades → null/`—`, not `NaN`)
 - [ ] register `AnalyticsModule` in `app.module.ts` + copy `JwtModule.registerAsync` from `AccountsModule` (guard needs `JwtService`)
 - [ ] `stores/analytics.ts` — thin store, fetch per `activeId`, reload on change
 - [ ] analytics page — stat cards (reuse `dashboard/page.tsx` `StatCards`) + equity curve + breakdown bars
@@ -56,7 +57,6 @@ Backend-driven stats/breakdowns. Equity curve already ships client-side — no
 - [ ] `CLAUDE.md` — add Trades + Notes module sections (accounts section already current)
 - [ ] swap hardcoded `http://localhost:3000/api` in `lib/api.ts` for `NEXT_PUBLIC_API_URL`
 - [ ] add new env vars to `.env.example` + `env.validation.ts` (throttler, mailer, `NEXT_PUBLIC_API_URL`)
-
 
 for ui:
 

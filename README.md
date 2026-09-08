@@ -9,7 +9,6 @@
   Record every trade. Understand your results. Improve with real data.
 </p>
 
-
 <p align="center">
   Born in Morocco 🇲🇦 · For traders everywhere
 </p>
@@ -41,16 +40,16 @@ Tradel keeps your trades, notes, accounts, and performance data in one place. It
 
 ## One clear workspace for your trading
 
-| What you get | What it helps you do |
-| --- | --- |
-| **Performance dashboard** | See total P&amp;L, win rate, best trade, average risk-to-reward, and recent activity at a glance. |
-| **Trade log** | Search, filter, sort, edit, and review your closed trades without losing the details. |
-| **Equity curve** | Follow the growth and drawdown of an account trade by trade. |
-| **Trading calendar** | See daily P&amp;L and trading activity on the exact day it happened. |
-| **Analytics** | Compare results by symbol and trade direction to see where your performance is strongest or weakest. |
-| **Journal notes** | Save the reasoning, lessons, and context that numbers cannot explain on their own. |
-| **Multiple accounts** | Keep different brokers, currencies, demo accounts, and prop challenges organized. |
-| **Live demo** | Explore a complete journal with sample data before creating an account. |
+| What you get              | What it helps you do                                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Performance dashboard** | See total P&amp;L, win rate, best trade, average risk-to-reward, and recent activity at a glance.    |
+| **Trade log**             | Search, filter, sort, edit, and review your closed trades without losing the details.                |
+| **Equity curve**          | Follow the growth and drawdown of an account trade by trade.                                         |
+| **Trading calendar**      | See daily P&amp;L and trading activity on the exact day it happened.                                 |
+| **Analytics**             | Compare results by symbol and trade direction to see where your performance is strongest or weakest. |
+| **Journal notes**         | Save the reasoning, lessons, and context that numbers cannot explain on their own.                   |
+| **Multiple accounts**     | Keep different brokers, currencies, demo accounts, and prop challenges organized.                    |
+| **Live demo**             | Explore a complete journal with sample data before creating an account.                              |
 
 ## Built for traders who want honest feedback
 

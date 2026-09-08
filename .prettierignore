@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.*
+
+# Build and production outputs
+dist/
+**/*.md/**
+**/dist/**
+apps/api/dist/
+build/
+**/build/**
+.next/
+**/.next/**
+out/
+**/out/**
+
+# Testing and coverage
+coverage/
+.nyc_output/
+
+# Generated files
+src/generated/
+**/src/generated/
+next-env.d.ts
+*.tsbuildinfo
+**/*.md/**
+
+# Package locks and dumps
+package-lock.json
+*.dump
+
+# Cache and logs
+logs/
+*.log
+.temp/
+.tmp/
+

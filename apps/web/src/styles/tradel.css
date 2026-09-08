@@ -1,0 +1,215 @@
+:root {
+    --color--tradel: var(--palette-yellow, #ffdd3a);
+    --color--green-dark: var(--semantic-profit, #2fd57f);
+    --color--red: var(--semantic-loss, #f0554e);
+    --color--grey: color-mix(in srgb, var(--palette-gray-50, #eeeeeb) 50%, transparent);
+    --color--black: var(--palette-black, #050505);
+    --color--white: var(--palette-gray-50, #eeeeeb);
+    --swiper-theme-color: var(--palette-yellow, #ffdd3a);
+}
+
+html {
+    background: var(--palette-black, #050505);
+}
+
+body {
+    overflow-x: clip;
+}
+
+.tradel-logo {
+    color: currentColor;
+    display: block;
+    font-family: 'PP Mori', Intervariable, Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.095em;
+    line-height: 0.9;
+    text-transform: lowercase;
+    white-space: nowrap;
+}
+
+.tradel-logo--nav {
+    font-size: 1.65rem;
+    line-height: 1;
+    transform: scaleX(1.84);
+    transform-origin: left center;
+}
+
+.tradel-logo--hero,
+.tradel-logo--full {
+    font-size: 24vw;
+    line-height: 0.72;
+    padding-right: 0.055em;
+    text-align: center;
+    transform: scaleX(1.78) scaleY(0.92);
+    transform-origin: center top;
+    width: 100%;
+}
+
+.tradel-logo--hero {
+    transform: translateY(2.5rem) scaleX(1.78) scaleY(0.92);
+}
+
+/* Keep legacy landing-page controls aligned with the shared app button size. */
+.new-button {
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.new-button_label,
+.new-button_label.is--large {
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+/* Hero media stays centered and leaves a protected area for the CTA row. */
+.home-hero .home-hero__mockup {
+    bottom: -3rem;
+    filter: drop-shadow(0 2rem 4rem rgb(0 0 0 / 45%));
+    left: 50%;
+    max-width: 70rem;
+    position: absolute;
+    transform: translateX(-50%);
+    width: min(88vw, calc((100svh - 14rem) * 1.5976), 75rem);
+    z-index: 2;
+}
+
+/* The theme now lives in the low `home-theme` cascade layer, so the app's
+   unlayered body font (globals.css) would win on the home page too. Re-anchor
+   the theme typography on the page wrapper — descendants inherit from here,
+   and nothing unlayered targets .page-w. */
+.page-w {
+    color: var(--color--white);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+/* Match the application typography on the cloned landing page too. The
+   imported Webflow theme contains several legacy font declarations; these
+   ensure the reference UI stack is consistent across every route. */
+.page-w * {
+    font-family: inherit;
+}
+
+.page-w h1,
+.page-w h2,
+.page-w h3,
+.page-w h4,
+.page-w h5,
+.page-w h6,
+.page-w .tradel-logo {
+    font-family: var(--font-heading);
+}
+
+/* Landing accent: yellow instead of the cloned theme's green.
+   Overrides the site.css vars; every section (cells, buttons, cubes,
+   glows, selection) keys off these. */
+:root {
+    --color--tradel: var(--brand);
+    --color--tradel-15: color-mix(in srgb, var(--brand) 15%, transparent);
+    --color--tradel-45: color-mix(in srgb, var(--brand) 45%, transparent);
+}
+
+/* Replace the few literal legacy accents that do not use the theme vars. */
+.footer-social {
+    border-color: transparent;
+}
+
+.footer-social:hover {
+    border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+}
+
+.glow-w__borders,
+.glow-w__glow,
+.glow-w__mask {
+    background-image: conic-gradient(
+        from 0 at 50% 50%,
+        color-mix(in srgb, var(--brand) 40%, transparent),
+        transparent 60deg 310deg,
+        color-mix(in srgb, var(--brand) 40%, transparent) 360deg
+    );
+}
+
+/* Lighthouse media (viz video, phone screens) have the green baked into
+   the asset pixels — shift mint (155°) to the yellow accent (50°). */
+.lh-intro__vid .bg-vid,
+.lh-phone__wrap .phone,
+.lh-phone__wrap .lh-notch {
+    filter: hue-rotate(-105deg);
+}
+
+.js-ready .process-section {
+    visibility: visible;
+}
+
+.process-section canvas,
+.support-visual canvas {
+    display: block;
+}
+
+.menu-w[aria-hidden='true'] {
+    visibility: hidden;
+}
+
+.menu-w[aria-hidden='false'] {
+    visibility: visible;
+}
+
+.new-button[href='#'],
+.button[href='#'],
+.menu-button[href='#'] {
+    cursor: default;
+}
+
+@media (max-width: 991px) {
+    .tradel-logo--hero,
+    .tradel-logo--full {
+        font-size: 22vw;
+        transform: scaleX(1.885) scaleY(1.02);
+    }
+
+    .tradel-logo--hero {
+        transform: translateY(1.1rem) scaleX(1.885) scaleY(1.02);
+    }
+}
+
+@media (max-width: 767px) {
+    .tradel-logo--nav {
+        font-size: 1rem;
+        transform: scaleX(2.05);
+    }
+
+    .tradel-logo--hero,
+    .tradel-logo--full {
+        font-size: 21vw;
+        letter-spacing: -0.075em;
+        transform: scaleX(1.865) scaleY(1.06);
+    }
+
+    .tradel-logo--hero {
+        transform: translateY(0.6rem) scaleX(1.865) scaleY(1.06);
+    }
+
+    .home-hero .home-hero__mockup {
+        bottom: clamp(14.5rem, 28svh, 15rem);
+        width: min(92vw, calc((100svh - 13rem) * 1.5976));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+    }
+}

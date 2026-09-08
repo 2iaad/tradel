@@ -1,0 +1,30 @@
+{
+    "name": "tradel",
+    "private": true,
+    "workspaces": [
+        "apps/api",
+        "apps/web"
+    ],
+    "scripts": {
+        "dev": "concurrently -n api,web -c blue,cyan \"npm run dev:api\" \"npm run dev:web\"",
+        "dev:api": "npm run start:dev --workspace=@tradel/api",
+        "dev:web": "npm run dev --workspace=@tradel/web",
+        "build": "npm run build --workspaces --if-present",
+        "lint": "npm run lint --workspaces --if-present",
+        "test": "npm run test --workspaces --if-present",
+        "format": "npm run format --workspaces --if-present",
+        "prisma:generate": "npm run prisma:generate --workspace=@tradel/api",
+        "prisma:pull": "npm run prisma:pull --workspace=@tradel/api",
+        "prisma:studio": "npm run prisma:studio --workspace=@tradel/api",
+        "prisma:migrate:dev": "npm run prisma:migrate:dev --workspace=@tradel/api",
+        "prisma:migrate:deploy": "npm run prisma:migrate:deploy --workspace=@tradel/api",
+        "schema:generate": "npm run schema:generate --workspace=@tradel/api"
+    },
+    "engines": {
+        "node": "22.x"
+    },
+    "devDependencies": {
+        "concurrently": "^10.0.5",
+        "prettier": "^3.4.2"
+    }
+}

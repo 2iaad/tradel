@@ -1,0 +1,174 @@
+'use client';
+
+import { create } from 'zustand';
+
+import { api, apiMessage } from '@/lib/api';
+import { DEMO_ACCOUNT } from '@/lib/demo-data';
+import { useSessionStore } from '@/stores/session';
+
+// Trading account as returned by the accounts API.
+export interface Account {
+    id: string;
+    name: string;
+    broker: string | null;
+    currency: string;
+    starting_balance: string; // NUMERIC arrives as a string over the API
+}
+
+// Body for POST/PATCH accounts; mirrors CreateAccountDto/UpdateAccountDto.
+export interface AccountPayload {
+    name?: string;
+    broker?: string;
+    currency?: string;
+    startingBalance?: number;
+}
+
+// ponytail: active account id persisted in localStorage — no server-side
+// "last selected" column until multi-device sync is a real requirement.
+const ACTIVE_KEY = 'tradel.activeAccount';
+// Invalidates account requests started before a session change or a newer load.
+let loadVersion = 0;
+const readActive = () => (typeof window === 'undefined' ? null : localStorage.getItem(ACTIVE_KEY));
+const writeActive = (id: string | null) => {
+    if (typeof window === 'undefined') return;
+    if (id) localStorage.setItem(ACTIVE_KEY, id);
+    else localStorage.removeItem(ACTIVE_KEY);
+};
+
+interface AccountsStore {
+    accounts: Account[];
+    activeId: string | null;
+    loading: boolean;
+    error: string | null;
+    load: () => Promise<void>;
+    create: (payload: AccountPayload) => Promise<void>;
+    rename: (id: string, payload: AccountPayload) => Promise<void>;
+    remove: (id: string) => Promise<void>;
+    setActive: (id: string) => void;
+}
+
+export const useAccountStore = create<AccountsStore>((set, get) => ({
+    accounts: [],
+    activeId: null,
+    loading: true,
+    error: null,
+
+    // GET /accounts, then resolve the active id: keep the persisted one if it
+    // still exists, else fall back to the first account (or null when empty).
+    load: async () => {
+        const version = ++loadVersion;
+        const status = useSessionStore.getState().session.status;
+        if (status === 'demo') {
+            set({
+                accounts: [{ ...DEMO_ACCOUNT }],
+                activeId: DEMO_ACCOUNT.id,
+                loading: false,
+                error: null,
+            });
+            return;
+        }
+        if (status !== 'user') {
+            set({ accounts: [], activeId: null, loading: false, error: null });
+            return;
+        }
+        set({ loading: true, error: null });
+        try {
+            const { data } = await api.get<Account[]>('/accounts');
+            if (version !== loadVersion) return;
+            const persisted = readActive();
+            const active = data.some((a) => a.id === persisted) ? persisted : (data[0]?.id ?? null);
+            writeActive(active);
+            set({ accounts: data, activeId: active });
+        } catch (err) {
+            if (version !== loadVersion) return;
+            set({ error: apiMessage(err) });
+        } finally {
+            if (version === loadVersion) set({ loading: false });
+        }
+    },
+
+    // POST /accounts, refresh the list, and make the new account active.
+    create: async (payload) => {
+        if (useSessionStore.getState().session.status === 'demo') {
+            const account: Account = {
+                id: `demo-account-${Date.now()}`,
+                name: payload.name ?? 'Demo Account',
+                broker: payload.broker ?? null,
+                currency: payload.currency ?? 'USD',
+                starting_balance: String(payload.startingBalance ?? 0),
+            };
+            set((state) => ({
+                accounts: [...state.accounts, account],
+                activeId: account.id,
+            }));
+            return;
+        }
+        const { data } = await api.post<Account>('/accounts', payload);
+        const { data: accounts } = await api.get<Account[]>('/accounts');
+        writeActive(data.id);
+        set({ accounts, activeId: data.id });
+    },
+
+    // PATCH /accounts/:id, then refresh the list.
+    rename: async (id, payload) => {
+        if (useSessionStore.getState().session.status === 'demo') {
+            set((state) => ({
+                accounts: state.accounts.map((account) =>
+                    account.id === id
+                        ? {
+                              ...account,
+                              name: payload.name ?? account.name,
+                              broker: payload.broker ?? account.broker,
+                              currency: payload.currency ?? account.currency,
+                              starting_balance:
+                                  payload.startingBalance === undefined
+                                      ? account.starting_balance
+                                      : String(payload.startingBalance),
+                          }
+                        : account,
+                ),
+            }));
+            return;
+        }
+        await api.patch(`/accounts/${id}`, payload);
+        const { data } = await api.get<Account[]>('/accounts');
+        set({ accounts: data });
+    },
+
+    // DELETE /accounts/:id, refresh, and re-point the active account if the
+    // deleted one was selected.
+    remove: async (id) => {
+        if (useSessionStore.getState().session.status === 'demo') {
+            const accounts = get().accounts.filter((account) => account.id !== id);
+            const activeId = get().activeId === id ? (accounts[0]?.id ?? null) : get().activeId;
+            set({ accounts, activeId });
+            return;
+        }
+        await api.delete(`/accounts/${id}`);
+        const { data } = await api.get<Account[]>('/accounts');
+        let active = get().activeId;
+        if (active === id) {
+            active = data[0]?.id ?? null;
+            writeActive(active);
+        }
+        set({ accounts: data, activeId: active });
+    },
+
+    setActive: (id) => {
+        if (useSessionStore.getState().session.status !== 'demo') writeActive(id);
+        set({ activeId: id });
+    },
+}));
+
+// Stores survive client navigation. Drop the previous session's account before
+// dashboard effects can request its trades using the new user's credentials.
+useSessionStore.subscribe(({ session }, { session: previous }) => {
+    if (session.status === previous.status && session.email === previous.email) return;
+    ++loadVersion;
+    useAccountStore.setState({
+        accounts: [],
+        activeId: null,
+        loading: session.status === 'user' || session.status === 'demo',
+        error: null,
+    });
+});

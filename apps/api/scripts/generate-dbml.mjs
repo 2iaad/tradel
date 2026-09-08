@@ -6,6 +6,9 @@ import { spawnSync } from 'node:child_process';
 import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 const backendDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const envFile = process.env.DBML_ENV_FILE
     ? resolve(process.cwd(), process.env.DBML_ENV_FILE)
@@ -35,10 +38,15 @@ const temporaryOutputFile = resolve(
     dirname(outputFile),
     `.${basename(outputFile)}.${process.pid}.tmp`,
 );
-const cliFile = resolve(backendDirectory, 'node_modules/@dbml/cli/bin/db2dbml.js');
+let cliFile;
+try {
+    cliFile = require.resolve('@dbml/cli/bin/db2dbml.js');
+} catch {
+    cliFile = resolve(backendDirectory, 'node_modules/@dbml/cli/bin/db2dbml.js');
+}
 
 if (!existsSync(cliFile)) {
-    fail('DBML CLI is not installed. Run `npm install` in the backend directory.');
+    fail('DBML CLI is not installed. Run `npm install` from the repository root.');
 }
 
 console.log(`Generating DBML at ${outputFile}...`);

@@ -5,13 +5,13 @@ journal UI, equity curve (client-side, real data). Remaining below is
 dependency-ordered.
 
 Conventions (reuse, don't reinvent):
-- state → zustand stores in `frontend/src/stores/`, actions do the API calls
-- http → `frontend/src/lib/api.ts` (`api`, `apiMessage`) — 401 refresh-retry handled
-- styling → `frontend/src/lib/ui.ts` (`inputCls`, `btnCls`, `cardCls`, `ctaCls`, `G`, `R`, …)
-- format → `frontend/src/lib/format.ts` (`signedMoney`, `emailFromToken`)
+- state → zustand stores in `apps/web/src/stores/`, actions do the API calls
+- http → `apps/web/src/lib/api.ts` (`api`, `apiMessage`) — 401 refresh-retry handled
+- styling → `apps/web/src/lib/ui.ts` (`inputCls`, `btnCls`, `cardCls`, `ctaCls`, `G`, `R`, …)
+- format → `apps/web/src/lib/format.ts` (`signedMoney`, `emailFromToken`)
 - backend → Controller → Service → Repository, raw SQL via `DatabaseService.query`, scope every query by `req.user.sub`
 - trades have one timestamp: `created_at` (no `opened_at`/`closed_at`) — order/group by it
-- ⚠ before writing frontend code, read `frontend/node_modules/next/dist/docs/` (Next.js differs from training data)
+- ⚠ before writing frontend code, read `apps/web/node_modules/next/dist/docs/` (Next.js differs from training data)
 
 ---
 

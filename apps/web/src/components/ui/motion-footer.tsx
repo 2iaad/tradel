@@ -206,12 +206,14 @@ export function CinematicFooter() {
                             <span className="text-[0.625rem] font-bold uppercase tracking-widest text-muted-foreground md:text-xs">
                                 Built with care
                             </span>
-                            <Heart aria-hidden="true" className="size-3.5 fill-primary text-primary md:size-4" />
+                            <Heart
+                                aria-hidden="true"
+                                className="size-3.5 fill-primary text-primary md:size-4"
+                            />
                             <span className="text-[0.625rem] font-bold uppercase tracking-widest text-muted-foreground md:text-xs">
                                 for traders
                             </span>
                         </div>
-
                     </div>
                 </footer>
             </div>

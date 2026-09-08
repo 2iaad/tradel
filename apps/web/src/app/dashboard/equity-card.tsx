@@ -38,11 +38,7 @@ import {
 } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
-import {
-    buildEquityChartData,
-    type DailyPnlPoint,
-    type EquityPoint,
-} from './equity-chart.lib';
+import { buildEquityChartData, type DailyPnlPoint, type EquityPoint } from './equity-chart.lib';
 
 type ChartMode = 'equity' | 'pnl';
 
@@ -173,7 +169,10 @@ function Metric({ label, value, color }: { label: string; value: string; color: 
     return (
         <div className="flex min-w-0 flex-col gap-0.5">
             <span className={cardMetaLabelCls}>{label}</span>
-            <span className="truncate font-mono text-ui-sm font-semibold tabular-nums" style={{ color }}>
+            <span
+                className="truncate font-mono text-ui-sm font-semibold tabular-nums"
+                style={{ color }}
+            >
                 {value}
             </span>
         </div>
@@ -244,11 +243,7 @@ export function EquityCard() {
                         }}
                         className="flex-nowrap gap-1"
                     >
-                        <IconBarItem
-                            icon={ChartNoAxesCombined}
-                            label="Equity"
-                            value="equity"
-                        />
+                        <IconBarItem icon={ChartNoAxesCombined} label="Equity" value="equity" />
                         <IconBarItem icon={ChartColumn} label="P&L" value="pnl" />
                     </IconBar>
                 </div>
@@ -304,7 +299,12 @@ export function EquityCard() {
                 {!hasTrades ? (
                     <ChartEmptyState />
                 ) : (
-                    <div className="h-[220px] w-full sm:h-[280px]" aria-label={mode === 'equity' ? 'Equity curve chart' : 'Daily profit and loss chart'}>
+                    <div
+                        className="h-[220px] w-full sm:h-[280px]"
+                        aria-label={
+                            mode === 'equity' ? 'Equity curve chart' : 'Daily profit and loss chart'
+                        }
+                    >
                         <ResponsiveContainer width="100%" height="100%">
                             {mode === 'equity' ? (
                                 <AreaChart
@@ -313,15 +313,42 @@ export function EquityCard() {
                                     margin={{ top: 20, right: 20, bottom: 16, left: 12 }}
                                 >
                                     <defs>
-                                        <linearGradient id="equity-fill" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0" stopColor={PROFIT} stopOpacity={0.45} />
-                                            <stop offset={chart.gradientOffset} stopColor={PROFIT} stopOpacity={0.04} />
-                                            <stop offset={chart.gradientOffset} stopColor={LOSS} stopOpacity={0.04} />
+                                        <linearGradient
+                                            id="equity-fill"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
+                                        >
+                                            <stop
+                                                offset="0"
+                                                stopColor={PROFIT}
+                                                stopOpacity={0.45}
+                                            />
+                                            <stop
+                                                offset={chart.gradientOffset}
+                                                stopColor={PROFIT}
+                                                stopOpacity={0.04}
+                                            />
+                                            <stop
+                                                offset={chart.gradientOffset}
+                                                stopColor={LOSS}
+                                                stopOpacity={0.04}
+                                            />
                                             <stop offset="1" stopColor={LOSS} stopOpacity={0.45} />
                                         </linearGradient>
-                                        <linearGradient id="equity-stroke" x1="0" y1="0" x2="0" y2="1">
+                                        <linearGradient
+                                            id="equity-stroke"
+                                            x1="0"
+                                            y1="0"
+                                            x2="0"
+                                            y2="1"
+                                        >
                                             <stop offset="0" stopColor={PROFIT} />
-                                            <stop offset={chart.gradientOffset} stopColor={PROFIT} />
+                                            <stop
+                                                offset={chart.gradientOffset}
+                                                stopColor={PROFIT}
+                                            />
                                             <stop offset={chart.gradientOffset} stopColor={LOSS} />
                                             <stop offset="1" stopColor={LOSS} />
                                         </linearGradient>
@@ -339,7 +366,9 @@ export function EquityCard() {
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={10}
-                                        tickFormatter={(value: number) => chart.dateLabelsByTrade[value] ?? ''}
+                                        tickFormatter={(value: number) =>
+                                            chart.dateLabelsByTrade[value] ?? ''
+                                        }
                                         tick={{
                                             fill: 'var(--content-faint)',
                                             fontFamily: monoFontStack,
@@ -350,8 +379,13 @@ export function EquityCard() {
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={10}
-                                        domain={[(minimum: number) => Math.min(0, minimum), (maximum: number) => Math.max(0, maximum)]}
-                                        tickFormatter={(value: number) => formatAxisMoney(value, currency)}
+                                        domain={[
+                                            (minimum: number) => Math.min(0, minimum),
+                                            (maximum: number) => Math.max(0, maximum),
+                                        ]}
+                                        tickFormatter={(value: number) =>
+                                            formatAxisMoney(value, currency)
+                                        }
                                         tick={{
                                             fill: 'var(--content-faint)',
                                             fontFamily: monoFontStack,
@@ -374,7 +408,9 @@ export function EquityCard() {
                                     )}
                                     <Tooltip
                                         cursor={false}
-                                        content={(props) => <EquityTooltip {...props} currency={currency} />}
+                                        content={(props) => (
+                                            <EquityTooltip {...props} currency={currency} />
+                                        )}
                                     />
                                     <Area
                                         dataKey="cumulative"
@@ -437,7 +473,9 @@ export function EquityCard() {
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={10}
-                                        tickFormatter={(value: number) => formatAxisMoney(value, currency)}
+                                        tickFormatter={(value: number) =>
+                                            formatAxisMoney(value, currency)
+                                        }
                                         tick={{
                                             fill: 'var(--content-faint)',
                                             fontFamily: monoFontStack,
@@ -454,7 +492,9 @@ export function EquityCard() {
                                     />
                                     <Tooltip
                                         cursor={{ fill: 'var(--muted)', fillOpacity: 0.55 }}
-                                        content={(props) => <DailyTooltip {...props} currency={currency} />}
+                                        content={(props) => (
+                                            <DailyTooltip {...props} currency={currency} />
+                                        )}
                                     />
                                     <Bar
                                         dataKey="pnl"

@@ -1,11 +1,11 @@
-import { G, R } from "@/lib/ui";
-import { signedMoney } from "@/lib/format";
-import { useNotesStore } from "@/stores/notes";
-import type { ApiNote } from "@/stores/notes";
-import { LOG_GRID } from "./use-trade-log";
-import type { TradeLogRow } from "./use-trade-log";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { G, R } from '@/lib/ui';
+import { signedMoney } from '@/lib/format';
+import { useNotesStore } from '@/stores/notes';
+import type { ApiNote } from '@/stores/notes';
+import { LOG_GRID } from './use-trade-log';
+import type { TradeLogRow } from './use-trade-log';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 const sideStyle = (long: boolean) => ({
     color: long ? G : R,
@@ -16,10 +16,10 @@ const sideStyle = (long: boolean) => ({
         ? 'color-mix(in srgb, var(--profit) 28%, transparent)'
         : 'color-mix(in srgb, var(--loss) 28%, transparent)',
 });
-const numCls = "font-mono text-ui-sm text-content-muted";
-const badgeCls = "inline-flex px-2 py-0.5 rounded font-mono text-ui-xs tracking-[0.06em] border";
+const numCls = 'font-mono text-ui-sm text-content-muted';
+const badgeCls = 'inline-flex px-2 py-0.5 rounded font-mono text-ui-xs tracking-[0.06em] border';
 const tagCls =
-    "inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border";
+    'inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border';
 
 // Date (stacked date + time), symbol, and side pill (the three leading
 // cells). A green dot by the symbol marks trades that carry at least one note.
@@ -37,10 +37,10 @@ function LeadCells({ t, hasNotes }: { t: TradeLogRow; hasNotes: boolean }) {
                 {t.sym}
             </span>
             <span>
-                    <Badge
+                <Badge
                     variant="outline"
                     className={`${badgeCls} h-auto font-semibold tracking-[0.08em]`}
-                    style={sideStyle(t.side === "LONG")}
+                    style={sideStyle(t.side === 'LONG')}
                 >
                     {t.side}
                 </Badge>
@@ -56,17 +56,17 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
     return (
         <>
             <span className={numCls}>{t.entry}</span>
-            <span className={numCls}>{t.exit ?? "—"}</span>
+            <span className={numCls}>{t.exit ?? '—'}</span>
             <span className={numCls}>{t.lots}</span>
             <span className="font-mono text-ui-sm font-semibold" style={winCol}>
-                {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
+                {t.pnlv === null ? '—' : signedMoney(t.pnlv)}
             </span>
             <span className="font-mono text-ui-sm font-medium" style={winCol}>
-                {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
+                {t.rv === null ? '—' : `${t.rv > 0 ? '+' : ''}${t.rv.toFixed(1)}R`}
             </span>
             <span
                 className="font-mono text-ui-xs text-content-faint text-center inline-block transition-transform"
-                style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+                style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
             >
                 ▾
             </span>
@@ -76,7 +76,8 @@ function TailCells({ t, open }: { t: TradeLogRow; open: boolean }) {
 
 // Edit (✎) / delete (✕) icon buttons in the trailing cell.
 function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
-    const cls = "bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors";
+    const cls =
+        'bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none transition-colors';
     return (
         <span className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
@@ -107,9 +108,7 @@ function RowIcons({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => vo
 function NoNote({ onAddNote }: { onAddNote: () => void }) {
     return (
         <div className="flex items-center gap-3.5">
-            <span className="text-ui-sm text-content-faint">
-                No note attached to this trade.
-            </span>
+            <span className="text-ui-sm text-content-faint">No note attached to this trade.</span>
             <Button
                 type="button"
                 onClick={onAddNote}
@@ -188,7 +187,7 @@ export function TradeRow({
         <div>
             <div
                 onClick={onToggle}
-                className={`${LOG_GRID} items-center px-[22px] ${dense ? "py-[7px]" : "py-[11px]"} border-t border-border-faint transition-colors cursor-pointer hover:bg-accent ${open ? "bg-accent" : ""}`}
+                className={`${LOG_GRID} items-center px-[22px] ${dense ? 'py-[7px]' : 'py-[11px]'} border-t border-border-faint transition-colors cursor-pointer hover:bg-accent ${open ? 'bg-accent' : ''}`}
             >
                 <LeadCells t={t} hasNotes={hasNotes} />
                 <TailCells t={t} open={open} />

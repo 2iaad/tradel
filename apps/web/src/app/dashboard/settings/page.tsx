@@ -33,7 +33,10 @@ function AccountRow({
                         {account.name}
                     </span>
                     {active && (
-                        <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-medium tracking-[0.12em] text-primary">
+                        <Badge
+                            variant="outline"
+                            className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-medium tracking-[0.12em] text-primary"
+                        >
                             ACTIVE
                         </Badge>
                     )}

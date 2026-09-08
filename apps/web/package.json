@@ -6,7 +6,8 @@
         "dev": "next dev -p 5173",
         "build": "next build",
         "start": "next start -p 5173",
-        "lint": "eslint"
+        "lint": "eslint",
+        "format": "prettier --write ."
     },
     "dependencies": {
         "@base-ui/react": "^1.6.0",

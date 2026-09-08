@@ -84,11 +84,15 @@ export default function CalendarPage() {
                     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-ui-xs text-content-faint">
                         <span>
                             TRADING DAYS&nbsp;
-                            <strong className="font-semibold text-secondary-foreground">{tradingDays}</strong>
+                            <strong className="font-semibold text-secondary-foreground">
+                                {tradingDays}
+                            </strong>
                         </span>
                         <span>
                             TOTAL TRADES&nbsp;
-                            <strong className="font-semibold text-secondary-foreground">{totalTrades}</strong>
+                            <strong className="font-semibold text-secondary-foreground">
+                                {totalTrades}
+                            </strong>
                         </span>
                     </div>
                     <div className="flex items-center gap-4 font-mono text-ui-xs text-content-faint">
@@ -106,9 +110,7 @@ export default function CalendarPage() {
                     <CalendarChart days={days} loading={loading} month={month} />
                 </div>
                 <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-[22px]">
-                    <span className="font-mono text-ui-xs text-loss">
-                        {error ?? ''}
-                    </span>
+                    <span className="font-mono text-ui-xs text-loss">{error ?? ''}</span>
                     <span className="font-mono text-ui-sm text-content-faint">
                         MONTH NET&nbsp;
                         <strong className="font-semibold" style={{ color: monthNet >= 0 ? G : R }}>

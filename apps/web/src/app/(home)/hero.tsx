@@ -22,19 +22,26 @@ export function Hero() {
                             <div className="w-full max-w-md flex-1 pt-1">
                                 <BlurReveal delay={0.4} className="block">
                                     <p className="text-ui-lg text-center leading-relaxed text-white/50 normal-case">
-                                        Log your trades, review clear analytics, and understand what is improving
-                                        your performance, all in one place.
+                                        Log your trades, review clear analytics, and understand what
+                                        is improving your performance, all in one place.
                                     </p>
                                 </BlurReveal>
 
                                 <div className="mt-8 flex justify-center flex-wrap gap-3">
                                     <BlurReveal delay={0.55}>
-                                        <Button nativeButton={false} render={<Link href="/register" />}>
+                                        <Button
+                                            nativeButton={false}
+                                            render={<Link href="/register" />}
+                                        >
                                             Start your journal
                                         </Button>
                                     </BlurReveal>
                                     <BlurReveal delay={0.7}>
-                                        <Button nativeButton={false} render={<Link href="/demo" />} variant="outline">
+                                        <Button
+                                            nativeButton={false}
+                                            render={<Link href="/demo" />}
+                                            variant="outline"
+                                        >
                                             View live demo
                                         </Button>
                                     </BlurReveal>

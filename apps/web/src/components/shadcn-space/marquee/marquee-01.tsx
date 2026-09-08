@@ -42,15 +42,7 @@ const reviews = [
 const firstRow = reviews.slice(0, reviews.length / 2);
 const secondRow = reviews.slice(reviews.length / 2);
 
-function ReviewCard({
-    name,
-    rating,
-    body,
-}: {
-    name: string;
-    rating: number;
-    body: string;
-}) {
+function ReviewCard({ name, rating, body }: { name: string; rating: number; body: string }) {
     return (
         <Card className="h-38 w-72 rounded-xl border border-border/30 bg-card/50 p-6 shadow-none">
             <CardContent className="flex h-full flex-col p-0">
@@ -59,7 +51,9 @@ function ReviewCard({
                     className="relative w-fit text-lg tracking-wide"
                     role="img"
                 >
-                    <span aria-hidden="true" className="text-muted-foreground/30">★★★★★</span>
+                    <span aria-hidden="true" className="text-muted-foreground/30">
+                        ★★★★★
+                    </span>
                     <span
                         aria-hidden="true"
                         className="absolute inset-0 overflow-hidden whitespace-nowrap text-primary"

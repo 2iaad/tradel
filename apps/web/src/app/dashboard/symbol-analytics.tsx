@@ -88,13 +88,14 @@ const fmtMoney = (value: number, currency: string, signed = false) => {
 const fmtWholeMoney = (value: number, currency: string, signed = false) => {
     const sign = value < 0 ? '-' : signed && value > 0 ? '+' : '';
     try {
-        const symbol = new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency,
-            currencyDisplay: 'narrowSymbol',
-        })
-            .formatToParts(0)
-            .find((part) => part.type === 'currency')?.value ?? '$';
+        const symbol =
+            new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency,
+                currencyDisplay: 'narrowSymbol',
+            })
+                .formatToParts(0)
+                .find((part) => part.type === 'currency')?.value ?? '$';
         return `${sign}${symbol}${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
     } catch {
         return `${sign}$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
@@ -134,9 +135,7 @@ function SectionHeader({
     return (
         <div className="flex flex-col gap-3 px-4 pb-3 pt-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5 sm:px-[22px] sm:pt-5">
             <div className="min-w-0">
-                <h2 className={cardTitleCls}>
-                    {title}
-                </h2>
+                <h2 className={cardTitleCls}>{title}</h2>
                 <p className={cardDescriptionCls}>{description}</p>
             </div>
             {children}
@@ -164,7 +163,11 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                     trigger: 'item',
                     backgroundColor: canvasColors.surface,
                     borderColor: canvasColors.border,
-                    textStyle: { color: canvasColors.grayLight, fontFamily: monoFontStack, fontSize: 12 },
+                    textStyle: {
+                        color: canvasColors.grayLight,
+                        fontFamily: monoFontStack,
+                        fontSize: 12,
+                    },
                     formatter: (params: unknown) => {
                         const item = params as { name?: string; value?: number[] };
                         const values = item.value ?? [];
@@ -197,8 +200,12 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                         {
                             value: [Math.abs(row.net), row.winRate ?? 0, row.count],
                             name: row.label,
-                            lineStyle: { color: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length] },
-                            itemStyle: { color: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length] },
+                            lineStyle: {
+                                color: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length],
+                            },
+                            itemStyle: {
+                                color: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length],
+                            },
                             areaStyle: { opacity: 0.06 },
                         },
                     ],
@@ -234,9 +241,16 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
                 axisPointer: { type: 'shadow' },
                 backgroundColor: canvasColors.surface,
                 borderColor: canvasColors.border,
-                textStyle: { color: canvasColors.grayLight, fontFamily: monoFontStack, fontSize: 12 },
+                textStyle: {
+                    color: canvasColors.grayLight,
+                    fontFamily: monoFontStack,
+                    fontSize: 12,
+                },
                 formatter: (params: unknown) => {
-                    const item = (Array.isArray(params) ? params[0] : params) as { name?: string; value?: number };
+                    const item = (Array.isArray(params) ? params[0] : params) as {
+                        name?: string;
+                        value?: number;
+                    };
                     const row = data.find((entry) => entry.label === item.name);
                     return `${item.name ?? ''}<br/>P&L: ${fmtMoney(row?.net ?? Number(item.value ?? 0), currency, true)}<br/>${row?.count ?? 0} trades`;
                 },
@@ -292,15 +306,31 @@ function SymbolsPerformance({ rows, currency }: SymbolsProps) {
             </SectionHeader>
             <div className="px-4 pt-3 sm:px-6">
                 {data.length ? (
-                    <div ref={node} role="img" aria-label="P&L breakdown by symbol" className="h-[320px] w-full sm:h-[430px]" />
+                    <div
+                        ref={node}
+                        role="img"
+                        aria-label="P&L breakdown by symbol"
+                        className="h-[320px] w-full sm:h-[430px]"
+                    />
                 ) : (
-                    <div className="flex h-[320px] items-center justify-center text-ui-sm text-content-faint sm:h-[430px]">No symbol data yet</div>
+                    <div className="flex h-[320px] items-center justify-center text-ui-sm text-content-faint sm:h-[430px]">
+                        No symbol data yet
+                    </div>
                 )}
             </div>
             <div className={`${cardFooterCls} grid grid-cols-3`}>
                 <FooterMetric label="Symbols" value={String(data.length)} />
-                <FooterMetric label="Best" value={best ? `${best.label} ${fmtWholeMoney(best.net, currency, true)}` : '—'} center />
-                <FooterMetric label="Net P&L" value={fmtMoney(net, currency, true)} right accent={net >= 0} />
+                <FooterMetric
+                    label="Best"
+                    value={best ? `${best.label} ${fmtWholeMoney(best.net, currency, true)}` : '—'}
+                    center
+                />
+                <FooterMetric
+                    label="Net P&L"
+                    value={fmtMoney(net, currency, true)}
+                    right
+                    accent={net >= 0}
+                />
             </div>
         </Card>
     );
@@ -322,7 +352,9 @@ function FooterMetric({
     return (
         <div className={`${center ? 'text-center' : right ? 'text-right' : ''} min-w-0`}>
             <div className={cardMetaLabelCls}>{label}</div>
-            <div className={`mt-2 truncate ${cardMetaValueCls} ${accent ? 'text-profit' : ''}`}>{value}</div>
+            <div className={`mt-2 truncate ${cardMetaValueCls} ${accent ? 'text-profit' : ''}`}>
+                {value}
+            </div>
         </div>
     );
 }
@@ -338,7 +370,11 @@ function TradeDistribution({ rows }: SymbolsProps) {
                 trigger: 'item',
                 backgroundColor: canvasColors.surface,
                 borderColor: canvasColors.border,
-                textStyle: { color: canvasColors.grayLight, fontFamily: monoFontStack, fontSize: 12 },
+                textStyle: {
+                    color: canvasColors.grayLight,
+                    fontFamily: monoFontStack,
+                    fontSize: 12,
+                },
                 formatter: (params: unknown) => {
                     const item = params as { name?: string; value?: number; percent?: number };
                     return `${item.name ?? ''}<br/>${item.value ?? 0} trades · ${Number(item.percent ?? 0).toFixed(0)}%`;
@@ -362,7 +398,9 @@ function TradeDistribution({ rows }: SymbolsProps) {
                     data: data.map((row, index) => ({
                         name: row.label,
                         value: row.count,
-                        itemStyle: { color: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length] },
+                        itemStyle: {
+                            color: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length],
+                        },
                     })),
                 },
             ],
@@ -375,28 +413,52 @@ function TradeDistribution({ rows }: SymbolsProps) {
 
     return (
         <Card className={`${cardCls} overflow-hidden p-0`}>
-            <SectionHeader title="Trade Distribution" description="Trade count distribution across symbols" />
+            <SectionHeader
+                title="Trade Distribution"
+                description="Trade count distribution across symbols"
+            />
             <div className="grid min-h-[490px] grid-cols-1 items-center gap-3 px-4 py-4 sm:grid-cols-[1.04fr_0.96fr] sm:px-8">
                 {data.length ? (
                     <div className="relative h-[300px] min-w-0 sm:h-[390px]">
-                        <div ref={node} role="img" aria-label="Trade count distribution by symbol" className="h-full w-full" />
+                        <div
+                            ref={node}
+                            role="img"
+                            aria-label="Trade count distribution by symbol"
+                            className="h-full w-full"
+                        />
                         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pt-1">
-                            <span className="text-display-md font-semibold leading-none text-content">{total}</span>
+                            <span className="text-display-md font-semibold leading-none text-content">
+                                {total}
+                            </span>
                             <span className="mt-1 text-ui-sm text-content-muted">Trades</span>
                         </div>
                     </div>
                 ) : (
-                    <div className="flex h-[300px] items-center justify-center text-ui-sm text-content-faint sm:col-span-2 sm:h-[390px]">No trade data yet</div>
+                    <div className="flex h-[300px] items-center justify-center text-ui-sm text-content-faint sm:col-span-2 sm:h-[390px]">
+                        No trade data yet
+                    </div>
                 )}
                 <div className="flex min-w-0 flex-col gap-4">
                     {data.map((row, index) => {
                         const percentage = total ? Math.round((row.count / total) * 100) : 0;
                         return (
                             <div key={row.label} className="flex items-center gap-3 text-ui-sm">
-                                <span className="size-4 shrink-0 rounded-[3px]" style={{ background: DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length] }} />
-                                <span className="min-w-0 truncate font-semibold text-content">{row.label}</span>
-                                <span className="ml-auto whitespace-nowrap font-mono text-content">{percentage}%</span>
-                                <span className="whitespace-nowrap text-content-faint">· {row.count} {row.count === 1 ? 'trade' : 'trades'}</span>
+                                <span
+                                    className="size-4 shrink-0 rounded-[3px]"
+                                    style={{
+                                        background:
+                                            DISTRIBUTION_COLORS[index % DISTRIBUTION_COLORS.length],
+                                    }}
+                                />
+                                <span className="min-w-0 truncate font-semibold text-content">
+                                    {row.label}
+                                </span>
+                                <span className="ml-auto whitespace-nowrap font-mono text-content">
+                                    {percentage}%
+                                </span>
+                                <span className="whitespace-nowrap text-content-faint">
+                                    · {row.count} {row.count === 1 ? 'trade' : 'trades'}
+                                </span>
                             </div>
                         );
                     })}
@@ -405,11 +467,17 @@ function TradeDistribution({ rows }: SymbolsProps) {
             <div className={`${cardFooterCls} grid grid-cols-2`}>
                 <div>
                     <div className={cardMetaLabelCls}>Most traded</div>
-                    <div className={`mt-2 ${cardMetaValueCls}`}>{mostTraded ? `${mostTraded.label} · ${mostTraded.count} ${mostTraded.count === 1 ? 'trade' : 'trades'}` : '—'}</div>
+                    <div className={`mt-2 ${cardMetaValueCls}`}>
+                        {mostTraded
+                            ? `${mostTraded.label} · ${mostTraded.count} ${mostTraded.count === 1 ? 'trade' : 'trades'}`
+                            : '—'}
+                    </div>
                 </div>
                 <div className="text-right">
                     <div className={cardMetaLabelCls}>Concentration</div>
-                    <div className={`mt-2 ${cardMetaValueCls}`}>{total ? `${concentration}% of all trades` : '—'}</div>
+                    <div className={`mt-2 ${cardMetaValueCls}`}>
+                        {total ? `${concentration}% of all trades` : '—'}
+                    </div>
                 </div>
             </div>
         </Card>

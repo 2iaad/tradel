@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
-import { HeatmapChart, type HeatmapSeriesOption, ScatterChart, type ScatterSeriesOption } from 'echarts/charts';
+import {
+    HeatmapChart,
+    type HeatmapSeriesOption,
+    ScatterChart,
+    type ScatterSeriesOption,
+} from 'echarts/charts';
 import {
     CalendarComponent,
     type CalendarComponentOption,
@@ -101,7 +106,7 @@ function datumFrom(params: unknown): CalendarDatum | null {
     const data = (params as { data?: unknown })?.data;
     const items =
         data && typeof data === 'object' && Array.isArray((data as { items?: unknown }).items)
-            ? ((data as { items: CalendarTrade[] }).items)
+            ? (data as { items: CalendarTrade[] }).items
             : [];
     return { value: value as CalendarValue, items };
 }
@@ -113,7 +118,8 @@ function tradeRows(items: CalendarTrade[]): string {
         .map((item) => {
             const tradeValue = item.pnl === null ? 'OPEN' : signedMoney(item.pnl);
             let pnlColor: string = canvasColors.faint;
-            if (item.pnl !== null) pnlColor = item.pnl >= 0 ? canvasColors.profit : canvasColors.loss;
+            if (item.pnl !== null)
+                pnlColor = item.pnl >= 0 ? canvasColors.profit : canvasColors.loss;
 
             return [
                 '<div style="display:flex;justify-content:space-between;gap:18px;align-items:center;">',

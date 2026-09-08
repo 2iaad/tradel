@@ -18,9 +18,7 @@ echarts.use([PieChart, LegendComponent, TooltipComponent, CanvasRenderer]);
 
 const BE = canvasColors.faint;
 
-type ChartOption = ComposeOption<
-    PieSeriesOption | LegendComponentOption | TooltipComponentOption
->;
+type ChartOption = ComposeOption<PieSeriesOption | LegendComponentOption | TooltipComponentOption>;
 
 interface WinRateDonutProps {
     wins: number;
@@ -113,10 +111,7 @@ function buildOption(wins: number, losses: number, breakevens: number): ChartOpt
 export function WinRateDonut({ wins, losses, breakevens }: WinRateDonutProps) {
     const chartNode = useRef<HTMLDivElement>(null);
     const chart = useRef<EChartsType | null>(null);
-    const option = useMemo(
-        () => buildOption(wins, losses, breakevens),
-        [wins, losses, breakevens],
-    );
+    const option = useMemo(() => buildOption(wins, losses, breakevens), [wins, losses, breakevens]);
 
     useEffect(() => {
         if (!chartNode.current) return;

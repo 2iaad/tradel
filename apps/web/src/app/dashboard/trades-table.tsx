@@ -1,17 +1,17 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import { signedMoney } from "@/lib/format";
-import { cardCls, G, ghostBtnCls, h2Cls, R } from "@/lib/ui";
-import type { TradeLogRow } from "./trades/use-trade-log";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { signedMoney } from '@/lib/format';
+import { cardCls, G, ghostBtnCls, h2Cls, R } from '@/lib/ui';
+import type { TradeLogRow } from './trades/use-trade-log';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
-const tableGrid = "grid grid-cols-[78px_74px_1fr_1fr_56px_64px_104px_66px] gap-2";
+const tableGrid = 'grid grid-cols-[78px_74px_1fr_1fr_56px_64px_104px_66px] gap-2';
 
 // LONG/SHORT pill for a trade row.
 function SideBadge({ side }: { side: string }) {
-    const long = side === "LONG";
+    const long = side === 'LONG';
     return (
         <span>
             <Badge
@@ -33,7 +33,7 @@ function SideBadge({ side }: { side: string }) {
     );
 }
 
-const numCls = "font-mono text-ui-sm text-content-muted";
+const numCls = 'font-mono text-ui-sm text-content-muted';
 
 // One row of the recent-trades table.
 function TradeRow({ t }: { t: TradeLogRow }) {
@@ -45,13 +45,13 @@ function TradeRow({ t }: { t: TradeLogRow }) {
             <span className="font-mono text-ui-sm font-semibold text-content">{t.sym}</span>
             <SideBadge side={t.side} />
             <span className={numCls}>{t.entry}</span>
-            <span className={numCls}>{t.exit ?? "—"}</span>
+            <span className={numCls}>{t.exit ?? '—'}</span>
             <span className={numCls}>{t.lots}</span>
             <span className="font-mono text-ui-sm font-medium" style={winCol}>
-                {t.rv === null ? "—" : `${t.rv > 0 ? "+" : ""}${t.rv.toFixed(1)}R`}
+                {t.rv === null ? '—' : `${t.rv > 0 ? '+' : ''}${t.rv.toFixed(1)}R`}
             </span>
             <span className="font-mono text-ui-sm font-semibold text-right" style={winCol}>
-                {t.pnlv === null ? "—" : signedMoney(t.pnlv)}
+                {t.pnlv === null ? '—' : signedMoney(t.pnlv)}
             </span>
             <span className="font-mono text-ui-xs text-content-faint text-right">{t.date}</span>
         </div>
@@ -80,7 +80,7 @@ function TableHead() {
 function EmptyRows({ loading }: { loading: boolean }) {
     return (
         <div className="px-[22px] py-8 border-t border-border-faint text-center font-mono text-ui-xs tracking-[0.12em] text-content-faint">
-            {loading ? "LOADING…" : "NO TRADES YET — LOG YOUR FIRST ONE"}
+            {loading ? 'LOADING…' : 'NO TRADES YET — LOG YOUR FIRST ONE'}
         </div>
     );
 }
@@ -91,7 +91,13 @@ export function TradesTable({ rows, loading }: { rows: TradeLogRow[]; loading: b
         <Card className={`${cardCls} flex flex-col pt-4 pb-1.5 sm:pt-5`}>
             <div className="flex items-center justify-between px-4 pb-3.5 sm:px-[22px]">
                 <h2 className={h2Cls}>Recent 5 trades</h2>
-                <Button nativeButton={false} render={<Link href="/dashboard/trades" />} variant="ghost" size="sm" className={`${ghostBtnCls} h-auto px-0 hover:bg-transparent`}>
+                <Button
+                    nativeButton={false}
+                    render={<Link href="/dashboard/trades" />}
+                    variant="ghost"
+                    size="sm"
+                    className={`${ghostBtnCls} h-auto px-0 hover:bg-transparent`}
+                >
                     VIEW ALL →
                 </Button>
             </div>

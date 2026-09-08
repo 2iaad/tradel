@@ -111,9 +111,7 @@ export const useNotesStore = create<NotesStore>((set, get) => ({
         if (useSessionStore.getState().session.status === 'demo') {
             set({
                 notes: get().notes.map((note) =>
-                    note.id === id
-                        ? { ...note, ...payload, tags: payload.tags ?? [] }
-                        : note,
+                    note.id === id ? { ...note, ...payload, tags: payload.tags ?? [] } : note,
                 ),
             });
             return;

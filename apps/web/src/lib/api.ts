@@ -29,7 +29,11 @@ api.interceptors.request.use((config) => {
 // retry the request once. Auth routes are excluded so refresh can't loop.
 api.interceptors.response.use(undefined, async (error) => {
     const original = error.config;
-    if (error.response?.status !== 401 || original?.url?.startsWith('/auth/') || original._retried) {
+    if (
+        error.response?.status !== 401 ||
+        original?.url?.startsWith('/auth/') ||
+        original._retried
+    ) {
         throw error;
     }
     original._retried = true;

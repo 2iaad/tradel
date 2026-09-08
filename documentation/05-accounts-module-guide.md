@@ -43,6 +43,7 @@ it. Look at `apps/api/migrations/1782038103848_users-table.sql` — that's your
 template for style (UUID id, `NOT NULL`, `created_at` default `NOW()`).
 
 Run:
+
 ```bash
 npm run migrate:create accounts-table
 ```
@@ -58,6 +59,7 @@ Fill "Down Migration" with `DROP TABLE accounts;` — this is what lets you
 undo the migration if you made a mistake.
 
 Then run:
+
 ```bash
 npm run migrate:up
 ```
@@ -71,6 +73,7 @@ everything after depends on the table being real.
 ## Step 2 — The Repository (talks to the database, nothing else)
 
 Look at `src/users/users.repository.ts`. Notice:
+
 - It only has 2 methods: `findByEmail` and `create`. Small, focused.
 - Every method calls `this.db.query(...)`, never anything else.
 - It defines a small `interface User { ... }` at the top matching the SQL
@@ -82,12 +85,13 @@ Look at `src/users/users.repository.ts`. Notice:
 **Your task:** write `AccountsRepository` in `src/accounts/accounts.repository.ts`
 with an `Account` interface (matching your new table's columns), and two
 methods to start:
+
 - `create(userId, name)` → inserts a row, returns it
 - `findAllByUserId(userId)` → selects all accounts where `user_id = $1`
 
-Ask yourself while writing it: *"if I only had this file, with no idea what
+Ask yourself while writing it: _"if I only had this file, with no idea what
 NestJS or HTTP is, would this still make sense as 'a thing that reads and
-writes accounts in the database'?"* If yes, you got the separation right.
+writes accounts in the database'?"_ If yes, you got the separation right.
 
 ---
 
@@ -99,13 +103,14 @@ anything about HTTP requests or responses — it just takes plain data in
 returns plain data out. It calls the repository, never touches SQL itself.
 
 **Your task:** write `AccountsService` with methods like:
+
 - `create(userId: string, name: string)` → calls
   `this.accounts.create(userId, name)`, returns the account
 - `findAllForUser(userId: string)` → calls
   `this.accounts.findAllByUserId(userId)`
 
 Right now this looks like it "just forwards" to the repository, and that's
-fine — the service exists so that later, when you need actual *rules* (e.g.
+fine — the service exists so that later, when you need actual _rules_ (e.g.
 "a user can have at most 5 accounts"), you have one obvious place to put
 that check, without touching the controller or the repository.
 
@@ -114,9 +119,9 @@ that check, without touching the controller or the repository.
 ## Step 4 — Knowing who's logged in: `JwtGuard` and `@Req()`
 
 This is the part that's new compared to auth (auth routes are the only ones
-that *don't* require a login already). Look at `src/auth/guards/jwt.guard.ts`.
+that _don't_ require a login already). Look at `src/auth/guards/jwt.guard.ts`.
 
-In simple words: a **guard** in NestJS is a checkpoint that runs *before*
+In simple words: a **guard** in NestJS is a checkpoint that runs _before_
 your controller method. `JwtGuard` reads the `Authorization: Bearer <token>`
 header, verifies the JWT is valid, and — this is the important part —
 attaches the decoded token payload onto the request object:
@@ -153,13 +158,15 @@ in `RegisterDto` for the pattern — `@IsString()`, `@IsNotEmpty()`,
 ## Step 6 — The Controller (wires HTTP to the service)
 
 Look at `src/auth/auth.controller.ts`. Two things to notice:
+
 - `@Controller('auth')` — this is the route prefix. Yours will be
   `@Controller('accounts')`.
 - Each method is thin: read input, call the service, return the result.
   No logic lives here.
 
 **Your task:** write `AccountsController` with:
-- `@UseGuards(JwtGuard)` on the whole controller (so *every* route needs a
+
+- `@UseGuards(JwtGuard)` on the whole controller (so _every_ route needs a
   valid login — accounts should never be public)
 - `@Post()` → takes `@Body() body: CreateAccountDto` and `@Req() req`, calls
   `accountsService.create(req.user.sub, body.name)`
@@ -174,6 +181,7 @@ controllers exist, which providers (services/repositories) exist. NestJS
 uses this list to know what to construct and inject where.
 
 **Your task:** write `AccountsModule`:
+
 ```
 controllers: [AccountsController]
 providers: [AccountsService, AccountsRepository]

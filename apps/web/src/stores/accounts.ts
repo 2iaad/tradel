@@ -28,8 +28,7 @@ export interface AccountPayload {
 const ACTIVE_KEY = 'tradel.activeAccount';
 // Invalidates account requests started before a session change or a newer load.
 let loadVersion = 0;
-const readActive = () =>
-    typeof window === 'undefined' ? null : localStorage.getItem(ACTIVE_KEY);
+const readActive = () => (typeof window === 'undefined' ? null : localStorage.getItem(ACTIVE_KEY));
 const writeActive = (id: string | null) => {
     if (typeof window === 'undefined') return;
     if (id) localStorage.setItem(ACTIVE_KEY, id);
@@ -77,9 +76,7 @@ export const useAccountStore = create<AccountsStore>((set, get) => ({
             const { data } = await api.get<Account[]>('/accounts');
             if (version !== loadVersion) return;
             const persisted = readActive();
-            const active = data.some((a) => a.id === persisted)
-                ? persisted
-                : (data[0]?.id ?? null);
+            const active = data.some((a) => a.id === persisted) ? persisted : (data[0]?.id ?? null);
             writeActive(active);
             set({ accounts: data, activeId: active });
         } catch (err) {

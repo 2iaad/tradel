@@ -1,70 +1,124 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import { useAuthSubmit } from "@/hooks/use-auth-submit";
-import { apiMessage } from "@/lib/api";
-import { signedMoney } from "@/lib/format";
-import { errorCls } from "@/lib/ui";
-import type { TradePayload } from "@/stores/trades";
-import { LOG_GRID } from "./use-trade-log";
-import type { TradeLogRow } from "./use-trade-log";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuthSubmit } from '@/hooks/use-auth-submit';
+import { apiMessage } from '@/lib/api';
+import { signedMoney } from '@/lib/format';
+import { errorCls } from '@/lib/ui';
+import type { TradePayload } from '@/stores/trades';
+import { LOG_GRID } from './use-trade-log';
+import type { TradeLogRow } from './use-trade-log';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 const inCls =
-    "w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]";
-const dashCls = "font-mono text-ui-sm text-content-placeholder";
+    'w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]';
+const dashCls = 'font-mono text-ui-sm text-content-placeholder';
 
 // Inline form fields → trades API payload; empty optional fields stay undefined.
 // The trade date is created_at (set server-side), so there's no date field.
 function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
     const opt = (k: string) => {
         const v = f.get(k);
-        return typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
+        return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;
     };
     const num = (k: string) => (opt(k) === undefined ? undefined : Number(opt(k)));
     return {
-        symbol: f.get("symbol") as string,
-        side: f.get("side") as "LONG" | "SHORT",
-        entry: num("entry"),
-        exit: num("exit"),
-        lots: num("lots"),
+        symbol: f.get('symbol') as string,
+        side: f.get('side') as 'LONG' | 'SHORT',
+        entry: num('entry'),
+        exit: num('exit'),
+        lots: num('lots'),
         // R:R has no column on create (CreateTradeDto) — edit only.
-        rReward: prev ? num("rReward") : undefined,
+        rReward: prev ? num('rReward') : undefined,
     };
 }
 
 // Input cells aligned to the log grid columns; P&L stays computed server-side.
 function FormCells({ t }: { t: TradeLogRow | null }) {
-    const [symbol, setSymbol] = useState(t?.sym ?? "");
-    const [side, setSide] = useState<"LONG" | "SHORT">(t?.side ?? "LONG");
-    const [entry, setEntry] = useState(t?.entry ?? "");
-    const [exit, setExit] = useState(t?.exit ?? "");
-    const [lots, setLots] = useState(t?.lots ?? "");
-    const [rReward, setRReward] = useState(t?.rv === null || t?.rv === undefined ? "" : String(t.rv));
+    const [symbol, setSymbol] = useState(t?.sym ?? '');
+    const [side, setSide] = useState<'LONG' | 'SHORT'>(t?.side ?? 'LONG');
+    const [entry, setEntry] = useState(t?.entry ?? '');
+    const [exit, setExit] = useState(t?.exit ?? '');
+    const [lots, setLots] = useState(t?.lots ?? '');
+    const [rReward, setRReward] = useState(
+        t?.rv === null || t?.rv === undefined ? '' : String(t.rv),
+    );
 
     return (
         <>
             {/* date column: created_at, set server-side — shown after save */}
-            <span className={dashCls}>{t?.date ?? "—"}</span>
-            <Input name="symbol" value={symbol} onChange={(e) => setSymbol(e.target.value)} required maxLength={20} placeholder="SYM" className={inCls} />
-            <Select name="side" value={side} onValueChange={(value) => setSide(value as "LONG" | "SHORT")}>
-                <SelectTrigger className={inCls}><SelectValue /></SelectTrigger>
+            <span className={dashCls}>{t?.date ?? '—'}</span>
+            <Input
+                name="symbol"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value)}
+                required
+                maxLength={20}
+                placeholder="SYM"
+                className={inCls}
+            />
+            <Select
+                name="side"
+                value={side}
+                onValueChange={(value) => setSide(value as 'LONG' | 'SHORT')}
+            >
+                <SelectTrigger className={inCls}>
+                    <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="LONG">LONG</SelectItem>
                     <SelectItem value="SHORT">SHORT</SelectItem>
                 </SelectContent>
             </Select>
-            <Input name="entry" type="number" step="any" value={entry} onChange={(e) => setEntry(e.target.value)} required placeholder="entry" className={inCls} />
-            <Input name="exit" type="number" step="any" value={exit} onChange={(e) => setExit(e.target.value)} placeholder="—" className={inCls} />
-            <Input name="lots" type="number" step="any" value={lots} onChange={(e) => setLots(e.target.value)} required placeholder="lots" className={inCls} />
-            <span className={dashCls}>
-                {t?.pnlv != null ? signedMoney(t.pnlv) : "—"}
-            </span>
+            <Input
+                name="entry"
+                type="number"
+                step="any"
+                value={entry}
+                onChange={(e) => setEntry(e.target.value)}
+                required
+                placeholder="entry"
+                className={inCls}
+            />
+            <Input
+                name="exit"
+                type="number"
+                step="any"
+                value={exit}
+                onChange={(e) => setExit(e.target.value)}
+                placeholder="—"
+                className={inCls}
+            />
+            <Input
+                name="lots"
+                type="number"
+                step="any"
+                value={lots}
+                onChange={(e) => setLots(e.target.value)}
+                required
+                placeholder="lots"
+                className={inCls}
+            />
+            <span className={dashCls}>{t?.pnlv != null ? signedMoney(t.pnlv) : '—'}</span>
             {t ? (
-                <Input name="rReward" type="number" step="any" value={rReward} onChange={(e) => setRReward(e.target.value)} placeholder="—" className={inCls} />
+                <Input
+                    name="rReward"
+                    type="number"
+                    step="any"
+                    value={rReward}
+                    onChange={(e) => setRReward(e.target.value)}
+                    placeholder="—"
+                    className={inCls}
+                />
             ) : (
                 <span className={dashCls}>—</span>
             )}
@@ -74,13 +128,27 @@ function FormCells({ t }: { t: TradeLogRow | null }) {
 
 // Save (✓) / cancel (✕) buttons in the trailing cell.
 function FormIcons({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
-    const cls = "bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none";
+    const cls = 'bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none';
     return (
         <span className="flex items-center justify-end gap-2">
-            <Button type="submit" disabled={pending} title="Save" variant="ghost" size="icon-xs" className={`${cls} text-primary hover:bg-transparent hover:text-primary-hover`}>
+            <Button
+                type="submit"
+                disabled={pending}
+                title="Save"
+                variant="ghost"
+                size="icon-xs"
+                className={`${cls} text-primary hover:bg-transparent hover:text-primary-hover`}
+            >
                 ✓
             </Button>
-            <Button type="button" onClick={onCancel} title="Cancel" variant="ghost" size="icon-xs" className={`${cls} text-content-faint hover:bg-transparent hover:text-secondary-foreground`}>
+            <Button
+                type="button"
+                onClick={onCancel}
+                title="Cancel"
+                variant="ghost"
+                size="icon-xs"
+                className={`${cls} text-content-faint hover:bg-transparent hover:text-secondary-foreground`}
+            >
                 ✕
             </Button>
         </span>
@@ -107,7 +175,7 @@ export function TradeRowForm({
     return (
         <form onSubmit={onSubmit} className="border-t border-border-faint bg-accent">
             <div className={`${LOG_GRID} items-center px-[22px] py-[7px]`}>
-                <FormCells key={t?.id ?? "new"} t={t} />
+                <FormCells key={t?.id ?? 'new'} t={t} />
                 <span />
                 <FormIcons pending={pending} onCancel={onCancel} />
             </div>

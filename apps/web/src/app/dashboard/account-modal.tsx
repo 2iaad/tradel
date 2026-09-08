@@ -51,17 +51,20 @@ export function AccountModal({
     const rename = useAccountStore((s) => s.rename);
     const editing = account !== null;
 
-    const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
-        try {
-            if (editing) await rename(account.id, toPayload(f));
-            else await create(toPayload(f));
-        } catch (err) {
-            throw new Error(apiMessage(err));
-        }
-    }, () => {
-        onSaved?.();
-        onClose();
-    });
+    const { pending, error, onSubmit } = useAuthSubmit(
+        async (f) => {
+            try {
+                if (editing) await rename(account.id, toPayload(f));
+                else await create(toPayload(f));
+            } catch (err) {
+                throw new Error(apiMessage(err));
+            }
+        },
+        () => {
+            onSaved?.();
+            onClose();
+        },
+    );
 
     return (
         <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -98,16 +101,15 @@ export function AccountModal({
                     </div>
                     <div>
                         <Label className={labelCls}>Currency</Label>
-                        <Select
-                            name="currency"
-                            defaultValue={account?.currency ?? 'USD'}
-                        >
+                        <Select name="currency" defaultValue={account?.currency ?? 'USD'}>
                             <SelectTrigger className={`${inputCls} h-auto [color-scheme:dark]`}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 {CURRENCIES.map((c) => (
-                                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                                    <SelectItem key={c} value={c}>
+                                        {c}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -127,7 +129,11 @@ export function AccountModal({
                     </div>
                     {error && <p className={errorCls}>{error}</p>}
                     <DialogFooter className="mx-0 mt-2 mb-0 rounded-none border-0 bg-transparent p-0">
-                        <Button type="submit" disabled={pending} className="w-full bg-primary text-black hover:bg-primary-hover">
+                        <Button
+                            type="submit"
+                            disabled={pending}
+                            className="w-full bg-primary text-black hover:bg-primary-hover"
+                        >
                             {editing ? 'Save changes' : 'Create account'}
                         </Button>
                     </DialogFooter>
@@ -162,15 +168,26 @@ export function DeleteAccountModal({
                         Delete “{account.name}”?
                     </DialogTitle>
                     <DialogDescription className="text-ui-sm text-content-dim">
-                        Every trade and note in this account is removed too. This can&apos;t be undone.
+                        Every trade and note in this account is removed too. This can&apos;t be
+                        undone.
                     </DialogDescription>
                 </DialogHeader>
                 {error && <p className={errorCls}>{error}</p>}
                 <form onSubmit={onSubmit} className="flex gap-2.5 pt-1">
-                    <Button type="button" variant="outline" onClick={onClose} className="flex-1 border-border text-muted-foreground hover:border-border-hover hover:bg-transparent hover:text-secondary-foreground">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onClose}
+                        className="flex-1 border-border text-muted-foreground hover:border-border-hover hover:bg-transparent hover:text-secondary-foreground"
+                    >
                         CANCEL
                     </Button>
-                    <Button type="submit" disabled={pending} variant="destructive" className="flex-1 bg-loss text-loss-foreground hover:bg-loss-hover">
+                    <Button
+                        type="submit"
+                        disabled={pending}
+                        variant="destructive"
+                        className="flex-1 bg-loss text-loss-foreground hover:bg-loss-hover"
+                    >
                         DELETE
                     </Button>
                 </form>

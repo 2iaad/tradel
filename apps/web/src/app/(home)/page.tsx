@@ -14,7 +14,12 @@ export default function Home() {
     return (
         <>
             <div className="page-w" data-page-wrapper="">
-                <main id="top" className="main-w overflow-clip" data-page-ns="home" data-page="true">
+                <main
+                    id="top"
+                    className="main-w overflow-clip"
+                    data-page-ns="home"
+                    data-page="true"
+                >
                     <HomeAnimation />
                     <HomeNav />
                     <Hero />

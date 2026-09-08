@@ -40,18 +40,10 @@ type LandingSectionHeadingProps = {
     title: React.ReactNode;
 };
 
-export function LandingSectionHeading({
-    description,
-    eyebrow,
-    title,
-}: LandingSectionHeadingProps) {
+export function LandingSectionHeading({ description, eyebrow, title }: LandingSectionHeadingProps) {
     return (
         <header className="mx-auto flex max-w-[760px] flex-col items-center text-center">
-            {eyebrow && (
-                <p className={`${landingSectionMetaClass} mb-4 text-primary`}>
-                    {eyebrow}
-                </p>
-            )}
+            {eyebrow && <p className={`${landingSectionMetaClass} mb-4 text-primary`}>{eyebrow}</p>}
             <h2 className={landingSectionTitleClass}>{title}</h2>
             {description && (
                 <p className={`${landingSectionBodyClass} mt-5 max-w-[620px] text-center`}>

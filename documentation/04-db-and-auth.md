@@ -4,14 +4,14 @@ The full path from an empty Postgres container to a working register/login API �
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| Framework | NestJS 11 |
-| DB driver | `pg` (node-postgres) — raw SQL via `pg.Pool` |
-| Migrations | `node-pg-migrate` (not an ORM — manages *when* SQL runs) |
-| Password hashing | `bcrypt` (cost 12) — not argon2; bcrypt is fine for a single backend |
-| Tokens | short **access** = signed JWT (`@nestjs/jwt`, client memory) + long **refresh** = opaque random string (httpOnly cookie) |
-| Refresh storage | `refresh_tokens` table — hashed, **static** (same token reused until expiry or logout), **revocable** via `revoked_at` column |
+| Layer            | Choice                                                                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | NestJS 11                                                                                                                     |
+| DB driver        | `pg` (node-postgres) — raw SQL via `pg.Pool`                                                                                  |
+| Migrations       | `node-pg-migrate` (not an ORM — manages _when_ SQL runs)                                                                      |
+| Password hashing | `bcrypt` (cost 12) — not argon2; bcrypt is fine for a single backend                                                          |
+| Tokens           | short **access** = signed JWT (`@nestjs/jwt`, client memory) + long **refresh** = opaque random string (httpOnly cookie)      |
+| Refresh storage  | `refresh_tokens` table — hashed, **static** (same token reused until expiry or logout), **revocable** via `revoked_at` column |
 
 ---
 
@@ -117,7 +117,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         await this.pool.end();
     }
 
-    async query<T extends QueryResultRow>(sql: string, params?: unknown[]): Promise<QueryResult<T>> {
+    async query<T extends QueryResultRow>(
+        sql: string,
+        params?: unknown[],
+    ): Promise<QueryResult<T>> {
         return this.pool.query<T>(sql, params);
     }
 }
@@ -140,11 +143,7 @@ export class DatabaseModule {}
 
 ```ts
 @Module({
-    imports: [
-        ConfigModule.forRoot({ isGlobal: true, validate }),
-        DatabaseModule,
-        AuthModule,
-    ],
+    imports: [ConfigModule.forRoot({ isGlobal: true, validate }), DatabaseModule, AuthModule],
 })
 export class AppModule {}
 ```
@@ -153,9 +152,9 @@ export class AppModule {}
 
 ## 5. Migrations with `node-pg-migrate`
 
-A migration is a small, **ordered, immutable** SQL file describing one schema change — plus a `pgmigrations` ledger table *inside the database* recording which files already ran. To bring any DB up to date, the tool runs only the files missing from that ledger, in order. That's what gives you history, ordering, rollback, and no drift between your machine, a teammate's, and production.
+A migration is a small, **ordered, immutable** SQL file describing one schema change — plus a `pgmigrations` ledger table _inside the database_ recording which files already ran. To bring any DB up to date, the tool runs only the files missing from that ledger, in order. That's what gives you history, ordering, rollback, and no drift between your machine, a teammate's, and production.
 
-`node-pg-migrate` is **not an ORM**: you still write raw SQL. It only manages *when* and *whether* each file runs.
+`node-pg-migrate` is **not an ORM**: you still write raw SQL. It only manages _when_ and _whether_ each file runs.
 
 ### Scripts (`package.json`)
 
@@ -168,11 +167,11 @@ A migration is a small, **ordered, immutable** SQL file describing one schema ch
 
 > `-d DB_URL` tells the CLI which env var holds the connection string (its default is `DATABASE_URL`; ours is `DB_URL`). `migrate:create` only writes a file, so it needs no DB.
 
-| Command | Does | DB? |
-|---|---|---|
-| `migrate:create <name>` | scaffolds an empty timestamped `.sql` in `migrations/` | no |
-| `migrate:up` | runs the **Up** of every file not yet in the ledger, in order | yes |
-| `migrate:down` | runs the **Down** of the single most recent applied migration, drops its ledger row | yes |
+| Command                 | Does                                                                                | DB? |
+| ----------------------- | ----------------------------------------------------------------------------------- | --- |
+| `migrate:create <name>` | scaffolds an empty timestamped `.sql` in `migrations/`                              | no  |
+| `migrate:up`            | runs the **Up** of every file not yet in the ledger, in order                       | yes |
+| `migrate:down`          | runs the **Down** of the single most recent applied migration, drops its ledger row | yes |
 
 ### Create and write the users migration
 
@@ -198,6 +197,7 @@ DROP TABLE users;
 ```
 
 Why this is correct:
+
 - **No `IF NOT EXISTS`** — a migration runs exactly once on a known state; a guard would hide a real bug.
 - **Down is the exact inverse of Up** — write it now, while it's fresh; it's your rollback insurance.
 - **`password_hash`, never `password`** — you store the bcrypt hash, not the password.
@@ -221,9 +221,9 @@ Run `migrate:up` again → does nothing. That idempotency is the point. `migrate
 
 ### Golden rule
 
-Once a migration is committed/shared it is **immutable** — never edit or rename it. Need a change? Write a *new* migration. (While a migration is still yours alone and unshared, the `down → edit → up` loop is fine.)
+Once a migration is committed/shared it is **immutable** — never edit or rename it. Need a change? Write a _new_ migration. (While a migration is still yours alone and unshared, the `down → edit → up` loop is fine.)
 
-> **Layers stay separate:** `database/init.sh` (Docker entrypoint) creates the *role + database* on first boot — infrastructure. Migrations own everything *inside* the DB (tables, columns, indexes). NestJS reads/writes rows. There is no `src/database/migrate.ts` — `node-pg-migrate` replaces any hand-rolled script.
+> **Layers stay separate:** `database/init.sh` (Docker entrypoint) creates the _role + database_ on first boot — infrastructure. Migrations own everything _inside_ the DB (tables, columns, indexes). NestJS reads/writes rows. There is no `src/database/migrate.ts` — `node-pg-migrate` replaces any hand-rolled script.
 
 In production, run the same `npm run migrate:up` as a deploy step **before** the new app code starts.
 
@@ -319,13 +319,14 @@ DROP TABLE refresh_tokens;
 Apply it: `npm run migrate:up`.
 
 Why each column:
+
 - **`token_hash`, never the raw token** — same rule as passwords. If the DB leaks, the hashes can't be replayed. (We hash with SHA-256, not bcrypt — a refresh token is long and random already, so it doesn't need bcrypt's slow salted hashing the way a low-entropy human password does.)
-- **`revoked_at`** — a soft kill switch. Logout sets it; rotation sets it on the old token; reuse-detection sets it on *all* of a user's tokens.
+- **`revoked_at`** — a soft kill switch. Logout sets it; rotation sets it on the old token; reuse-detection sets it on _all_ of a user's tokens.
 - **`expires_at`** — lets you expire server-side independently of the JWT's own `exp`.
 - **`ON DELETE CASCADE`** — delete a user, their refresh tokens go with them. No orphans.
 - **index on `user_id`** — "revoke all tokens for this user" and lookups stay fast.
 
-> **Conclusion.** You now have server-side state for refresh tokens. This single table is the whole reason the two-token scheme is more secure than one long JWT: it turns the refresh token from *un-revocable* into *fully controlled* — revoke, expire, rotate, detect theft.
+> **Conclusion.** You now have server-side state for refresh tokens. This single table is the whole reason the two-token scheme is more secure than one long JWT: it turns the refresh token from _un-revocable_ into _fully controlled_ — revoke, expire, rotate, detect theft.
 
 ---
 
@@ -397,18 +398,18 @@ export class RefreshTokenRepository {
 
 Steps 1–8 are done. Here is what exists in the codebase right now:
 
-| Done | File | State |
-|---|---|---|
-| ✅ | `src/database/database.service.ts` | complete |
-| ✅ | `src/database/database.module.ts` | complete |
-| ✅ | `src/users/users.repository.ts` | complete |
-| ✅ | `src/auth/refresh-token.repository.ts` | complete |
-| ✅ | `migrations/*_users-table.sql` | applied |
-| ✅ | `migrations/*_refresh-tokens.sql` | applied |
-| ✅ | `src/auth/auth.module.ts` | partial — `RefreshTokenRepository` not yet in `providers` |
-| ⬜ | `src/auth/auth.service.ts` | has register/login shells with `TODO: return jwt` — token logic not written |
-| ⬜ | `src/auth/auth.controller.ts` | has register/login — no cookie handling, no refresh/logout endpoints |
-| ⬜ | `src/main.ts` | missing `cookie-parser` and CORS |
+| Done | File                                   | State                                                                       |
+| ---- | -------------------------------------- | --------------------------------------------------------------------------- |
+| ✅   | `src/database/database.service.ts`     | complete                                                                    |
+| ✅   | `src/database/database.module.ts`      | complete                                                                    |
+| ✅   | `src/users/users.repository.ts`        | complete                                                                    |
+| ✅   | `src/auth/refresh-token.repository.ts` | complete                                                                    |
+| ✅   | `migrations/*_users-table.sql`         | applied                                                                     |
+| ✅   | `migrations/*_refresh-tokens.sql`      | applied                                                                     |
+| ✅   | `src/auth/auth.module.ts`              | partial — `RefreshTokenRepository` not yet in `providers`                   |
+| ⬜   | `src/auth/auth.service.ts`             | has register/login shells with `TODO: return jwt` — token logic not written |
+| ⬜   | `src/auth/auth.controller.ts`          | has register/login — no cookie handling, no refresh/logout endpoints        |
+| ⬜   | `src/main.ts`                          | missing `cookie-parser` and CORS                                            |
 
 **Continue from step 9.**
 
@@ -535,7 +536,7 @@ export class AuthService {
 
 `issueTokens` stores only the token's hash with a single `create` — one INSERT, no second write.
 
-> Why opaque (not a JWT): the refresh token is only ever validated by a DB lookup on its hash, so a signature would add nothing — you'd verify it *and* still hit the DB. A random string means one INSERT (no id round-trip), instant revocation via `revoked_at`, and nothing sensitive at rest (only the sha256 hash). This is the pattern Auth0/WorkOS/OWASP recommend for refresh tokens.
+> Why opaque (not a JWT): the refresh token is only ever validated by a DB lookup on its hash, so a signature would add nothing — you'd verify it _and_ still hit the DB. A random string means one INSERT (no id round-trip), instant revocation via `revoked_at`, and nothing sensitive at rest (only the sha256 hash). This is the pattern Auth0/WorkOS/OWASP recommend for refresh tokens.
 
 > **Conclusion.** This file is the security core. `register`/`login` mint a pair via `issueTokens`. `refresh` looks the token up by its hash and, if the row isn't revoked or expired, issues a new access token only; the refresh token is untouched. `logout` revokes the refresh token row server-side so it cannot be used again even within its 7-day window.
 
@@ -590,11 +591,11 @@ export class AuthController {
 
     private setRefreshCookie(res: Response, token: string) {
         res.cookie(REFRESH_COOKIE, token, {
-            httpOnly: true,                                   // JS can't read it → XSS-safe
-            secure: process.env.NODE_ENV === 'production',    // HTTPS only in prod; off for localhost http
-            sameSite: 'strict',                               // not sent on cross-site requests → CSRF-safe
-            path: '/api/auth',                                // only sent to the auth routes that need it
-            maxAge: 7 * 24 * 60 * 60 * 1000,                  // 7d, matches the refresh token's life
+            httpOnly: true, // JS can't read it → XSS-safe
+            secure: process.env.NODE_ENV === 'production', // HTTPS only in prod; off for localhost http
+            sameSite: 'strict', // not sent on cross-site requests → CSRF-safe
+            path: '/api/auth', // only sent to the auth routes that need it
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7d, matches the refresh token's life
         });
     }
 }
@@ -602,7 +603,7 @@ export class AuthController {
 
 > `@Res({ passthrough: true })` lets you set the cookie **and** still `return` a body the normal Nest way. Without `passthrough` you'd have to call `res.json()` yourself and lose interceptors/serialization.
 
-> **Conclusion.** The access token goes to the client in the JSON body (it lives in memory there); the refresh token only ever travels as an httpOnly cookie scoped to `/api/auth`. `refresh` reads that cookie and returns a fresh access token — the cookie itself is never replaced. `logout` clears the cookie client-side *and* revokes the DB row server-side. The browser handles the cookie automatically — no token-shuttling code needed on the frontend.
+> **Conclusion.** The access token goes to the client in the JSON body (it lives in memory there); the refresh token only ever travels as an httpOnly cookie scoped to `/api/auth`. `refresh` reads that cookie and returns a fresh access token — the cookie itself is never replaced. `logout` clears the cookie client-side _and_ revokes the DB row server-side. The browser handles the cookie automatically — no token-shuttling code needed on the frontend.
 
 ---
 
@@ -613,10 +614,10 @@ import cookieParser from 'cookie-parser';
 // ...
 app.setGlobalPrefix('api');
 app.useGlobalPipes(new ValidationPipe({ whitelist: true })); // whitelist strips unknown fields
-app.use(cookieParser());                                      // populates req.cookies
+app.use(cookieParser()); // populates req.cookies
 app.enableCors({
-    origin: 'http://localhost:5173',   // your SPA's origin (Vite default); read from env later
-    credentials: true,                 // REQUIRED for the browser to send/receive the cookie
+    origin: 'http://localhost:5173', // your SPA's origin (Vite default); read from env later
+    credentials: true, // REQUIRED for the browser to send/receive the cookie
 });
 ```
 
@@ -705,7 +706,7 @@ curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/refres
 curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/logout
 ```
 
-> **Conclusion.** End to end: register/login set the cookie, refresh rotates it, logout kills it. The reuse test is the one worth doing by hand — replaying a rotated token should 401 *and* invalidate every other session for that user. If that fires, your security core works.
+> **Conclusion.** End to end: register/login set the cookie, refresh rotates it, logout kills it. The reuse test is the one worth doing by hand — replaying a rotated token should 401 _and_ invalidate every other session for that user. If that fires, your security core works.
 
 ---
 

@@ -12,6 +12,7 @@ The dashboard home page already shows a small preview ("Recent trades", only
 a few rows). This page is the complete, searchable version of that table.
 
 ### What it should contain
+
 - **A big table**, one row per trade: symbol, long/short, entry price, exit
   price, size, R (risk multiple), profit or loss, date. Same columns as the
   small preview already on the dashboard, just the full list instead of 5
@@ -34,12 +35,12 @@ a few rows). This page is the complete, searchable version of that table.
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════╗
-║  TRADEL                                          ●●● live · user@mail.com ║
+║  TRADEL                                         ●●● live · user@mail.com ║
 ╠════════════╦═════════════════════════════════════════════════════════════╣
 ║            ║  Trades                                                     ║
 ║  01 Dash   ║  ┌─────────────────────────────────────────────────────────┐║
 ║  02 Journal║  │ Total: 128   Win%: 61%   Avg R: 1.4   P&L: +$4,210      │║
-║ ▶03 Trades ║  └─────────────────────────────────────────────────────────┘║
+║ ▶03 Trades║  └─────────────────────────────────────────────────────────┘║
 ║  04 Analyt.║                                                             ║
 ║  05 Calend.║  ┌─[ Search symbol… ]──[ Date ▾ ]──[ Side ▾ ]──[+ Add ]────┐║
 ║  06 Settgs ║  └─────────────────────────────────────────────────────────┘║
@@ -51,10 +52,10 @@ a few rows). This page is the complete, searchable version of that table.
 ║            ║  │ ●BTCUSD [SHORT] 61200  60800   0.1   +0.9  +120  Jul 01 │║
 ║            ║  │ ●GBPUSD [LONG]  1.2650 1.2610  0.3   -1.1  -80   Jun 29 │║
 ║            ║  │ ●XAUUSD [SHORT] 2340   2325    0.2   +1.2  +95   Jun 27 │║
-║            ║  │  ⋮        ⋮       ⋮      ⋮      ⋮     ⋮     ⋮      ⋮    │║
+║            ║  │  ⋮        ⋮       ⋮      ⋮      ⋮     ⋮     ⋮      ⋮         │║
 ║            ║  └─────────────────────────────────────────────────────────┘║
 ║ ┌────────┐ ║  ┌───────────────────────────────────[ ‹ 1 2 3 … 9 › ]─────┐║
-║ │(●) You │ ║  │                pagination / load more                  │║
+║ │(●) You │ ║  │                pagination / load more                   │║
 ║ └────────┘ ║  └─────────────────────────────────────────────────────────┘║
 ╚════════════╩═════════════════════════════════════════════════════════════╝
 ```
@@ -64,11 +65,12 @@ a few rows). This page is the complete, searchable version of that table.
 ## 2. `/dashboard/journal` — "Journal"
 
 Think of this as your **diary for trading**. Not just numbers — this is
-where you write down *why* you took a trade, what you were feeling, what you
+where you write down _why_ you took a trade, what you were feeling, what you
 learned. The dashboard preview already has a small "Journal notes" card with
 a few entries; this page is the full version.
 
 ### What it should contain
+
 - **A feed/list of notes**, newest first. Each note: a title, a short body
   text, a date, and tags (like "mistake", "good-setup", "FOMO", "breakout").
   Same shape as what's already in the small preview card.
@@ -120,10 +122,10 @@ a few entries; this page is the full version.
 
 ## Quick summary
 
-| Page    | Purpose                        | Core building block                     |
-|---------|---------------------------------|------------------------------------------|
-| Trades  | Full history of every trade     | Big filterable/sortable table            |
-| Journal | Your written thoughts & lessons | Full list of tagged, searchable notes    |
+| Page    | Purpose                         | Core building block                   |
+| ------- | ------------------------------- | ------------------------------------- |
+| Trades  | Full history of every trade     | Big filterable/sortable table         |
+| Journal | Your written thoughts & lessons | Full list of tagged, searchable notes |
 
 Both reuse pieces you already built: `TradesTable` and `NotesList` are the
 "preview" versions on the dashboard home — these two pages are just the

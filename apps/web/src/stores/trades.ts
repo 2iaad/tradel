@@ -50,17 +50,17 @@ function demoPnl(payload: TradePayload): string | null {
         return null;
     }
     const direction = payload.side === 'SHORT' ? -1 : 1;
-    const multiplier = {
-        EURUSD: 100000,
-        GBPUSD: 100000,
-        XAUUSD: 100,
-        NQ: 10,
-        ES: 50,
-    }[payload.symbol?.toUpperCase() ?? ''] ?? 1;
+    const multiplier =
+        {
+            EURUSD: 100000,
+            GBPUSD: 100000,
+            XAUUSD: 100,
+            NQ: 10,
+            ES: 50,
+        }[payload.symbol?.toUpperCase() ?? ''] ?? 1;
     return String(
-        Math.round(
-            (payload.exit - payload.entry) * payload.lots * multiplier * direction * 100,
-        ) / 100,
+        Math.round((payload.exit - payload.entry) * payload.lots * multiplier * direction * 100) /
+            100,
     );
 }
 
@@ -138,8 +138,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
                             symbol: nextPayload.symbol,
                             side: nextPayload.side,
                             entry: String(nextPayload.entry),
-                            exit:
-                                nextPayload.exit === undefined ? null : String(nextPayload.exit),
+                            exit: nextPayload.exit === undefined ? null : String(nextPayload.exit),
                             lots: String(nextPayload.lots),
                             risk_reward:
                                 payload.rReward === undefined
@@ -158,8 +157,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
                     entry: String(payload.entry ?? 0),
                     exit: payload.exit === undefined ? null : String(payload.exit),
                     lots: String(payload.lots ?? 0),
-                    risk_reward:
-                        payload.rReward === undefined ? null : String(payload.rReward),
+                    risk_reward: payload.rReward === undefined ? null : String(payload.rReward),
                     pnl: demoPnl(payload),
                     created_at: new Date().toISOString(),
                 };

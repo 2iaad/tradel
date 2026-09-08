@@ -127,8 +127,7 @@ export function buildEquityChartData(trades: ApiTrade[]): EquityChartData {
 
     const lowest = Math.min(0, ...tradePoints.map((point) => point.cumulative));
     const highest = Math.max(0, ...tradePoints.map((point) => point.cumulative));
-    const gradientOffset =
-        highest <= 0 ? 0 : lowest >= 0 ? 1 : highest / (highest - lowest);
+    const gradientOffset = highest <= 0 ? 0 : lowest >= 0 ? 1 : highest / (highest - lowest);
     const ticks = sampleDateTicks(tradePoints);
 
     return {

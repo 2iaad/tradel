@@ -43,9 +43,9 @@ function Chip({
             variant="outline"
             className="h-auto justify-start rounded-full px-3.5 py-2 font-mono text-ui-xs font-medium tracking-[0.04em] text-muted-foreground"
         >
-                <span className="-translate-y-px mr-0.5">{icon}</span>
-                {label && <span className="">{label}</span>}
-                <span style={{ color: color ?? 'var(--secondary-foreground)' }}>{value}</span>
+            <span className="-translate-y-px mr-0.5">{icon}</span>
+            {label && <span className="">{label}</span>}
+            <span style={{ color: color ?? 'var(--secondary-foreground)' }}>{value}</span>
         </Badge>
     );
 }
@@ -70,11 +70,7 @@ function ChipStrip({ s }: { s: Log['summary'] }) {
                 value={s.avgLoss}
                 color={R}
             />
-            <Chip
-                icon={<Scale aria-hidden="true" className="size-3" />}
-                label="PF"
-                value={s.pf}
-            />
+            <Chip icon={<Scale aria-hidden="true" className="size-3" />} label="PF" value={s.pf} />
             <Chip
                 icon={<Flame aria-hidden="true" className="size-3" />}
                 label="Streak"

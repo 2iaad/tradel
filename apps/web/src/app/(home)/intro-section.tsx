@@ -1,9 +1,6 @@
 export function IntroSection() {
     return (
-        <section
-            id="ai"
-            className="relative z-[2] -mt-23"
-        >
+        <section id="ai" className="relative z-[2] -mt-23">
             <div className="pointer-events-none absolute inset-0 z-0 backdrop-blur-lg max-[991px]:flex max-[991px]:flex-col max-[991px]:items-center">
                 {Array.from({ length: 3 }, (_, rowIndex) => (
                     <div
@@ -24,9 +21,9 @@ export function IntroSection() {
                 <div className="relative w-full md:ml-[8.333%] md:w-1/2 min-[992px]:pr-[3em]">
                     <span className="absolute left-0 top-0 h-[1.5em] min-h-6 w-[0.3125em] min-w-[0.3125rem] rounded-[0.5px] bg-primary shadow-lg shadow-primary/30 min-[992px]:top-[0.15em]" />
                     <p className="indent-[3.75em] text-xl font-semibold uppercase leading-[1.1] tracking-[-0.02em] sm:text-2xl md:text-[min(2em,1.75rem)]">
-                        Every trade tells a story. Log entries and exits, track your P&amp;L, and see
-                        the patterns behind your wins and losses. Build the discipline that turns
-                        guesswork into an edge.
+                        Every trade tells a story. Log entries and exits, track your P&amp;L, and
+                        see the patterns behind your wins and losses. Build the discipline that
+                        turns guesswork into an edge.
                     </p>
                 </div>
             </div>

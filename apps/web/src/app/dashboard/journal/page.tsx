@@ -12,7 +12,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 const tagChip =
     'inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border';
@@ -40,7 +46,10 @@ function NoteCard({
         <Card className={`${cardCls} flex flex-col gap-2.5 p-4 sm:p-5`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <Badge variant="outline" className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-semibold tracking-[0.08em] text-primary whitespace-nowrap">
+                    <Badge
+                        variant="outline"
+                        className="h-auto rounded px-1.5 py-0.5 font-mono text-ui-xs font-semibold tracking-[0.08em] text-primary whitespace-nowrap"
+                    >
                         {symbol}
                     </Badge>
                     <span className="font-mono text-ui-xs text-content-placeholder">{date}</span>
@@ -85,8 +94,7 @@ function NoteCard({
 
 // Confirmation card shown before a note is deleted.
 function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
-    const btn =
-        'flex-1 font-mono font-semibold tracking-[0.1em] cursor-pointer transition-colors';
+    const btn = 'flex-1 font-mono font-semibold tracking-[0.1em] cursor-pointer transition-colors';
     return (
         <div
             onClick={onCancel}
@@ -97,7 +105,9 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
                 className="w-[360px] max-w-[calc(100vw-48px)] box-border bg-card border border-border rounded-xl px-[30px] py-7 flex flex-col gap-4 animate-[tradelPopIn_0.3s_cubic-bezier(0.34,1.4,0.44,1)]"
             >
                 {/* <span className={kickerCls}>{'/// DELETE NOTE'}</span> */}
-                <h2 className="m-0 text-xl font-semibold text-card-foreground">Delete this note?</h2>
+                <h2 className="m-0 text-xl font-semibold text-card-foreground">
+                    Delete this note?
+                </h2>
                 <p className="m-0 text-ui-sm text-content-dim">This can&apos;t be undone.</p>
                 <div className="flex gap-2.5 mt-1">
                     <Button
@@ -174,19 +184,21 @@ export default function JournalPage() {
             <PageHeader kicker="" title="Trade notes" />
 
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Input
+                <Input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search notes…"
-                className="h-auto w-full box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder sm:max-w-[320px] sm:flex-1"
-            />
+                    className="h-auto w-full box-border bg-muted border-border-subtle px-3.5 py-2.5 font-mono text-ui-sm text-content placeholder:text-content-placeholder sm:max-w-[320px] sm:flex-1"
+                />
                 <Select value={tag} onValueChange={(value) => value && setTag(value)}>
                     <SelectTrigger className="h-auto w-full min-w-[130px] border-border-subtle bg-muted px-3 py-2.5 font-mono text-ui-sm text-secondary-foreground hover:bg-muted sm:w-auto">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         {allTags.map((t) => (
-                            <SelectItem key={t} value={t}>{t === 'ALL' ? 'ALL TAGS' : t}</SelectItem>
+                            <SelectItem key={t} value={t}>
+                                {t === 'ALL' ? 'ALL TAGS' : t}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>

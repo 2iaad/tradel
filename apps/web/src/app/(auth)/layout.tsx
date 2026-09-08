@@ -98,7 +98,12 @@ function SwitchLine({
     return (
         <p className="mt-1 mb-0 text-center text-ui-md text-content-faint">
             {text && <>{text} </>}
-            <Button type="button" variant="link" onClick={onClick} className={`${linkCls} h-auto text-ui-md`}>
+            <Button
+                type="button"
+                variant="link"
+                onClick={onClick}
+                className={`${linkCls} h-auto text-ui-md`}
+            >
                 {label}
             </Button>
         </p>
@@ -109,11 +114,19 @@ function SwitchLine({
 function RememberRow({ onReset }: { onReset: () => void }) {
     return (
         <div className="flex justify-between items-center">
-            <label htmlFor="remember-me" className="flex items-center gap-2 text-ui-sm text-content-muted cursor-pointer">
+            <label
+                htmlFor="remember-me"
+                className="flex items-center gap-2 text-ui-sm text-content-muted cursor-pointer"
+            >
                 <Checkbox id="remember-me" name="remember" />
                 Remember me
             </label>
-            <Button type="button" variant="link" onClick={onReset} className={`${linkCls} h-auto text-ui-sm`}>
+            <Button
+                type="button"
+                variant="link"
+                onClick={onReset}
+                className={`${linkCls} h-auto text-ui-sm`}
+            >
                 Forgot password?
             </Button>
         </div>
@@ -125,22 +138,25 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
 
-    const { error, submit } = useAuthSubmit(async (f) => {
-        const email = f.get('email') as string;
-        const password = f.get('password') as string;
-        try {
-            const { data } = await api.post('/auth/login', { email, password });
-            clearDemoSession();
-            setAccessToken(data.accessToken);
-            useSessionStore.setState({ session: { status: 'user', email } });
-            return data;
-        } catch (err) {
-            const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
-            throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
-        }
-    }, () => {
-        window.setTimeout(() => router.push('/dashboard'), AUTH_SUCCESS_HOLD_MS);
-    });
+    const { error, submit } = useAuthSubmit(
+        async (f) => {
+            const email = f.get('email') as string;
+            const password = f.get('password') as string;
+            try {
+                const { data } = await api.post('/auth/login', { email, password });
+                clearDemoSession();
+                setAccessToken(data.accessToken);
+                useSessionStore.setState({ session: { status: 'user', email } });
+                return data;
+            } catch (err) {
+                const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
+                throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
+            }
+        },
+        () => {
+            window.setTimeout(() => router.push('/dashboard'), AUTH_SUCCESS_HOLD_MS);
+        },
+    );
 
     const submitLogin = () => {
         if (!formRef.current) return Promise.reject(new Error('Login form is unavailable'));

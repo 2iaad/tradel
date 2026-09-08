@@ -7,11 +7,11 @@ export function dateStamp() {
 
 // Signed money string, e.g. 782.4 -> "+$782.40", -204 -> "-$204.00".
 export function signedMoney(v: number): string {
-    const abs = Math.abs(v).toLocaleString("en-US", {
+    const abs = Math.abs(v).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
-    return (v >= 0 ? "+$" : "-$") + abs;
+    return (v >= 0 ? '+$' : '-$') + abs;
 }
 
 // JWT payload is { sub, email } — base64url-decode the middle segment.

@@ -237,7 +237,10 @@ export function Sidebar() {
                             className="h-11 p-0 hover:bg-transparent active:bg-transparent group-data-[collapsible=icon]:justify-center"
                         >
                             <TradelLogo className="h-7 w-[118px] group-data-[collapsible=icon]:hidden" />
-                            <TradelLogo compact className="hidden size-6 group-data-[collapsible=icon]:block" />
+                            <TradelLogo
+                                compact
+                                className="hidden size-6 group-data-[collapsible=icon]:block"
+                            />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
@@ -249,10 +252,7 @@ export function Sidebar() {
             </SidebarContent>
             <SidebarFooter className="gap-2.5 border-t border-sidebar-border/70 p-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-2">
                 <AccountPicker />
-                <UserNavigation
-                    email={session.email}
-                    demo={session.status === 'demo'}
-                />
+                <UserNavigation email={session.email} demo={session.status === 'demo'} />
             </SidebarFooter>
         </ShadcnSidebar>
     );

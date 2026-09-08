@@ -11,7 +11,7 @@ export interface CreateTradeFields {
     exit?: number | null;
     lots: number;
     risk_reward?: number | null;
-    pnl?: number | null;
+    pnl?: Prisma.Decimal | null;
 }
 
 export interface UpdateTradeFields {
@@ -21,7 +21,7 @@ export interface UpdateTradeFields {
     exit?: number | null;
     lots?: number;
     risk_reward?: number | null;
-    pnl?: number | null;
+    pnl?: Prisma.Decimal | null;
 }
 
 @Injectable()

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-// Aggregate rows returned by the analytics SQL. NUMERIC sums come back as
-// strings over the pg driver — the service parses them into numbers.
+// Counts and NUMERIC aggregates are cast to text so the existing service can
+// keep parsing the same string values it received before Prisma.
 export interface SummaryRow {
     closed: string; // count of closed trades (pnl not null)
     open: string; // count of open trades (pnl null)
@@ -32,50 +32,61 @@ export interface CalendarRow {
 
 @Injectable()
 export class AnalyticsRepository {
-    constructor(private readonly db: DatabaseService) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async summary(accountId: string): Promise<SummaryRow> {
-        const { rows } = await this.db.query<SummaryRow>(
-            `SELECT
-                COUNT(*) FILTER (WHERE pnl IS NOT NULL)          AS closed,
-                COUNT(*) FILTER (WHERE pnl IS NULL)              AS open,
-                COUNT(*) FILTER (WHERE pnl > 0)                  AS wins,
-                SUM(pnl)                                         AS net,
-                SUM(pnl) FILTER (WHERE pnl > 0)                  AS gross_win,
-                SUM(pnl) FILTER (WHERE pnl < 0)                  AS gross_loss,
-                AVG(risk_reward) FILTER (WHERE risk_reward IS NOT NULL) AS avg_r
+        const rows = await this.prisma.$queryRaw<SummaryRow[]>`
+            SELECT
+                (COUNT(*) FILTER (WHERE pnl IS NOT NULL))::text  AS closed,
+                (COUNT(*) FILTER (WHERE pnl IS NULL))::text      AS open,
+                (COUNT(*) FILTER (WHERE pnl > 0))::text          AS wins,
+                SUM(pnl)::text                                   AS net,
+                (SUM(pnl) FILTER (WHERE pnl > 0))::text          AS gross_win,
+                (SUM(pnl) FILTER (WHERE pnl < 0))::text          AS gross_loss,
+                (AVG(risk_reward) FILTER (
+                    WHERE risk_reward IS NOT NULL
+                ))::text                                         AS avg_r
             FROM trades
-            WHERE account_id = $1`,
-            [accountId],
-        );
+            WHERE account_id = ${accountId}::uuid
+        `;
         return rows[0];
     }
 
-    // Grouped P&L by symbol or side. Column name is validated in the service
+    // Use fixed queries so a column name is never inserted into raw SQL.
     async breakdown(accountId: string, column: 'symbol' | 'side'): Promise<BreakdownRow[]> {
-        const { rows } = await this.db.query<BreakdownRow>(
-            `SELECT
-                ${column}                          AS label,
-                SUM(pnl)                           AS net,
-                COUNT(*) FILTER (WHERE pnl > 0)    AS wins,
-                COUNT(*) FILTER (WHERE pnl IS NOT NULL) AS count
+        if (column === 'symbol') {
+            return this.prisma.$queryRaw<BreakdownRow[]>`
+                SELECT
+                    symbol                                          AS label,
+                    SUM(pnl)::text                                  AS net,
+                    (COUNT(*) FILTER (WHERE pnl > 0))::text          AS wins,
+                    (COUNT(*) FILTER (WHERE pnl IS NOT NULL))::text  AS count
+                FROM trades
+                WHERE account_id = ${accountId}::uuid AND pnl IS NOT NULL
+                GROUP BY symbol
+                ORDER BY SUM(pnl) DESC NULLS LAST
+            `;
+        }
+
+        return this.prisma.$queryRaw<BreakdownRow[]>`
+            SELECT
+                side                                            AS label,
+                SUM(pnl)::text                                  AS net,
+                (COUNT(*) FILTER (WHERE pnl > 0))::text          AS wins,
+                (COUNT(*) FILTER (WHERE pnl IS NOT NULL))::text  AS count
             FROM trades
-            WHERE account_id = $1 AND pnl IS NOT NULL
-            GROUP BY ${column}
-            ORDER BY net DESC NULLS LAST`,
-            [accountId],
-        );
-        return rows;
+            WHERE account_id = ${accountId}::uuid AND pnl IS NOT NULL
+            GROUP BY side
+            ORDER BY SUM(pnl) DESC NULLS LAST
+        `;
     }
 
-    // Daily net P&L + trade count for one month, grouped by created_at (the
-    // trade's only timestamp). `month` is the first day of the month (UTC).
     async calendar(accountId: string, monthStart: string): Promise<CalendarRow[]> {
-        const { rows } = await this.db.query<CalendarRow>(
-            `SELECT
-                to_char(created_at, 'YYYY-MM-DD') AS day,
-                SUM(pnl)                          AS pnl,
-                COUNT(*)                          AS trades,
+        return this.prisma.$queryRaw<CalendarRow[]>`
+            SELECT
+                to_char(created_at, 'YYYY-MM-DD')  AS day,
+                SUM(pnl)::text                     AS pnl,
+                COUNT(*)::text                     AS trades,
                 COALESCE(
                     json_agg(
                         json_build_object('symbol', symbol, 'pnl', pnl)
@@ -84,13 +95,11 @@ export class AnalyticsRepository {
                     '[]'::json
                 )                                 AS items
             FROM trades
-            WHERE account_id = $1
-              AND created_at >= $2::timestamptz
-              AND created_at <  ($2::timestamptz + INTERVAL '1 month')
+            WHERE account_id = ${accountId}::uuid
+              AND created_at >= ${monthStart}::timestamptz
+              AND created_at < (${monthStart}::timestamptz + INTERVAL '1 month')
             GROUP BY day
-            ORDER BY day`,
-            [accountId, monthStart],
-        );
-        return rows;
+            ORDER BY day
+        `;
     }
 }

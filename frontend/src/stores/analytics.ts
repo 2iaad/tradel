@@ -52,19 +52,15 @@ export const useAnalyticsStore = create<AnalyticsStore>((set) => ({
     load: async () => {
         const status = useSessionStore.getState().session.status;
         const accId = activeId();
+        if (!accId || (status !== 'user' && status !== 'demo')) {
+            set({ summary: null, bySymbol: [], bySide: [], loading: false, error: null });
+            return;
+        }
         if (status === 'demo') {
             const trades = useTradesStore
                 .getState()
                 .trades.filter((trade) => trade.account_id === accId);
             set({ ...buildDemoAnalytics(trades), loading: false, error: null });
-            return;
-        }
-        if (status !== 'user') {
-            set({ loading: false });
-            return;
-        }
-        if (!accId) {
-            set({ summary: null, bySymbol: [], bySide: [], loading: false });
             return;
         }
         set({ loading: true, error: null });

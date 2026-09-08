@@ -67,7 +67,7 @@ export class NotesModule {}
      + Imports AccountsModule/TradesModule for their exported repos —
        no duplicate instances, DI respected.
      + JwtModule registered so JwtGuard can inject JwtService.
-     + DatabaseService omitted correctly (it is @Global).
+     + PrismaService is provided globally by PrismaModule.
 
    FOLLOW-UPS (non-blocking):
      1. Optional: catch 23503 in repo as a safety net.

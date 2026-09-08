@@ -1,7 +1,8 @@
 tradel-before-orm.dump
 PRISMA_MIGRATION_GUIDE.md
-/backend/src/generated/prisma/
+/apps/api/src/generated/prisma/
 
+git.md
 volumes
 **/.todo
 .claude

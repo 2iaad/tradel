@@ -118,7 +118,7 @@ export const useTradesStore = create<TradesStore>((set, get) => ({
     // Errors propagate to the caller (the form renders them).
     saveTrade: async (payload, id) => {
         const accId = activeId();
-        if (!accId) throw new Error('No account selected');
+        if (!accId) throw new Error('Create or select an account before saving a trade');
         if (useSessionStore.getState().session.status === 'demo') {
             if (id) {
                 set((state) => ({

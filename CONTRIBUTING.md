@@ -1,35 +1,44 @@
 # Contributing to Tradel
 
-Thanks for contributing. Tradel is a NestJS 11 + TypeScript backend on PostgreSQL (raw `pg`, no ORM). All HTTP routes are prefixed with `/api`.
+Thanks for contributing. Tradel is an npm workspace with a NestJS API in
+`apps/api`, a Next.js web app in `apps/web`, and PostgreSQL managed through
+Prisma. All API routes are prefixed with `/api`.
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 22
 - Docker + Docker Compose (for the local PostgreSQL image)
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env       # then fill in the values (see below)
-docker-compose up -d       # builds the custom Postgres image and starts it
-npm run migrate:up         # apply all migrations
-npm run start:dev          # watch-mode dev server on :3000
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
+docker compose up -d
+npm run prisma:migrate:deploy
+npm run dev:api
+npm run dev:web
 ```
 
-The app validates `.env` against a Zod schema at boot (`src/config/env.validation.ts`) and **exits** if anything is missing or malformed. When you add an env var, add it to that schema **and** to `.env.example`. Note: `JWT_*_SECRET` values must be at least 32 chars.
+Run the two development commands in separate terminals. The API validates its
+environment at boot using `apps/api/src/config/env.validation.ts` and exits if
+anything is missing or malformed. When you add an API environment variable,
+update that schema and `apps/api/.env.example`. `JWT_*_SECRET` values must be
+at least 32 characters.
 
 ## Database & migrations
 
-Schema lives only in `migrations/*.sql` (raw SQL, node-pg-migrate) — there is no ORM and no schema in code.
+The Prisma schema and migration history live under `apps/api/prisma`.
 
 ```bash
-npm run migrate:create <name>   # scaffold a new SQL migration
-npm run migrate:up              # apply
-npm run migrate:down            # roll back one
+npm run prisma:migrate:dev -- --name <name>
+npm run prisma:migrate:deploy
+npm run prisma:studio
 ```
 
-`DB_URL` must be set in `.env` — the `-d DB_URL` in the scripts is the **env var name**, not a literal URL (node-pg-migrate convention).
+Set `DB_URL` in `apps/api/.env`. Never run `prisma migrate reset` against a
+database whose data must be kept.
 
 ## Tests & checks
 
@@ -38,14 +47,15 @@ Before opening a PR:
 ```bash
 npm run lint     # eslint --fix
 npm run format   # prettier
-npm test         # jest unit suites
-npm run build    # must compile clean (tsc)
+npm test         # run available workspace tests
+npm run build    # build both applications
 ```
 
 ## Code style
 
 - Prettier: 4-space indent, single quotes, trailing commas (`.prettierrc`).
-- Imports use the `src/...` form (e.g. `src/config/env.validation`), not deep relative paths.
+- API imports use the `src/...` form (for example,
+  `src/config/env.validation`), not deep relative paths.
 - DTOs use class-validator; validation runs via the global `ValidationPipe` in `main.ts`.
 - Keep changes surgical — match the surrounding style, don't refactor unrelated code.
 

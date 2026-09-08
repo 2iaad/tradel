@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/public/brand/tradel-mark.png" alt="Tradel logo" width="88" />
+  <img src="apps/web/public/brand/tradel-mark.png" alt="Tradel logo" width="88" />
 </p>
 
 <h1 align="center">Tradel</h1>
@@ -14,7 +14,7 @@
   Born in Morocco 🇲🇦 · For traders everywhere
 </p>
 <p align="center">
-  <img src="frontend/public/images/docs/under-construction-sign.png" alt="Tradel is under active construction" width="100" />
+  <img src="apps/web/public/images/docs/under-construction-sign.png" alt="Tradel is under active construction" width="100" />
 </p>
 <p align="center">
   <strong>Tradel is under active development.</strong><br />
@@ -28,7 +28,7 @@ A winning trade is not always a good trade. A losing trade is not always a bad t
 Tradel keeps your trades, notes, accounts, and performance data in one place. It turns a list of entries and exits into a clear review process, so you can see what works, what does not, and what needs to change.
 
 <p align="center">
-  <img src="frontend/public/images/docs/project-showcast.png" alt="Tradel dashboard with performance statistics, an equity curve, and recent trades" width="90%" />
+  <img src="apps/web/public/images/docs/project-showcast.png" alt="Tradel dashboard with performance statistics, an equity curve, and recent trades" width="90%" />
 </p>
 
 ## How it works
@@ -71,14 +71,36 @@ The current version is free to use and includes the main journal and review expe
 - **Database:** PostgreSQL with Prisma ORM
 - **API documentation:** Swagger
 
-## Database and Prisma
+## Repository structure
 
-The backend uses Prisma Client for the main application repositories: users, refresh tokens, accounts, trades, and notes. These repositories use Prisma queries instead of handwritten CRUD SQL. The Prisma schema is stored in `backend/prisma/schema.prisma`.
+Tradel is an npm workspace with two applications:
 
-After installing backend dependencies, generate Prisma Client:
+```text
+apps/
+├── api/    # NestJS API and Prisma schema
+└── web/    # Next.js web application
+```
+
+Install all dependencies once from the repository root:
 
 ```bash
-cd backend
+npm install
+```
+
+Start either application from the root:
+
+```bash
+npm run dev:api
+npm run dev:web
+```
+
+## Database and Prisma
+
+The API uses Prisma Client for the main application repositories: users, refresh tokens, accounts, trades, and notes. These repositories use Prisma queries instead of handwritten CRUD SQL. The Prisma schema is stored in `apps/api/prisma/schema.prisma`.
+
+Generate Prisma Client from the repository root:
+
+```bash
 npm run prisma:generate
 ```
 
@@ -92,13 +114,13 @@ The analytics repository still uses PostgreSQL report queries for grouped statis
 
 ### Generate the current database diagram
 
-With PostgreSQL running and `DB_URL` set in `backend/.env`, generate DBML from the live database:
+With PostgreSQL running and `DB_URL` set in `apps/api/.env`, generate DBML from the live database:
 
 ```bash
 npm run schema:generate
 ```
 
-The generator rewrites `backend/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the database diagram. It reads the live PostgreSQL schema, so the diagram matches the database currently selected by `DB_URL`.
+The generator rewrites `apps/api/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the database diagram. It reads the live PostgreSQL schema, so the diagram matches the database currently selected by `DB_URL`.
 
 You can select another environment or output file without editing the script:
 

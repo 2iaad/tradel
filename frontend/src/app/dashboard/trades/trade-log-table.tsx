@@ -75,8 +75,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { signedMoney } from "@/lib/format";
 import { G, R } from "@/lib/ui";
+import { useAccountStore } from "@/stores/accounts";
 import { useNotesStore } from "@/stores/notes";
 import type { TradePayload } from "@/stores/trades";
+import { AccountModal } from "../account-modal";
 import { NoteModal } from "../journal/note-modal";
 import { TradeRowForm } from "./trade-row-form";
 import type { TradeLogRow, useTradeLog } from "./use-trade-log";
@@ -286,6 +288,9 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 });
     const [addNoteFor, setAddNoteFor] = React.useState<string | null>(null);
+    const [creatingAccount, setCreatingAccount] = React.useState(false);
+    const activeAccountId = useAccountStore((state) => state.activeId);
+    const accountsLoading = useAccountStore((state) => state.loading);
     const sortableId = React.useId();
     const sensors = useSensors(
         useSensor(MouseSensor),
@@ -481,6 +486,14 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
         table.setPageIndex(0);
     }
 
+    function startNewTrade() {
+        if (activeAccountId) {
+            log.startEdit("new");
+            return;
+        }
+        setCreatingAccount(true);
+    }
+
     return (
         <Tabs value={currentView} onValueChange={changeView} className="w-full flex-col justify-start gap-6">
             <div className="flex items-center justify-between gap-3">
@@ -526,7 +539,13 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button type="button" variant="outline" size="sm" onClick={() => log.startEdit("new")}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={startNewTrade}
+                        disabled={accountsLoading}
+                    >
                         <Plus />
                         <span className="hidden lg:inline">Add Trade</span>
                     </Button>
@@ -618,6 +637,13 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
 
             {log.deletingId && <ConfirmDeleteModal onCancel={log.cancelDelete} onConfirm={log.confirmDelete} />}
             {addNoteFor && <NoteModal note={null} tradeId={addNoteFor} onClose={() => setAddNoteFor(null)} />}
+            {creatingAccount && (
+                <AccountModal
+                    account={null}
+                    onClose={() => setCreatingAccount(false)}
+                    onSaved={() => log.startEdit("new")}
+                />
+            )}
         </Tabs>
     );
 }

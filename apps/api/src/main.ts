@@ -1,3 +1,4 @@
+import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
@@ -14,10 +15,22 @@ async function bootstrap() {
     const config = app.get<ConfigService<Env>>(ConfigService);
 
     app.setGlobalPrefix('api'); // global convention for backend
+
     app.use(cookieParser()); // set the req.cookies
-    app.useGlobalPipes(new ValidationPipe({ transform: true })); // validate + run @Transform on dto
+    app.use(helmet()); // security middleware
+
+    // validate user input
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true, // run @Transform on dto
+            forbidNonWhitelisted: true,
+        }),
+    );
+
+    const allowedOrigins = config.get('allowedOrigins', { infer: true });
     app.enableCors({
-        origin: config.get('allowedOrigins', { infer: true }),
+        origin: allowedOrigins,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
         credentials: true, // necessary for the browser to send/receive cookies
     });
@@ -34,11 +47,11 @@ async function bootstrap() {
             .build(),
     );
     SwaggerModule.setup('api/', app, document);
-    logger.log('Swagger docs: http://localhost:3000/api');
+    logger.log(`Swagger docs: /api`);
 
     // ---------------------------------------------
-    const port = config.getOrThrow('port', { infer: true });
-    await app.listen(port);
-    logger.log('Server running on port: ' + port);
+    const port = config.get('port', { infer: true });
+    await app.listen(port!);
+    logger.log('Server running on port ' + port);
 }
 bootstrap();

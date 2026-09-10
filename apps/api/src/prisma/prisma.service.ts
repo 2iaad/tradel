@@ -7,7 +7,7 @@ import type { Env } from 'src/config/env.validation';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     constructor(config: ConfigService<Env>) {
-        const connectionString = config.get('DB_URL', { infer: true });
+        const connectionString = config.get('dbUrl', { infer: true });
         const adapter = new PrismaPg({ connectionString });
 
         super({ adapter });

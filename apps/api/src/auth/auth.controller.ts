@@ -48,7 +48,7 @@ export class AuthController {
     }
 
     private setRefreshCookie(res: Response, token: string) {
-        const isProd = process.env.NODE_ENV === 'production';
+        const isProd = this.configService.get('nodeEnv', { infer: true }) === 'production';
         res.cookie(REFRESH_COOKIE, token, {
             httpOnly: true, // JS can't read it → XSS-safe
             secure: isProd, // HTTPS only in prod; off for localhost http
@@ -56,7 +56,7 @@ export class AuthController {
             // must cross sites → 'none' (needs secure). dev: 'strict' is CSRF-safe.
             sameSite: isProd ? 'none' : 'strict',
             path: '/api/auth', // only sent to the auth routes that need it
-            maxAge: ms(this.configService.get('JWT_REFRESH_TTL', { infer: true }) as StringValue), // 7d, matches the refresh token's life
+            maxAge: ms(this.configService.get('jwtRefreshTtl', { infer: true }) as StringValue), // 7d, matches the refresh token's life
         });
     }
 }

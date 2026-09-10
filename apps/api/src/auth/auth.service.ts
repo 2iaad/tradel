@@ -62,7 +62,7 @@ export class AuthService {
         const accessToken = this.jwt.sign({ sub: userId, email }); // gets (access secret + TTL) from auth.module.ts
 
         const refreshToken = randomBytes(32).toString('hex'); // random string, not a JWT
-        const refreshTtl = this.config.get('JWT_REFRESH_TTL', { infer: true }) as StringValue;
+        const refreshTtl = this.config.get('jwtRefreshTtl', { infer: true }) as StringValue;
         const expiresAt = new Date(Date.now() + ms(refreshTtl));
         await this.refreshTokens.create(userId, this.hash(refreshToken), expiresAt); // store (userId, hashed refreshTOken, expiry time)
 

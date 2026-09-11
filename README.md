@@ -116,7 +116,7 @@ The analytics repository still uses PostgreSQL report queries for grouped statis
 With PostgreSQL running and `DB_URL` set in `apps/api/.env`, generate DBML from the live database:
 
 ```bash
-npm run schema:generate
+npm run diagram:generate
 ```
 
 The generator rewrites `apps/api/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the database diagram. It reads the live PostgreSQL schema, so the diagram matches the database currently selected by `DB_URL`.
@@ -124,8 +124,8 @@ The generator rewrites `apps/api/database.dbml`. Import that file into [dbdiagra
 You can select another environment or output file without editing the script:
 
 ```bash
-DB_URL='postgresql://user:password@host:5432/database' npm run schema:generate
-npm run schema:generate -- ../docs/database.dbml
+DB_URL='postgresql://user:password@host:5432/database' npm run diagram:generate
+npm run diagram:generate -- ../docs/database.dbml
 ```
 
 The `public` schema is included by default. Set `DBML_SCHEMAS` to a comma-separated list when the database uses additional schemas.

@@ -35,14 +35,6 @@ model notes {
   @@index([trade_id], map: "idx_notes_trade_id")
 }
 
-// Legacy migration history. Kept so Prisma's baseline matches the existing
-// database; application code does not use this model.
-model pgmigrations {
-  id     Int      @id @default(autoincrement())
-  name   String   @db.VarChar(255)
-  run_on DateTime @db.Timestamp(6)
-}
-
 model refresh_tokens {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.Uuid

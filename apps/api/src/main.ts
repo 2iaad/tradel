@@ -22,9 +22,9 @@ async function bootstrap() {
     // validate user input
     app.useGlobalPipes(
         new ValidationPipe({
-            whitelist: true,
+            whitelist: true, // drop extra properties that are not included in dto but {the request still succeeds}
             transform: true, // run @Transform on dto
-            forbidNonWhitelisted: true,
+            forbidNonWhitelisted: true, // {reject request} if extra properties added that are not included in dto
         }),
     );
 

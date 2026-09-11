@@ -19,12 +19,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         await this.$connect();
         try {
             await this.$queryRaw`SELECT 1`; // try first query check health
-            this.logger.log('Database connected successfully');
+            this.logger.log('✅️ Database connected successfully');
         } catch (error: any) {
             this.logger.error(`❌ Database connection failed: ${error.code || error.message}`);
-            this.logger.error(
-                '👉 Make sure PostgreSQL is up and your DB_URL credentials are correct.',
-            );
+            this.logger.error('👉 Make sure PostgreSQL is up and your DB_URL credentials.');
 
             // process.exit(1);
         }

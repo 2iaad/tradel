@@ -40,7 +40,7 @@ function FluxSubmit({
     return (
         <div className="h-[38px] w-full">
             <FluxButton
-                type="submit"
+                type="button"
                 idleLabel={idleLabel}
                 loadingLabel={loadingLabel}
                 successLabel={successLabel}

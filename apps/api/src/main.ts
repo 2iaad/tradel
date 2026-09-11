@@ -33,6 +33,7 @@ async function bootstrap() {
         origin: allowedOrigins,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
         credentials: true, // necessary for the browser to send/receive cookies
+        exposedHeaders: ['Retry-After'], // make js access this header
     });
 
     // documentation with swaager -----------------

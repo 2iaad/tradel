@@ -13,14 +13,17 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 
 @Module({
     imports: [
-        ThrottlerModule.forRoot([
-            {
-                limit: 5, // number of requests
-                ttl: 60_000, // 60s time is in milliseconds
-                setHeaders: true, // add informative headers to request
-                // blockDuration: 60_000, // -> default is 60s
-            },
-        ]),
+        ThrottlerModule.forRoot({
+            errorMessage: 'Too many requests. Please try again later.',
+            throttlers: [
+                {
+                    limit: 5, // number of requests
+                    ttl: 60_000, // 60s time is in milliseconds
+                    setHeaders: true, // add informative headers to request
+                    // blockDuration: 60_000, // -> default is 60s
+                },
+            ],
+        }),
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService<Env>) => ({

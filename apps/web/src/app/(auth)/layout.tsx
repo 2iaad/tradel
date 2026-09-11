@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { Check } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { EmailField, PasswordField, UsernameField } from '@/components/auth/fields';
 import { Button } from '@/components/ui/button';
@@ -25,22 +25,37 @@ const formCls =
 
 const MODES: Mode[] = ['login', 'register', 'reset'];
 const AUTH_SUCCESS_HOLD_MS = 900;
+const DEFAULT_RETRY_SECONDS = 60;
+const MAX_RETRY_SECONDS = 15 * 60;
+
+function getRetryAfterSeconds(value: unknown): number {
+    const seconds = Number(value);
+
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+        return DEFAULT_RETRY_SECONDS;
+    }
+
+    return Math.min(Math.ceil(seconds), MAX_RETRY_SECONDS);
+}
 
 function FluxSubmit({
     idleLabel,
     loadingLabel,
     successLabel,
     onAction,
+    disabled = false,
 }: {
     idleLabel: string;
     loadingLabel: string;
     successLabel: string;
     onAction: () => Promise<void>;
+    disabled?: boolean;
 }) {
     return (
         <div className="h-[38px] w-full">
             <FluxButton
                 type="button"
+                disabled={disabled}
                 idleLabel={idleLabel}
                 loadingLabel={loadingLabel}
                 successLabel={successLabel}
@@ -137,6 +152,17 @@ function RememberRow({ onReset }: { onReset: () => void }) {
 function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
+    const [retryIn, setRetryIn] = useState(0);
+
+    useEffect(() => {
+        if (retryIn <= 0) return;
+
+        const timer = window.setTimeout(() => {
+            setRetryIn((seconds) => Math.max(0, seconds - 1));
+        }, 1_000);
+
+        return () => window.clearTimeout(timer);
+    }, [retryIn]);
 
     const { error, submit } = useAuthSubmit(
         async (f) => {
@@ -149,6 +175,12 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
                 useSessionStore.setState({ session: { status: 'user', email } });
                 return data;
             } catch (err) {
+                if (axios.isAxiosError(err) && err.response?.status === 429) {
+                    const seconds = getRetryAfterSeconds(err.response.headers['retry-after']);
+                    setRetryIn(seconds);
+                    throw new Error('Too many sign-in attempts.');
+                }
+
                 const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
                 throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
             }
@@ -172,12 +204,17 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             <EmailField />
             <PasswordField />
             <RememberRow onReset={() => onSwitch('reset')} />
-            {error && <p className={errorCls}>{error}</p>}
+            {error && (
+                <p className={errorCls} role="alert">
+                    {error}
+                </p>
+            )}
             <FluxSubmit
-                idleLabel="Sign in"
+                idleLabel={retryIn > 0 ? `Sign in again in ${retryIn}s` : 'Sign in'}
                 loadingLabel="Signing in"
                 successLabel="Signed in"
                 onAction={submitLogin}
+                disabled={retryIn > 0}
             />
             <SwitchLine
                 text="New to Tradel?"

@@ -16,9 +16,9 @@ import { TradesRepository } from './trades.repository';
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService<Env>) => ({
-                secret: config.get('JWT_ACCESS_SECRET', { infer: true }),
+                secret: config.get('jwtAccessSecret', { infer: true }),
                 signOptions: {
-                    expiresIn: config.get('JWT_ACCESS_TTL', { infer: true }),
+                    expiresIn: config.get('jwtAccessTtl', { infer: true }),
                 },
             }),
         }),

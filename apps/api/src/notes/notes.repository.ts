@@ -44,7 +44,7 @@ export class NotesRepository {
     }
 
     async update(id: string, account_id: string, fields: UpdateNoteFields): Promise<Note | null> {
-        if (Object.values(fields).every((value) => value === undefined)) {
+        if (fields.title === undefined && fields.body === undefined && fields.tags === undefined) {
             return this.findOne(id, account_id);
         }
 

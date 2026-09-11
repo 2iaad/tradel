@@ -56,7 +56,10 @@ rmSync(temporaryOutputFile, { force: true });
 
 const result = spawnSync(
     process.execPath,
-    [cliFile, 'postgres', databaseUrl.toString(), '--out-file', temporaryOutputFile],
+    // @dbml/connector 10.1.1 runs PostgreSQL metadata queries in parallel on
+    // one client. pg 8.23 warns about that internal behavior, so keep the
+    // third-party warning out of this command's otherwise useful output.
+    ['--no-deprecation', cliFile, 'postgres', databaseUrl.toString(), '--out-file', temporaryOutputFile],
     { encoding: 'utf8' },
 );
 

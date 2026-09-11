@@ -2,22 +2,23 @@ import { z } from 'zod';
 
 const envSchema = z.object({
     // app
-    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    PORT: z.coerce.number().int().positive().default(3000), // coerce -> convert from string to number
+    nodeEnv: z.enum(['development', 'production', 'test']), // .default('development'),
+    port: z.coerce.number().int().positive(), // .default(3000), // coerce -> convert from string to number
+    allowedOrigins: z.url(), // .default('http://localhost:5173'),
 
     // db in prod uses DB_URL only so we add .optional
-    DB_NAME: z.string().min(1).optional(),
-    DB_USER: z.string().min(1).optional(),
-    DB_PASSWORD: z.string().min(1).optional(),
-    DB_PORT: z.coerce.number().int().positive().default(5432), // coerce -> convert from string to number
-    DB_HOST: z.string().min(1).optional(),
-    DB_DATA: z.string().min(1).optional(),
-    DB_URL: z.url(),
+    dbName: z.string().min(1), //.optional(),
+    dbUser: z.string().min(1), //.optional(),
+    dbPassword: z.string().min(1), //.optional(),
+    dbPort: z.coerce.number().int().positive(), // .default(5432), // coerce -> convert from string to number
+    dbHost: z.string().min(1), //.optional(),
+    dbData: z.string().min(1), //.optional(),
+    dbUrl: z.url(),
 
-    JWT_ACCESS_SECRET: z.string().min(32),
-    JWT_REFRESH_SECRET: z.string().min(32),
-    JWT_ACCESS_TTL: z.string().default('900s'),
-    JWT_REFRESH_TTL: z.string().default('7d'),
+    jwtAccessSecret: z.string().min(32),
+    jwtRefreshSecret: z.string().min(32),
+    jwtAccessTtl: z.string(), // .default('900s'),
+    jwtRefreshTtl: z.string(), // .default('7d'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -28,9 +29,22 @@ export type Env = z.infer<typeof envSchema>;
  * @returns env variables as an object
  */
 export function validate(config: { [key: string]: unknown }): Env {
-    // Heroku Postgres injects DATABASE_URL; the rest of the app expects DB_URL.
-    if (!config.DB_URL && config.DATABASE_URL) config.DB_URL = config.DATABASE_URL;
-    const result = envSchema.safeParse(config);
+    const result = envSchema.safeParse({
+        nodeEnv: config.NODE_ENV,
+        port: config.PORT,
+        allowedOrigins: config.ALLOWED_ORIGINS,
+        dbName: config.DB_NAME,
+        dbUser: config.DB_USER,
+        dbPassword: config.DB_PASSWORD,
+        dbPort: config.DB_PORT,
+        dbHost: config.DB_HOST,
+        dbData: config.DB_DATA,
+        dbUrl: config.DB_URL, // Heroku Postgres uses DATABASE_URL
+        jwtAccessSecret: config.JWT_ACCESS_SECRET,
+        jwtRefreshSecret: config.JWT_REFRESH_SECRET,
+        jwtAccessTtl: config.JWT_ACCESS_TTL,
+        jwtRefreshTtl: config.JWT_REFRESH_TTL,
+    });
 
     if (!result.success) {
         const red = (s: string) => `\x1b[31m${s}\x1b[0m`;
@@ -40,7 +54,6 @@ export function validate(config: { [key: string]: unknown }): Env {
 
         console.error(`Env validation failed:\n${messages}`);
         process.exit(1);
-        // throw new Error(`Env validation failed:\n${messages}`);
     }
 
     return result.data;

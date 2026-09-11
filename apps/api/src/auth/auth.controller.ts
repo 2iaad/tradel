@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Res, HttpCode, Req } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpCode, Req, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -10,6 +11,7 @@ import ms, { StringValue } from 'ms';
 const REFRESH_COOKIE: string = 'refresh_token';
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard) // apply rate limiting rules
 export class AuthController {
     constructor(
         private readonly authService: AuthService,

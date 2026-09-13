@@ -15,7 +15,10 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { TradesService } from './trades.service';
 import { CreateTradeDto } from './dto/create-trade.dto';
 import { UpdateTradeDto } from './dto/update-trade.dto';
+import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('trades')
+@ApiCookieAuth('access_token')
 @Controller('accounts/:accountId/trades')
 @UseGuards(JwtGuard)
 export class TradesController {
@@ -23,6 +26,7 @@ export class TradesController {
 
     // POST /accounts/:accountId/trades — log a new trade under the account.
     @Post()
+    @ApiOperation({ summary: 'Create a trade' })
     create(
         @Param('accountId') accountId: string,
         @Body() createTradeDto: CreateTradeDto,
@@ -33,18 +37,21 @@ export class TradesController {
 
     // GET /accounts/:accountId/trades — list every trade in the account.
     @Get()
+    @ApiOperation({ summary: 'List trades in an account' })
     findAll(@Param('accountId') accountId: string, @Req() req: Request) {
         return this.tradesService.findAll(accountId, req.user.sub);
     }
 
     // GET /accounts/:accountId/trades/:id — fetch one trade by id.
     @Get(':id')
+    @ApiOperation({ summary: 'Get one trade' })
     findOne(@Param('accountId') accountId: string, @Param('id') id: string, @Req() req: Request) {
         return this.tradesService.findOne(id, accountId, req.user.sub);
     }
 
     // PATCH /accounts/:accountId/trades/:id — update a trade (partial body).
     @Patch(':id')
+    @ApiOperation({ summary: 'Update a trade' })
     update(
         @Param('accountId') accountId: string,
         @Param('id') id: string,
@@ -57,6 +64,7 @@ export class TradesController {
     // DELETE /accounts/:accountId/trades/:id — remove a trade.
     @Delete(':id')
     @HttpCode(204)
+    @ApiOperation({ summary: 'Delete a trade' })
     remove(@Param('accountId') accountId: string, @Param('id') id: string, @Req() req: Request) {
         return this.tradesService.remove(id, accountId, req.user.sub);
     }

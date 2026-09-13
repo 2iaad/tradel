@@ -8,10 +8,20 @@ import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
 import ms, { StringValue } from 'ms';
 import { JwtGuard } from './guards/jwt.guard';
+import {
+    ApiCookieAuth,
+    ApiCreatedResponse,
+    ApiNoContentResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+    ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 const REFRESH_COOKIE: string = 'refresh_token';
 const ACCESS_COOKIE: string = 'access_token';
 
+@ApiTags('auth')
 @Controller('auth')
 @UseGuards(ThrottlerGuard) // apply rate limiting rules
 export class AuthController {
@@ -26,6 +36,10 @@ export class AuthController {
 
     @Get('me')
     @UseGuards(JwtGuard)
+    @ApiOperation({ summary: 'Get the current user' })
+    @ApiCookieAuth('access_token')
+    @ApiOkResponse({ description: 'Returns the current user ID and email' })
+    @ApiUnauthorizedResponse({ description: 'Missing or invalid access cookie' })
     me(@Req() req: Request) {
         const id = req.user.sub;
         const email = req.user.email;
@@ -35,6 +49,9 @@ export class AuthController {
 
     @Post('login')
     @HttpCode(200)
+    @ApiOperation({ summary: 'Log in and set both auth cookies' })
+    @ApiOkResponse({ description: 'Logged in; access and refresh cookies were set' })
+    @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
         const { accessToken, refreshToken } = await this.authService.login(body);
 
@@ -44,6 +61,8 @@ export class AuthController {
     }
 
     @Post('register')
+    @ApiOperation({ summary: 'Create an account and set both auth cookies' })
+    @ApiCreatedResponse({ description: 'Account created; auth cookies were set' })
     async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
         const { accessToken, refreshToken } = await this.authService.register(body);
 
@@ -54,6 +73,10 @@ export class AuthController {
 
     @Post('refresh')
     @HttpCode(204)
+    @ApiOperation({ summary: 'Create a new access cookie' })
+    @ApiCookieAuth('refresh_token')
+    @ApiNoContentResponse({ description: 'Access cookie refreshed' })
+    @ApiUnauthorizedResponse({ description: 'Invalid or expired refresh cookie' })
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const token = req.cookies?.[REFRESH_COOKIE] as string | undefined;
         if (!token) return { accessToken: null };
@@ -64,6 +87,9 @@ export class AuthController {
 
     @Post('logout')
     @HttpCode(204)
+    @ApiOperation({ summary: 'Log out and clear both auth cookies' })
+    @ApiCookieAuth('refresh_token')
+    @ApiNoContentResponse({ description: 'Refresh token revoked and both cookies cleared' })
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         await this.authService.logout(req.cookies?.[REFRESH_COOKIE] as string | undefined);
 

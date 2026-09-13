@@ -42,8 +42,24 @@ async function bootstrap() {
             .setTitle('Tradel API')
             .setDescription('Trading journal | users, accounts, trades, notes, analytics')
             .setVersion('1.0')
-            .addBearerAuth() // add Authorize button for jwt access token
-            .addTag('api')
+            .addCookieAuth(
+                'access_token',
+                {
+                    type: 'apiKey',
+                    in: 'cookie',
+                    description: 'Short-lived JWT access cookie',
+                },
+                'access_token',
+            )
+            .addCookieAuth(
+                'refresh_token',
+                {
+                    type: 'apiKey',
+                    in: 'cookie',
+                    description: 'Long-lived token used only by refresh and logout',
+                },
+                'refresh_token',
+            )
             .build(),
     );
     SwaggerModule.setup('api/', app, document);
@@ -53,4 +69,4 @@ async function bootstrap() {
     await app.listen(port!);
     logger.log('Server running on port ' + port);
 }
-bootstrap();
+void bootstrap();

@@ -1,25 +1,48 @@
 import { z } from 'zod';
 
-const envSchema = z.object({
-    // app
-    nodeEnv: z.enum(['development', 'production', 'test']), // .default('development'),
-    port: z.coerce.number().int().positive(), // .default(3000), // coerce -> convert from string to number
-    allowedOrigins: z.url(), // .default('http://localhost:5173'),
+const envSchema = z
+    .object({
+        // app
+        nodeEnv: z.enum(['development', 'production', 'test']),
+        port: z.coerce.number().int().positive(),
+        allowedOrigins: z.url(),
 
-    // db in prod uses DB_URL only so we add .optional
-    dbName: z.string().min(1), //.optional(),
-    dbUser: z.string().min(1), //.optional(),
-    dbPassword: z.string().min(1), //.optional(),
-    dbPort: z.coerce.number().int().positive(), // .default(5432), // coerce -> convert from string to number
-    dbHost: z.string().min(1), //.optional(),
-    dbData: z.string().min(1), //.optional(),
-    dbUrl: z.url(),
+        // db in prod uses DB_URL/DATABASE_URL; container vars are required in development
+        dbName: z.string().min(1).optional(),
+        dbUser: z.string().min(1).optional(),
+        dbPassword: z.string().min(1).optional(),
+        dbPort: z.coerce.number().int().positive().optional(),
+        dbHost: z.string().min(1).optional(),
+        dbData: z.string().min(1).optional(),
 
-    jwtAccessSecret: z.string().min(32),
-    jwtRefreshSecret: z.string().min(32),
-    jwtAccessTtl: z.string(), // .default('900s'),
-    jwtRefreshTtl: z.string(), // .default('7d'),
-});
+        dbUrl: z.url(),
+
+        jwtAccessSecret: z.string().min(32),
+        jwtRefreshSecret: z.string().min(32),
+        jwtAccessTtl: z.string().default('900s'),
+        jwtRefreshTtl: z.string().default('7d'),
+    })
+    .superRefine((data, ctx) => {
+        if (data.nodeEnv === 'development') {
+            const dockerVars: (keyof typeof data)[] = [
+                'dbName',
+                'dbUser',
+                'dbPassword',
+                'dbPort',
+                'dbHost',
+                'dbData',
+            ];
+            for (const key of dockerVars) {
+                if (data[key] === undefined || data[key] === '') {
+                    ctx.addIssue({
+                        code: 'custom',
+                        path: [key],
+                        message: `${key} is required in development for Docker`,
+                    });
+                }
+            }
+        }
+    });
 
 export type Env = z.infer<typeof envSchema>;
 
@@ -39,7 +62,7 @@ export function validate(config: { [key: string]: unknown }): Env {
         dbPort: config.DB_PORT,
         dbHost: config.DB_HOST,
         dbData: config.DB_DATA,
-        dbUrl: config.DB_URL, // Heroku Postgres uses DATABASE_URL
+        dbUrl: config.DB_URL ?? config.DATABASE_URL, // Heroku Postgres provides DATABASE_URL
         jwtAccessSecret: config.JWT_ACCESS_SECRET,
         jwtRefreshSecret: config.JWT_REFRESH_SECRET,
         jwtAccessTtl: config.JWT_ACCESS_TTL,

@@ -15,7 +15,7 @@ import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
 import { api } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
-import { clearDemoSession, useSessionStore } from '@/stores/session';
+import { clearDemoSession, hasDashboardSession, useSessionStore } from '@/stores/session';
 
 // Shared bits for the three sliding auth forms.
 type Mode = 'login' | 'register' | 'reset';
@@ -169,10 +169,9 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             const email = f.get('email') as string;
             const password = f.get('password') as string;
             try {
-                const { data } = await api.post('/auth/login', { email, password });
+                await api.post('/auth/login', { email, password });
                 clearDemoSession();
-                useSessionStore.setState({ session: { status: 'user', email } });
-                return data;
+                await useSessionStore.getState().restore();
             } catch (err) {
                 if (axios.isAxiosError(err) && err.response?.status === 429) {
                     const seconds = getRetryAfterSeconds(err.response.headers['retry-after']);
@@ -229,10 +228,9 @@ async function registerAction(f: FormData) {
     const email = f.get('email') as string;
     const password = f.get('password') as string;
     try {
-        const { data } = await api.post('/auth/register', { username, email, password });
+        await api.post('/auth/register', { username, email, password });
         clearDemoSession();
-        useSessionStore.setState({ session: { status: 'user', email } });
-        return data;
+        await useSessionStore.getState().restore();
     } catch (err) {
         const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
         throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
@@ -367,6 +365,31 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
 // URL changes on switch — the tapes/panels persist and keep sliding.
 export default function AuthLayout() {
     const [mode, setMode] = useAuthMode();
+    const router = useRouter();
+    const restore = useSessionStore((state) => state.restore);
+    const [checkingSession, setCheckingSession] = useState(true);
+
+    useEffect(() => {
+        let active = true;
+
+        restore().then(() => {
+            if (!active) return;
+
+            const session = useSessionStore.getState().session;
+            if (hasDashboardSession(session)) {
+                router.replace('/dashboard');
+                return;
+            }
+
+            setCheckingSession(false);
+        });
+
+        return () => {
+            active = false;
+        };
+    }, [restore, router]);
+
+    if (checkingSession) return null;
 
     return (
         <div className="relative h-screen min-h-[640px] w-full overflow-hidden bg-background">

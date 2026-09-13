@@ -10,7 +10,7 @@ The full path from an empty Postgres container to a working register/login API �
 | DB driver        | `pg` (node-postgres) — raw SQL via `pg.Pool`                                                                                  |
 | Migrations       | `node-pg-migrate` (not an ORM — manages _when_ SQL runs)                                                                      |
 | Password hashing | `bcrypt` (cost 12) — not argon2; bcrypt is fine for a single backend                                                          |
-| Tokens           | short **access** = signed JWT (`@nestjs/jwt`, client memory) + long **refresh** = opaque random string (httpOnly cookie)      |
+| Tokens           | short **access** = signed JWT (httpOnly cookie) + long **refresh** = opaque random string (httpOnly cookie)                   |
 | Refresh storage  | `refresh_tokens` table — hashed, **static** (same token reused until expiry or logout), **revocable** via `revoked_at` column |
 
 ---
@@ -22,7 +22,7 @@ npm install bcrypt @nestjs/jwt cookie-parser
 npm install -D @types/bcrypt @types/cookie-parser node-pg-migrate
 ```
 
-`pg` / `@types/pg` are already installed. You don't need Passport — `@nestjs/jwt` + a custom guard is enough. `cookie-parser` lets the server read the httpOnly refresh cookie the browser sends back.
+`pg` / `@types/pg` are already installed. You don't need Passport — `@nestjs/jwt` + a custom guard is enough. `cookie-parser` lets the server read both httpOnly auth cookies the browser sends back.
 
 ---
 
@@ -281,7 +281,7 @@ A signed JWT is **stateless** — the server can verify it without a DB lookup, 
 
 The fix is to split the job in two:
 
-- **Access token** — short-lived (10–15 min), a plain signed JWT. Carries `sub` (user id). Sent on every request in `Authorization: Bearer …`. The client keeps it **in memory** (never `localStorage` — XSS can read that). When it expires, you get a new one from the refresh endpoint.
+- **Access token** — short-lived (10–15 min), a signed JWT in an httpOnly cookie scoped to `/api`. The browser sends it automatically and `JwtGuard` verifies it. When it expires, the frontend calls the refresh endpoint.
 - **Refresh token** — long-lived (7 d), used **only** to mint new access tokens. Lives in an **httpOnly, Secure, SameSite cookie** so client JS can't touch it. Every refresh token has a **row in the DB** (`refresh_tokens`), so the server can revoke it at any time (logout, admin action, security incident).
 
 > Without the DB table, "two tokens" is cosmetic — your refresh token is just another un-revocable JWT. Steps 7–8 build the table and its repo; that's the part that makes this real.
@@ -542,68 +542,28 @@ export class AuthService {
 
 ---
 
-## 11. Controller — set the cookie, expose refresh & logout
+## 11. Controller — cookie authentication routes
 
-```ts
-// src/auth/auth.controller.ts
-import { Controller, Post, Body, Res, Req, HttpCode } from '@nestjs/common';
-import type { Request, Response } from 'express';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { AuthService } from './auth.service';
+| Route            | Behavior                                                |
+| ---------------- | ------------------------------------------------------- |
+| `POST /register` | Creates the user and sets access + refresh cookies.     |
+| `POST /login`    | Checks credentials and sets access + refresh cookies.   |
+| `GET /me`        | Verifies the access cookie and returns `{ id, email }`. |
+| `POST /refresh`  | Checks the refresh cookie and sets a new access cookie. |
+| `POST /logout`   | Revokes the refresh token and clears both cookies.      |
 
-const REFRESH_COOKIE = 'refresh_token';
+The controller does not return either token in JSON. It sends them with `Set-Cookie` headers.
 
-@Controller('auth')
-export class AuthController {
-    constructor(private readonly auth: AuthService) {}
+Cookie settings:
 
-    @Post('register')
-    async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
-        const { accessToken, refreshToken } = await this.auth.register(body);
-        this.setRefreshCookie(res, refreshToken);
-        return { accessToken };
-    }
+| Cookie          | Path        | HttpOnly | Lifetime |
+| --------------- | ----------- | -------- | -------- |
+| `access_token`  | `/api`      | yes      | 15 min   |
+| `refresh_token` | `/api/auth` | yes      | 7 days   |
 
-    @Post('login')
-    @HttpCode(200)
-    async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
-        const { accessToken, refreshToken } = await this.auth.login(body);
-        this.setRefreshCookie(res, refreshToken);
-        return { accessToken };
-    }
+Both cookies use `Secure` in production. Use `SameSite=Strict` when the frontend and API are same-site. A cross-site deployment needs `SameSite=None`, `Secure`, and CSRF protection.
 
-    @Post('refresh')
-    @HttpCode(200)
-    async refresh(@Req() req: Request) {
-        const token = req.cookies?.[REFRESH_COOKIE] as string | undefined;
-        if (!token) return { accessToken: null };
-        const { accessToken } = await this.auth.refresh(token);
-        return { accessToken }; // no new cookie — refresh token is static, stays in the browser as-is
-    }
-
-    @Post('logout')
-    @HttpCode(204)
-    async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        await this.auth.logout(req.cookies?.[REFRESH_COOKIE] as string | undefined);
-        res.clearCookie(REFRESH_COOKIE, { path: '/api/auth' });
-    }
-
-    private setRefreshCookie(res: Response, token: string) {
-        res.cookie(REFRESH_COOKIE, token, {
-            httpOnly: true, // JS can't read it → XSS-safe
-            secure: process.env.NODE_ENV === 'production', // HTTPS only in prod; off for localhost http
-            sameSite: 'strict', // not sent on cross-site requests → CSRF-safe
-            path: '/api/auth', // only sent to the auth routes that need it
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7d, matches the refresh token's life
-        });
-    }
-}
-```
-
-> `@Res({ passthrough: true })` lets you set the cookie **and** still `return` a body the normal Nest way. Without `passthrough` you'd have to call `res.json()` yourself and lose interceptors/serialization.
-
-> **Conclusion.** The access token goes to the client in the JSON body (it lives in memory there); the refresh token only ever travels as an httpOnly cookie scoped to `/api/auth`. `refresh` reads that cookie and returns a fresh access token — the cookie itself is never replaced. `logout` clears the cookie client-side _and_ revokes the DB row server-side. The browser handles the cookie automatically — no token-shuttling code needed on the frontend.
+> **Conclusion.** The browser sends the access cookie to protected API routes. The refresh cookie has a narrower path and is used only by auth routes. Logout clears both cookies and revokes the refresh-token row.
 
 ---
 
@@ -621,9 +581,9 @@ app.enableCors({
 });
 ```
 
-On the SPA side, every `fetch`/`axios` call must send `credentials: 'include'` / `withCredentials: true`, or the cookie never leaves the browser.
+On the SPA side, every `fetch`/`axios` call must send `credentials: 'include'` / `withCredentials: true`, or the cookies never leave the browser.
 
-> **Conclusion.** `cookieParser()` is what makes `req.cookies` exist (the controller reads it). CORS with `credentials: true` + a specific `origin` (you cannot use `*` with credentials) is the contract that lets a browser on a different port hold the httpOnly cookie. This is the one piece that's easy to forget and produces a "login works but refresh is always empty" bug.
+> **Conclusion.** `cookieParser()` makes `req.cookies` available. CORS with `credentials: true` and a specific origin lets the browser send both auth cookies to the API.
 
 ---
 
@@ -646,12 +606,12 @@ export class JwtGuard implements CanActivate {
 
     canActivate(ctx: ExecutionContext): boolean {
         const req = ctx.switchToHttp().getRequest<Request>();
-        const [type, token] = req.headers.authorization?.split(' ') ?? [];
-        if (type !== 'Bearer' || !token) throw new UnauthorizedException('Missing token');
+        const token = req.cookies?.access_token as string | undefined;
+        if (!token) throw new UnauthorizedException('Missing access token');
 
         try {
-            req['user'] = this.jwt.verify(token, {
-                secret: this.config.get('JWT_ACCESS_SECRET', { infer: true }),
+            req.user = this.jwt.verify(token, {
+                secret: this.config.get('jwtAccessSecret', { infer: true }),
             });
         } catch {
             throw new UnauthorizedException('Invalid or expired token');
@@ -665,13 +625,13 @@ Use it:
 
 ```ts
 @UseGuards(JwtGuard)
-@Get('profile')
-profile(@Req() req: Request) {
-    return req['user']; // { sub, email }
+@Get('me')
+me(@Req() req: Request) {
+    return { id: req.user.sub, email: req.user.email };
 }
 ```
 
-> **Conclusion.** The guard verifies only the **access** token (the short-lived one), straight from the `Authorization` header — no DB hit, which is the whole point of keeping access tokens stateless. Refresh tokens never reach protected routes; they only touch `/api/auth/refresh`.
+> **Conclusion.** The guard verifies the short-lived access token from `req.cookies.access_token`. It adds `{ sub, email }` to `req.user`. The refresh token is only used by auth routes.
 
 ---
 
@@ -686,7 +646,7 @@ npm run start:dev           # 3. start the API
 `-c cookies.txt -b cookies.txt` makes curl behave like a browser cookie jar so you can test refresh:
 
 ```bash
-# register (stores the refresh cookie in cookies.txt)
+# register (stores both cookies in cookies.txt)
 curl -c cookies.txt -X POST http://localhost:3000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"username":"ziyad","email":"test@example.com","password":"Password1A"}'
@@ -696,17 +656,17 @@ curl -c cookies.txt -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"Password1A"}'
 
-# refresh (sends the cookie back) → new accessToken, new cookie
+# protected request (sends the access cookie)
+curl -b cookies.txt http://localhost:3000/api/auth/me
+
+# refresh (sends the refresh cookie and stores a new access cookie)
 curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/refresh
 
-# reuse detection: replay an OLD refresh token after rotating → should 401 + revoke all
-# (grab a token value from an earlier cookies.txt copy and send it manually)
-
-# logout → 204, cookie cleared, server-side revoked
+# logout → 204, both cookies cleared, refresh token revoked
 curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/logout
 ```
 
-> **Conclusion.** End to end: register/login set the cookie, refresh rotates it, logout kills it. The reuse test is the one worth doing by hand — replaying a rotated token should 401 _and_ invalidate every other session for that user. If that fires, your security core works.
+> **Conclusion.** Register and login set both cookies. Protected routes use the access cookie. Refresh replaces only the access cookie. Logout clears both cookies and revokes the refresh token.
 
 ---
 
@@ -720,6 +680,6 @@ curl -b cookies.txt -c cookies.txt -X POST http://localhost:3000/api/auth/logout
 - Login returns one **`Invalid credentials`** for both unknown-user and wrong-password — no enumeration. Let the DB's `UNIQUE` constraint (error `23505`) reject duplicates instead of a racy pre-check.
 - **Access = stateless & short** (verified with no DB hit), **refresh = stateful & long** (a DB row you can revoke). That split is the entire security argument.
 - **Static refresh tokens**: the same refresh token is reused on every `/auth/refresh` until it expires (7 d) or is revoked. Only the access token is replaced on each refresh. This is the default behaviour of Google OAuth, AWS Cognito, and most providers.
-- Refresh token lives in an **httpOnly + Secure + SameSite cookie** — XSS can't read it, CSRF can't ride it. The access token lives in **client memory**, never `localStorage`.
-- The **access token is a signed JWT** (`JWT_ACCESS_SECRET`); the **refresh token is opaque** (a random string, no signature), so `JWT_REFRESH_SECRET` is now unused and can be dropped from the env schema.
-- CORS needs `credentials: true` + an explicit `origin` (not `*`), and the SPA must send `credentials: 'include'`, or the cookie never moves.
+- Both tokens live in **httpOnly cookies**, so browser JavaScript cannot read them. Cookie-based authentication still needs CSRF protection.
+- The **access token is a signed JWT** (`JWT_ACCESS_SECRET`); the **refresh token is opaque** and validated by its database hash. `JWT_REFRESH_SECRET` remains configured for now.
+- CORS needs `credentials: true` + an explicit `origin` (not `*`), and the SPA must send `credentials: 'include'`, or the cookies never move.

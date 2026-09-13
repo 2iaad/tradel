@@ -2,8 +2,7 @@
 
 import { create } from 'zustand';
 
-import { api, getAccessToken, setAccessToken } from '@/lib/api';
-import { emailFromToken } from '@/lib/format';
+import { api } from '@/lib/api';
 
 export type Session =
     | { status: 'checking'; email: null }
@@ -35,38 +34,20 @@ export const useSessionStore = create<SessionStore>((set) => ({
 
     restore: async () => {
         if (demoEnabled()) {
-            setAccessToken(null);
             set({ session: { status: 'demo', email: 'demo@tradel.app' } });
             return;
         }
 
-        // In-memory token if we have one, else try the refresh cookie.
-        let token = getAccessToken();
-        if (!token) {
-            try {
-                const { data } = await api.post('/auth/refresh');
-                setAccessToken(data.accessToken);
-                token = data.accessToken;
-            } catch {
-                token = null; // invalid/expired refresh token
-            }
-        }
-
-        let email = null;
-        if (token) {
-            email = emailFromToken(token);
-        }
-
-        if (email) {
-            set({ session: { status: 'user', email: email } });
-        } else {
+        try {
+            const { data } = await api.get<{ id: string; email: string }>('/auth/me');
+            set({ session: { status: 'user', email: data.email } });
+        } catch {
             set({ session: { status: 'anon', email: null } });
         }
     },
 
     startDemo: () => {
         if (typeof window !== 'undefined') sessionStorage.setItem(DEMO_KEY, 'true');
-        setAccessToken(null);
         set({ session: { status: 'demo', email: 'demo@tradel.app' } });
     },
 
@@ -74,7 +55,6 @@ export const useSessionStore = create<SessionStore>((set) => ({
         const demo = useSessionStore.getState().session.status === 'demo';
         if (!demo) await api.post('/auth/logout');
         clearDemoSession();
-        setAccessToken(null);
         set({ session: { status: 'anon', email: null } });
     },
 }));

@@ -15,25 +15,15 @@ export class JwtGuard implements CanActivate {
     canActivate(ctx: ExecutionContext): boolean {
         const req = ctx.switchToHttp().getRequest<Request>();
 
-        const authHeader = req.headers.authorization;
-        let type = '';
-        let token = '';
-        if (authHeader) {
-            const parts = authHeader.split(' ');
-            type = parts[0];
-            token = parts[1];
-        }
-
-        if (type !== 'Bearer' || !token) {
-            throw new UnauthorizedException('Missing token');
-        }
+        const token = req.cookies?.access_token as string | undefined;
+        if (!token) throw new UnauthorizedException('Missing access token');
 
         try {
             const secret = this.config.get('jwtAccessSecret', { infer: true });
             const payload = this.jwt.verify<JwtUser>(token, {
                 secret: secret,
             });
-            req.user = payload; // now the request has the sub and email of authenticated user
+            req.user = payload; // now request has (sub + email) of authenticated user
         } catch {
             throw new UnauthorizedException('Invalid or expired token');
         }

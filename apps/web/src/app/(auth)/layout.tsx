@@ -13,7 +13,7 @@ import { TradelLogo } from '@/components/ui/tradel-logo';
 import { Tape, TOP_TICKS, BOTTOM_TICKS } from '@/components/tape';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
-import { api, setAccessToken } from '@/lib/api';
+import { api } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
 import { clearDemoSession, useSessionStore } from '@/stores/session';
 
@@ -171,7 +171,6 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             try {
                 const { data } = await api.post('/auth/login', { email, password });
                 clearDemoSession();
-                setAccessToken(data.accessToken);
                 useSessionStore.setState({ session: { status: 'user', email } });
                 return data;
             } catch (err) {
@@ -232,7 +231,6 @@ async function registerAction(f: FormData) {
     try {
         const { data } = await api.post('/auth/register', { username, email, password });
         clearDemoSession();
-        setAccessToken(data.accessToken);
         useSessionStore.setState({ session: { status: 'user', email } });
         return data;
     } catch (err) {

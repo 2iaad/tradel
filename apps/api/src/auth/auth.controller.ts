@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, HttpCode, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpCode, Req, UseGuards, Get } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
 import ms, { StringValue } from 'ms';
+import { JwtGuard } from './guards/jwt.guard';
 
 const REFRESH_COOKIE: string = 'refresh_token';
 const ACCESS_COOKIE: string = 'access_token';
@@ -23,19 +24,28 @@ export class AuthController {
         this.isProd = this.configService.get('nodeEnv', { infer: true }) === 'production';
     }
 
-    @Post('register')
-    async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
-        const { accessToken, refreshToken } = await this.authService.register(body);
+    @Get('me')
+    @UseGuards(JwtGuard)
+    me(@Req() req: Request) {
+        const id = req.user.sub;
+        const email = req.user.email;
 
-        this.setAccessCookie(res, accessToken);
-        this.setRefreshCookie(res, refreshToken);
-        // return { accessToken };
+        return { id, email };
     }
 
     @Post('login')
     @HttpCode(200)
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
         const { accessToken, refreshToken } = await this.authService.login(body);
+
+        this.setAccessCookie(res, accessToken);
+        this.setRefreshCookie(res, refreshToken);
+        // return { accessToken };
+    }
+
+    @Post('register')
+    async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
+        const { accessToken, refreshToken } = await this.authService.register(body);
 
         this.setAccessCookie(res, accessToken);
         this.setRefreshCookie(res, refreshToken);

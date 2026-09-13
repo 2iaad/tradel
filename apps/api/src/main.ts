@@ -8,11 +8,11 @@ import { ConfigService } from '@nestjs/config';
 import type { Env } from './config/env.validation';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, {
-        // logger: false,
-    });
+    const app = await NestFactory.create(AppModule, { logger: ['error'] });
     const logger = new Logger(AppModule.name);
     const config = app.get<ConfigService<Env>>(ConfigService);
+    const port = config.get('port', { infer: true });
+    const allowedOrigins = config.get('allowedOrigins', { infer: true });
 
     app.setGlobalPrefix('api'); // global convention for backend
 
@@ -28,7 +28,6 @@ async function bootstrap() {
         }),
     );
 
-    const allowedOrigins = config.get('allowedOrigins', { infer: true });
     app.enableCors({
         origin: allowedOrigins,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
@@ -51,7 +50,6 @@ async function bootstrap() {
     logger.log(`Swagger docs: /api`);
 
     // ---------------------------------------------
-    const port = config.get('port', { infer: true });
     await app.listen(port!);
     logger.log('Server running on port ' + port);
 }

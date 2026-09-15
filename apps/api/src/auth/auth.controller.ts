@@ -1,5 +1,15 @@
-import { Controller, Post, Body, Res, HttpCode, Req, UseGuards, Get } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import {
+    Controller,
+    Post,
+    Body,
+    Res,
+    HttpCode,
+    Req,
+    UseGuards,
+    Get,
+    UnauthorizedException,
+} from '@nestjs/common';
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -35,6 +45,7 @@ export class AuthController {
     }
 
     @Get('me')
+    @SkipThrottle()
     @UseGuards(JwtGuard)
     @ApiOperation({ summary: 'Get the current user' })
     @ApiCookieAuth('access_token')
@@ -72,6 +83,7 @@ export class AuthController {
     }
 
     @Post('refresh')
+    @Throttle({ default: { limit: 30, ttl: 60_000 } })
     @HttpCode(204)
     @ApiOperation({ summary: 'Create a new access cookie' })
     @ApiCookieAuth('refresh_token')
@@ -79,13 +91,17 @@ export class AuthController {
     @ApiUnauthorizedResponse({ description: 'Invalid or expired refresh cookie' })
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const token = req.cookies?.[REFRESH_COOKIE] as string | undefined;
-        if (!token) return { accessToken: null };
+        if (!token) {
+            // return { accessToken: null };
+            throw new UnauthorizedException('Missing refresh token');
+        }
 
         const { accessToken } = await this.authService.refresh(token);
         this.setAccessCookie(res, accessToken);
     }
 
     @Post('logout')
+    @SkipThrottle()
     @HttpCode(204)
     @ApiOperation({ summary: 'Log out and clear both auth cookies' })
     @ApiCookieAuth('refresh_token')
@@ -105,7 +121,7 @@ export class AuthController {
             secure: this.isProd,
             sameSite: this.isProd ? 'none' : 'strict',
             path: '/api',
-            maxAge: ms(this.configService.get('jwtAccessTtl', { infer: true }) as StringValue), // 7d, matches the refresh token's life
+            maxAge: ms(this.configService.get('jwtAccessTtl', { infer: true }) as StringValue), // short lived (seconds)
         });
     }
 

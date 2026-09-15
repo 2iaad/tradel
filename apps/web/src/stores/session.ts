@@ -2,11 +2,13 @@
 
 import { create } from 'zustand';
 
-import { api } from '@/lib/api';
+import { api, apiMessage } from '@/lib/api';
+import axios from 'axios';
 
 export type Session =
     | { status: 'checking'; email: null }
     | { status: 'anon'; email: null }
+    | { status: 'error'; email: null; message: string }
     | { status: 'user'; email: string }
     | { status: 'demo'; email: string };
 
@@ -18,6 +20,8 @@ interface SessionStore {
 }
 
 const DEMO_KEY = 'tradel.demoSession';
+let restoreRequest: Promise<void> | null = null;
+
 const demoEnabled = () =>
     typeof window !== 'undefined' && sessionStorage.getItem(DEMO_KEY) === 'true';
 
@@ -32,18 +36,39 @@ export function hasDashboardSession(session: Session) {
 export const useSessionStore = create<SessionStore>((set) => ({
     session: { status: 'checking', email: null },
 
-    restore: async () => {
-        if (demoEnabled()) {
-            set({ session: { status: 'demo', email: 'demo@tradel.app' } });
-            return;
-        }
+    restore: () => {
+        if (restoreRequest) return restoreRequest;
 
-        try {
-            const { data } = await api.get<{ id: string; email: string }>('/auth/me');
-            set({ session: { status: 'user', email: data.email } });
-        } catch {
-            set({ session: { status: 'anon', email: null } });
-        }
+        restoreRequest = (async () => {
+            if (demoEnabled()) {
+                set({ session: { status: 'demo', email: 'demo@tradel.app' } });
+                return;
+            }
+
+            try {
+                const { data } = await api.get<{ id: string; email: string }>('/auth/me');
+                set({ session: { status: 'user', email: data.email } });
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    set({ session: { status: 'anon', email: null } });
+                    return;
+                }
+
+                set({
+                    session: {
+                        status: 'error',
+                        email: null,
+                        message: apiMessage(error),
+                    },
+                });
+
+                throw error;
+            }
+        })().finally(() => {
+            restoreRequest = null;
+        });
+
+        return restoreRequest;
     },
 
     startDemo: () => {

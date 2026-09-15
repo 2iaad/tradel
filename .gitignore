@@ -3,7 +3,6 @@ auth-routes.md
 vul.md
 TODO
 tradel-before-orm.dump
-PRISMA_MIGRATION_GUIDE.md
 /apps/api/src/generated/prisma/
 
 git.md

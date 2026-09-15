@@ -15,7 +15,7 @@ import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
 import { api } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
-import { clearDemoSession, hasDashboardSession, useSessionStore } from '@/stores/session';
+import { clearDemoSession, useSessionStore } from '@/stores/session';
 
 // Shared bits for the three sliding auth forms.
 type Mode = 'login' | 'register' | 'reset';
@@ -367,27 +367,18 @@ export default function AuthLayout() {
     const [mode, setMode] = useAuthMode();
     const router = useRouter();
     const restore = useSessionStore((state) => state.restore);
-    const [checkingSession, setCheckingSession] = useState(true);
+    const sessionStatus = useSessionStore((state) => state.session.status);
+    const checkingSession = sessionStatus === 'checking';
 
     useEffect(() => {
-        let active = true;
-
-        restore().then(() => {
-            if (!active) return;
-
-            const session = useSessionStore.getState().session;
-            if (hasDashboardSession(session)) {
-                router.replace('/dashboard');
-                return;
-            }
-
-            setCheckingSession(false);
-        });
-
-        return () => {
-            active = false;
-        };
-    }, [restore, router]);
+        if (sessionStatus === 'user' || sessionStatus === 'demo') {
+            router.replace('/dashboard');
+        } else if (sessionStatus === 'checking') {
+            restore().catch(() => {
+                // The session store records the error; consume the rejection here.
+            });
+        }
+    }, [restore, router, sessionStatus]);
 
     if (checkingSession) return null;
 

@@ -35,8 +35,8 @@ api.interceptors.response.use(undefined, async (error) => {
 
     try {
         await refreshAccessCookie();
-    } catch {
-        throw error;
+    } catch (refreshError) {
+        throw refreshError;
     }
 
     return api(original);

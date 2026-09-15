@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { errorCls } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { hasDashboardSession, useSessionStore } from '@/stores/session';
 import { Sidebar } from './sidebar';
@@ -16,6 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const loadAccounts = useAccountStore((s) => s.load);
     const router = useRouter();
     const pathname = usePathname();
+    const [retrying, setRetrying] = useState(false);
     const title =
         {
             '/dashboard': 'Dashboard',
@@ -29,8 +32,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Restore the session, then load accounts (which sets the active account
     // and cascades into the trades/notes stores via their subscriptions).
     useEffect(() => {
-        restore().then(loadAccounts);
+        let active = true;
+
+        restore()
+            .then(() => {
+                if (active && hasDashboardSession(useSessionStore.getState().session)) {
+                    return loadAccounts();
+                }
+            })
+            .catch(() => {
+                // The session store records the error; keep it visible here.
+            });
+
+        return () => {
+            active = false;
+        };
     }, [restore, loadAccounts]);
+
+    const retryRestore = async () => {
+        setRetrying(true);
+        try {
+            await restore();
+            if (hasDashboardSession(useSessionStore.getState().session)) {
+                await loadAccounts();
+            }
+        } catch {
+            // The session store records the error for the panel below.
+        } finally {
+            setRetrying(false);
+        }
+    };
 
     // No guest dashboard — send unauthenticated visitors to sign in.
     useEffect(() => {
@@ -55,7 +86,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <h1 className="truncate text-base font-medium normal-case">{title}</h1>
                     </div>
                 </header>
-                {hasDashboardSession(session) && children}
+                {session.status === 'error' ? (
+                    <div className="flex flex-1 items-center justify-center p-6">
+                        <div className="flex max-w-md flex-col items-center gap-4 text-center">
+                            <h2 className="m-0 text-lg font-semibold text-card-foreground">
+                                We couldn&apos;t verify your session
+                            </h2>
+                            <p className={errorCls} role="alert">
+                                {session.message}
+                            </p>
+                            <Button type="button" onClick={retryRestore} disabled={retrying}>
+                                {retrying ? 'Trying again…' : 'Try again'}
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    hasDashboardSession(session) && children
+                )}
             </SidebarInset>
         </SidebarProvider>
     );

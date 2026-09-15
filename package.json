@@ -18,7 +18,8 @@
         "prisma:studio": "npm run prisma:studio --workspace=@tradel/api",
         "prisma:migrate:dev": "npm run prisma:migrate:dev --workspace=@tradel/api",
         "prisma:migrate:deploy": "npm run prisma:migrate:deploy --workspace=@tradel/api",
-        "diagram:generate": "npm run diagram:generate --workspace=@tradel/api"
+        "diagram:generate": "npm run diagram:generate --workspace=@tradel/api",
+        "logs:heroku": "heroku logs --tail"
     },
     "engines": {
         "node": "22.x"

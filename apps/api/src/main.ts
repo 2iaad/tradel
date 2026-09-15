@@ -1,14 +1,18 @@
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from './config/env.validation';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, { logger: ['error'] });
+    const app = await NestFactory.create(AppModule, {
+        logger: new ConsoleLogger({
+            prefix: 'Tradel',
+        }),
+    });
     const logger = new Logger(AppModule.name);
     const config = app.get<ConfigService<Env>>(ConfigService);
     const port = config.get('port', { infer: true });

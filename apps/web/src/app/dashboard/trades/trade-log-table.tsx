@@ -108,7 +108,7 @@ const COLUMN_LABELS: Record<string, string> = {
 const COLUMN_WIDTHS: Record<string, string> = {
     drag: 'w-10',
     select: 'w-10',
-    date: 'w-24',
+    date: 'w-56',
     side: 'w-28',
     entry: 'w-40',
     exit: 'w-40',

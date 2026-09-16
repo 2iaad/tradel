@@ -1,4 +1,12 @@
-import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+    IsDateString,
+    IsIn,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    MaxLength,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 const SIDES = ['LONG', 'SHORT'] as const;
@@ -24,4 +32,8 @@ export class CreateTradeDto {
 
     @IsNumber()
     lots!: number;
+
+    @IsOptional()
+    @IsDateString()
+    createdAt?: string;
 }

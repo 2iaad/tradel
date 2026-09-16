@@ -26,6 +26,7 @@ export interface CreateTradePayload {
     entry: number;
     exit?: number | null;
     lots: number;
+    createdAt?: string;
 }
 
 export interface UpdateTradePayload extends Partial<Omit<CreateTradePayload, 'exit'>> {
@@ -119,7 +120,7 @@ function createDemoTrade(accountId: string, payload: CreateTradePayload): ApiTra
         lots: String(payload.lots),
         risk_reward: null,
         pnl: demoPnl(payload),
-        created_at: new Date().toISOString(),
+        created_at: payload.createdAt ?? new Date().toISOString(),
     };
 }
 
@@ -150,6 +151,7 @@ function updateDemoTrade(trade: ApiTrade, payload: UpdateTradePayload): ApiTrade
                   ? null
                   : String(payload.rReward),
         pnl: demoPnl(next),
+        created_at: payload.createdAt ?? trade.created_at,
     };
 }
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { signedMoney } from '@/lib/format';
 import { cardCls, G, R } from '@/lib/ui';
+import { useAccountStore } from '@/stores/accounts';
 import { useCalendarStore } from '@/stores/calendar';
 import { PageHeader } from '../page-header';
 import { CalendarChart } from './calendar-chart';
@@ -61,14 +62,14 @@ export default function CalendarPage() {
     const month = useCalendarStore((s) => s.month);
     const days = useCalendarStore((s) => s.days);
     const loading = useCalendarStore((s) => s.loading);
-    const error = useCalendarStore((s) => s.error);
+    const error = useCalendarStore((s) => s.loadError);
+    const stale = useCalendarStore((s) => s.stale);
     const load = useCalendarStore((s) => s.load);
+    const activeId = useAccountStore((s) => s.activeId);
 
-    // Load once on mount; month changes go through MonthNav → load directly.
     useEffect(() => {
-        load(month);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [load]);
+        void load(month);
+    }, [activeId, load, month, stale]);
 
     const monthNet = useMemo(() => days.reduce((s, d) => s + d.pnl, 0), [days]);
     const totalTrades = useMemo(() => days.reduce((s, d) => s + d.trades, 0), [days]);

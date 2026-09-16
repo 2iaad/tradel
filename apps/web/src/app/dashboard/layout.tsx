@@ -16,6 +16,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const session = useSessionStore((s) => s.session);
     const restore = useSessionStore((s) => s.restore);
     const loadAccounts = useAccountStore((s) => s.load);
+    const accountsLoading = useAccountStore((s) => s.loading);
+    const accountsError = useAccountStore((s) => s.loadError);
     const router = useRouter();
     const pathname = usePathname();
     const restoring = useSessionStore((state) => state.restoring);
@@ -83,17 +85,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <h1 className="truncate text-base font-medium normal-case">{title}</h1>
                     </div>
                 </header>
-                {session.status === 'error' ? (
+                {session.status === 'error' || accountsError ? (
                     <div className="flex flex-1 items-center justify-center p-6">
                         <div className="flex max-w-md flex-col items-center gap-4 text-center">
                             <h2 className="m-0 text-lg font-semibold text-card-foreground">
-                                We couldn&apos;t verify your session
+                                {session.status === 'error'
+                                    ? "We couldn't verify your session"
+                                    : "We couldn't load your accounts"}
                             </h2>
                             <p className={errorCls} role="alert">
-                                {session.message}
+                                {session.status === 'error' ? session.message : accountsError}
                             </p>
-                            <Button type="button" onClick={retryRestore} disabled={restoring}>
-                                {restoring ? 'Trying again…' : 'Try again'}
+                            <Button
+                                type="button"
+                                onClick={retryRestore}
+                                disabled={restoring || accountsLoading}
+                            >
+                                {restoring || accountsLoading ? 'Trying again…' : 'Try again'}
                             </Button>
                         </div>
                     </div>

@@ -33,7 +33,7 @@ Tradel keeps your trades, notes, accounts, and performance data in one place. It
 ## How it works
 
 1. **Create a trading account** — keep personal accounts, demo accounts, broker accounts, and prop-firm challenges separate. Each account can have its own broker, starting balance, currency, and trade history.
-2. **Log a trade** — record the market symbol, long or short direction, entry, exit, lot size, profit or loss, and risk-to-reward result.
+2. **Log a trade** — record the date and time, market symbol, long or short direction, entry, exit, lot size, profit or loss, and risk-to-reward result.
 3. **Add the story behind it** — attach notes to explain your idea, your plan, what happened, and what you learned.
 4. **Review the data** — use simple charts, statistics, filters, and calendar views to find patterns across your trades.
 5. **Make the next trade better** — repeat what works and stop repeating mistakes that cost you money.

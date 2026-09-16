@@ -9,8 +9,13 @@ export type Session =
     | { status: 'checking'; email: null }
     | { status: 'anon'; email: null }
     | { status: 'error'; email: null; message: string }
-    | { status: 'user'; email: string }
+    | { status: 'user'; id: string; email: string }
     | { status: 'demo'; email: string };
+
+interface SessionUser {
+    id: string;
+    email: string;
+}
 
 interface Credentials {
     email: string;
@@ -71,20 +76,10 @@ export const useSessionStore = create<SessionStore>((set, get) => {
         set({ pendingAction: action });
 
         const request = (async () => {
-            await api.post(`/auth/${action}`, credentials);
+            const { data } = await api.post<SessionUser>(`/auth/${action}`, credentials);
             if (currentVersion !== version) throw new Error('Session changed. Please try again.');
             saveDemo(false);
-            try {
-                const { data } = await api.get<{ id: string; email: string }>('/auth/me');
-                if (currentVersion !== version)
-                    throw new Error('Session changed. Please try again.');
-                set({ session: { status: 'user', email: data.email } });
-            } catch (error) {
-                if (currentVersion === version) {
-                    set({ session: { status: 'error', email: null, message: apiMessage(error) } });
-                }
-                throw error;
-            }
+            set({ session: { status: 'user', id: data.id, email: data.email } });
         })().finally(() => {
             actionRequest = null;
             set({ pendingAction: null });
@@ -101,6 +96,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
         restore: () => {
             if (actionRequest) return actionRequest;
             if (restoreRequest) return restoreRequest;
+            if (get().session.status === 'user') return Promise.resolve();
             if (get().session.status === 'demo' || demoEnabled()) {
                 set({ session: { status: 'demo', email: 'demo@tradel.app' } });
                 return Promise.resolve();
@@ -110,9 +106,9 @@ export const useSessionStore = create<SessionStore>((set, get) => {
             set({ restoring: true });
             const request = (async () => {
                 try {
-                    const { data } = await api.get<{ id: string; email: string }>('/auth/me');
+                    const { data } = await api.get<SessionUser>('/auth/me');
                     if (currentVersion !== version) return;
-                    set({ session: { status: 'user', email: data.email } });
+                    set({ session: { status: 'user', id: data.id, email: data.email } });
                 } catch (error) {
                     if (currentVersion !== version) return;
                     if (axios.isAxiosError(error) && error.response?.status === 401) {

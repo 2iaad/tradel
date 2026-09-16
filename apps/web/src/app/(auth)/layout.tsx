@@ -13,9 +13,9 @@ import { TradelLogo } from '@/components/ui/tradel-logo';
 import { Tape, TOP_TICKS, BOTTOM_TICKS } from '@/components/tape';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
-import { api } from '@/lib/api';
+import { apiMessage } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
-import { clearDemoSession, useSessionStore } from '@/stores/session';
+import { useSessionStore } from '@/stores/session';
 
 // Shared bits for the three sliding auth forms.
 type Mode = 'login' | 'register' | 'reset';
@@ -153,6 +153,8 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const [retryIn, setRetryIn] = useState(0);
+    const login = useSessionStore((state) => state.login);
+    const sessionPending = useSessionStore((state) => state.pendingAction !== null);
 
     useEffect(() => {
         if (retryIn <= 0) return;
@@ -169,9 +171,7 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             const email = f.get('email') as string;
             const password = f.get('password') as string;
             try {
-                await api.post('/auth/login', { email, password });
-                clearDemoSession();
-                await useSessionStore.getState().restore();
+                await login({ email, password });
             } catch (err) {
                 if (axios.isAxiosError(err) && err.response?.status === 429) {
                     const seconds = getRetryAfterSeconds(err.response.headers['retry-after']);
@@ -179,8 +179,7 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
                     throw new Error('Too many sign-in attempts.');
                 }
 
-                const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
-                throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
+                throw new Error(apiMessage(err));
             }
         },
         () => {
@@ -212,7 +211,7 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
                 loadingLabel="Signing in"
                 successLabel="Signed in"
                 onAction={submitLogin}
-                disabled={retryIn > 0}
+                disabled={retryIn > 0 || sessionPending}
             />
             <SwitchLine
                 text="New to Tradel?"
@@ -223,24 +222,23 @@ function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     );
 }
 
-async function registerAction(f: FormData) {
-    const username = f.get('username') as string;
-    const email = f.get('email') as string;
-    const password = f.get('password') as string;
-    try {
-        await api.post('/auth/register', { username, email, password });
-        clearDemoSession();
-        await useSessionStore.getState().restore();
-    } catch (err) {
-        const m = axios.isAxiosError(err) ? err.response?.data?.message : null;
-        throw new Error(Array.isArray(m) ? m[0] : (m ?? 'Something went wrong'));
-    }
-}
-
 // Account-creation form; owns its own submit/pending/error state.
 function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
+    const register = useSessionStore((state) => state.register);
+    const sessionPending = useSessionStore((state) => state.pendingAction !== null);
+    const registerAction = async (form: FormData) => {
+        try {
+            await register({
+                username: form.get('username') as string,
+                email: form.get('email') as string,
+                password: form.get('password') as string,
+            });
+        } catch (error) {
+            throw new Error(apiMessage(error));
+        }
+    };
     const { error, submit } = useAuthSubmit(registerAction, () => {
         window.setTimeout(() => router.push('/dashboard'), AUTH_SUCCESS_HOLD_MS);
     });
@@ -264,6 +262,7 @@ function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
                 idleLabel="Create account"
                 loadingLabel="Creating account"
                 successLabel="Account created"
+                disabled={sessionPending}
                 onAction={submitRegistration}
             />
             <SwitchLine

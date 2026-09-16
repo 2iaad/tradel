@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
 
@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const loadAccounts = useAccountStore((s) => s.load);
     const router = useRouter();
     const pathname = usePathname();
-    const [retrying, setRetrying] = useState(false);
+    const restoring = useSessionStore((state) => state.restoring);
     const title =
         {
             '/dashboard': 'Dashboard',
@@ -50,7 +50,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }, [restore, loadAccounts]);
 
     const retryRestore = async () => {
-        setRetrying(true);
         try {
             await restore();
             if (hasDashboardSession(useSessionStore.getState().session)) {
@@ -58,8 +57,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }
         } catch {
             // The session store records the error for the panel below.
-        } finally {
-            setRetrying(false);
         }
     };
 
@@ -95,8 +92,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <p className={errorCls} role="alert">
                                 {session.message}
                             </p>
-                            <Button type="button" onClick={retryRestore} disabled={retrying}>
-                                {retrying ? 'Trying again…' : 'Try again'}
+                            <Button type="button" onClick={retryRestore} disabled={restoring}>
+                                {restoring ? 'Trying again…' : 'Try again'}
                             </Button>
                         </div>
                     </div>

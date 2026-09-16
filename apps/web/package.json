@@ -7,6 +7,7 @@
         "build": "next build",
         "start": "next start -p 5173",
         "lint": "eslint",
+        "test:session": "node --experimental-strip-types --import ./tests/register.mjs tests/session.test.mjs",
         "format": "prettier --write ."
     },
     "dependencies": {

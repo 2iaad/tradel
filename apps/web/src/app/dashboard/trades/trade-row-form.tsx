@@ -24,8 +24,12 @@ const inCls =
     'w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]';
 const dashCls = 'font-mono text-ui-sm text-content-placeholder';
 
+function dateTimeLocalValue(date: Date): string {
+    const localTime = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+    return localTime.toISOString().slice(0, 16);
+}
+
 // Inline form fields → trades API payload; empty optional fields stay undefined.
-// The trade date is created_at (set server-side), so there's no date field.
 function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
     const opt = (k: string) => {
         const v = f.get(k);
@@ -41,6 +45,7 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
         exit: prev && exit === undefined ? null : exit,
         lots: Number(f.get('lots')),
         rReward: prev ? (rReward ?? null) : undefined,
+        createdAt: new Date(String(f.get('createdAt'))).toISOString(),
     };
 }
 
@@ -95,6 +100,9 @@ export function TradeRowForm({
     onCancel: () => void;
 }) {
     const formId = `trade-row-form-${useId().replaceAll(':', '')}`;
+    const [createdAt, setCreatedAt] = useState(() =>
+        dateTimeLocalValue(t ? new Date(t.ts) : new Date()),
+    );
     const [symbol, setSymbol] = useState(t?.sym ?? '');
     const [side, setSide] = useState<'LONG' | 'SHORT'>(t?.side ?? 'LONG');
     const [entry, setEntry] = useState(t?.entry ?? '');
@@ -114,7 +122,17 @@ export function TradeRowForm({
     const cells: Record<string, React.ReactNode> = {
         drag: null,
         select: null,
-        date: <span className={dashCls}>{t?.date ?? '—'}</span>,
+        date: (
+            <Input
+                form={formId}
+                name="createdAt"
+                type="datetime-local"
+                value={createdAt}
+                onChange={(event) => setCreatedAt(event.target.value)}
+                required
+                className={`${inCls} min-w-0 px-1.5 text-[11px] tracking-[-0.06em] [font-stretch:condensed]`}
+            />
+        ),
         sym: (
             <Input
                 form={formId}
@@ -211,6 +229,9 @@ export function TradeRowForm({
                             <form id={formId} onSubmit={onSubmit}>
                                 {!visibleColumns.has('sym') && (
                                     <input type="hidden" name="symbol" value={symbol} />
+                                )}
+                                {!visibleColumns.has('date') && (
+                                    <input type="hidden" name="createdAt" value={createdAt} />
                                 )}
                                 {!visibleColumns.has('side') && (
                                     <input type="hidden" name="side" value={side} />

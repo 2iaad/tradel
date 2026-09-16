@@ -48,6 +48,7 @@ export function NoteModal({
 }) {
     const create = useNotesStore((s) => s.create);
     const update = useNotesStore((s) => s.update);
+    const storePending = useNotesStore((s) => s.pendingMutation !== null);
     const editing = note !== null;
 
     const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
@@ -59,8 +60,10 @@ export function NoteModal({
         }
     }, onClose);
 
+    const busy = pending || storePending;
+
     return (
-        <Dialog open onOpenChange={(open) => !open && onClose()}>
+        <Dialog open onOpenChange={(open) => !open && !busy && onClose()}>
             <DialogContent className="max-w-[440px] border-border bg-card p-4 text-card-foreground sm:p-7">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-semibold tracking-[-0.01em] text-card-foreground">
@@ -106,7 +109,7 @@ export function NoteModal({
                     <DialogFooter className="mx-0 mt-2 mb-0 rounded-none border-0 bg-transparent p-0">
                         <Button
                             type="submit"
-                            disabled={pending}
+                            disabled={busy}
                             className="w-full bg-primary text-black hover:bg-primary-hover"
                         >
                             {editing ? 'Save changes' : 'Add note'}

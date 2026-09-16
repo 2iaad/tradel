@@ -93,6 +93,25 @@ body {
     font-family: var(--font-sans);
 }
 
+/* Use the expected hand cursor for every enabled interactive control. */
+button:not(:disabled),
+input:is([type='button'], [type='submit'], [type='reset'], [type='checkbox'], [type='radio']):not(
+        :disabled
+    ),
+select:not(:disabled),
+a[href],
+summary,
+label[for],
+[role='button']:not([aria-disabled='true']),
+[role='menuitem']:not([aria-disabled='true']),
+[role='option']:not([aria-disabled='true']) {
+    cursor: pointer;
+}
+
+input[type='file']:not(:disabled)::file-selector-button {
+    cursor: pointer;
+}
+
 h1,
 h2,
 h3,
@@ -289,7 +308,7 @@ input:-webkit-autofill:focus {
     --sidebar-primary-foreground: var(--brand-foreground);
     --sidebar-accent: var(--palette-gray-900);
     --sidebar-accent-foreground: var(--palette-gray-50);
-    --sidebar-border: var(--palette-gray-850);
+    --sidebar-border: var(--border-subtle);
     --sidebar-ring: var(--brand);
 }
 

@@ -1,17 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useId, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { signedMoney } from '@/lib/format';
 import { errorCls } from '@/lib/ui';
 import { useTradesStore } from '@/stores/trades';
 import type { TradePayload } from '@/stores/trades';
-import { LOG_GRID } from './use-trade-log';
-import type { TradeLogRow } from './use-trade-log';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
     Select,
     SelectContent,
@@ -19,6 +17,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { TableCell, TableRow } from '@/components/ui/table';
+import type { TradeLogRow } from './use-trade-log';
 
 const inCls =
     'w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]';
@@ -44,97 +44,22 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
     };
 }
 
-// Input cells aligned to the log grid columns; P&L stays computed server-side.
-function FormCells({ t }: { t: TradeLogRow | null }) {
-    const [symbol, setSymbol] = useState(t?.sym ?? '');
-    const [side, setSide] = useState<'LONG' | 'SHORT'>(t?.side ?? 'LONG');
-    const [entry, setEntry] = useState(t?.entry ?? '');
-    const [exit, setExit] = useState(t?.exit ?? '');
-    const [lots, setLots] = useState(t?.lots ?? '');
-    const [rReward, setRReward] = useState(
-        t?.rv === null || t?.rv === undefined ? '' : String(t.rv),
-    );
-
-    return (
-        <>
-            {/* date column: created_at, set server-side — shown after save */}
-            <span className={dashCls}>{t?.date ?? '—'}</span>
-            <Input
-                name="symbol"
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
-                required
-                maxLength={20}
-                placeholder="SYM"
-                className={inCls}
-            />
-            <Select
-                name="side"
-                value={side}
-                onValueChange={(value) => setSide(value as 'LONG' | 'SHORT')}
-            >
-                <SelectTrigger className={inCls}>
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="LONG">LONG</SelectItem>
-                    <SelectItem value="SHORT">SHORT</SelectItem>
-                </SelectContent>
-            </Select>
-            <Input
-                name="entry"
-                type="number"
-                step="any"
-                value={entry}
-                onChange={(e) => setEntry(e.target.value)}
-                required
-                placeholder="entry"
-                className={inCls}
-            />
-            <Input
-                name="exit"
-                type="number"
-                step="any"
-                value={exit}
-                onChange={(e) => setExit(e.target.value)}
-                placeholder="—"
-                className={inCls}
-            />
-            <Input
-                name="lots"
-                type="number"
-                step="any"
-                value={lots}
-                onChange={(e) => setLots(e.target.value)}
-                required
-                placeholder="lots"
-                className={inCls}
-            />
-            <span className={dashCls}>{t?.pnlv != null ? signedMoney(t.pnlv) : '—'}</span>
-            {t ? (
-                <Input
-                    name="rReward"
-                    type="number"
-                    step="any"
-                    value={rReward}
-                    onChange={(e) => setRReward(e.target.value)}
-                    placeholder="—"
-                    className={inCls}
-                />
-            ) : (
-                <span className={dashCls}>—</span>
-            )}
-        </>
-    );
-}
-
 // Save (✓) / cancel (✕) buttons in the trailing cell.
-function FormIcons({ pending, onCancel }: { pending: boolean; onCancel: () => void }) {
+function FormIcons({
+    formId,
+    pending,
+    onCancel,
+}: {
+    formId: string;
+    pending: boolean;
+    onCancel: () => void;
+}) {
     const cls = 'bg-transparent border-none p-0 cursor-pointer text-ui-sm leading-none';
     return (
         <span className="flex items-center justify-end gap-2">
             <Button
                 type="submit"
+                form={formId}
                 disabled={pending}
                 title="Save"
                 variant="ghost"
@@ -160,13 +85,24 @@ function FormIcons({ pending, onCancel }: { pending: boolean; onCancel: () => vo
 // Inline editable trade row (add + edit); Enter or ✓ saves, ✕ cancels.
 export function TradeRowForm({
     t,
+    visibleColumnIds,
     onSave,
     onCancel,
 }: {
     t: TradeLogRow | null;
+    visibleColumnIds: string[];
     onSave: (payload: TradePayload, id?: string) => Promise<void>;
     onCancel: () => void;
 }) {
+    const formId = `trade-row-form-${useId().replaceAll(':', '')}`;
+    const [symbol, setSymbol] = useState(t?.sym ?? '');
+    const [side, setSide] = useState<'LONG' | 'SHORT'>(t?.side ?? 'LONG');
+    const [entry, setEntry] = useState(t?.entry ?? '');
+    const [exit, setExit] = useState(t?.exit ?? '');
+    const [lots, setLots] = useState(t?.lots ?? '');
+    const [rReward, setRReward] = useState(
+        t?.rv === null || t?.rv === undefined ? '' : String(t.rv),
+    );
     const storePending = useTradesStore((state) => state.pendingMutation !== null);
     const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
         try {
@@ -175,14 +111,135 @@ export function TradeRowForm({
             throw new Error(apiMessage(err));
         }
     }, onCancel);
+    const cells: Record<string, React.ReactNode> = {
+        drag: null,
+        select: null,
+        date: <span className={dashCls}>{t?.date ?? '—'}</span>,
+        sym: (
+            <Input
+                form={formId}
+                name="symbol"
+                value={symbol}
+                onChange={(event) => setSymbol(event.target.value)}
+                required
+                maxLength={20}
+                placeholder="SYM"
+                className={inCls}
+            />
+        ),
+        side: (
+            <Select
+                form={formId}
+                name="side"
+                value={side}
+                onValueChange={(value) => setSide(value as 'LONG' | 'SHORT')}
+            >
+                <SelectTrigger className={inCls}>
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="LONG">LONG</SelectItem>
+                    <SelectItem value="SHORT">SHORT</SelectItem>
+                </SelectContent>
+            </Select>
+        ),
+        entry: (
+            <Input
+                form={formId}
+                name="entry"
+                type="number"
+                step="any"
+                value={entry}
+                onChange={(event) => setEntry(event.target.value)}
+                required
+                placeholder="entry"
+                className={inCls}
+            />
+        ),
+        exit: (
+            <Input
+                form={formId}
+                name="exit"
+                type="number"
+                step="any"
+                value={exit}
+                onChange={(event) => setExit(event.target.value)}
+                placeholder="—"
+                className={inCls}
+            />
+        ),
+        lots: (
+            <Input
+                form={formId}
+                name="lots"
+                type="number"
+                step="any"
+                value={lots}
+                onChange={(event) => setLots(event.target.value)}
+                required
+                placeholder="lots"
+                className={inCls}
+            />
+        ),
+        pnlv: <span className={dashCls}>{t?.pnlv != null ? signedMoney(t.pnlv) : '—'}</span>,
+        rv: t ? (
+            <Input
+                form={formId}
+                name="rReward"
+                type="number"
+                step="any"
+                value={rReward}
+                onChange={(event) => setRReward(event.target.value)}
+                placeholder="—"
+                className={inCls}
+            />
+        ) : (
+            <span className={dashCls}>—</span>
+        ),
+        actions: (
+            <FormIcons formId={formId} pending={pending || storePending} onCancel={onCancel} />
+        ),
+    };
+    const visibleColumns = new Set(visibleColumnIds);
+
     return (
-        <form onSubmit={onSubmit} className="border-t border-border-faint bg-accent">
-            <div className={`${LOG_GRID} items-center px-[22px] py-[7px]`}>
-                <FormCells key={t?.id ?? 'new'} t={t} />
-                <span />
-                <FormIcons pending={pending || storePending} onCancel={onCancel} />
-            </div>
-            {error && <p className={`${errorCls} px-[22px] pb-2 font-mono text-ui-xs`}>{error}</p>}
-        </form>
+        <Fragment>
+            <TableRow className="bg-accent hover:bg-accent">
+                {visibleColumnIds.map((columnId, index) => (
+                    <TableCell key={columnId} className="h-12">
+                        {index === 0 && (
+                            <form id={formId} onSubmit={onSubmit}>
+                                {!visibleColumns.has('sym') && (
+                                    <input type="hidden" name="symbol" value={symbol} />
+                                )}
+                                {!visibleColumns.has('side') && (
+                                    <input type="hidden" name="side" value={side} />
+                                )}
+                                {!visibleColumns.has('entry') && (
+                                    <input type="hidden" name="entry" value={entry} />
+                                )}
+                                {!visibleColumns.has('exit') && (
+                                    <input type="hidden" name="exit" value={exit} />
+                                )}
+                                {!visibleColumns.has('lots') && (
+                                    <input type="hidden" name="lots" value={lots} />
+                                )}
+                                {t && !visibleColumns.has('rv') && (
+                                    <input type="hidden" name="rReward" value={rReward} />
+                                )}
+                            </form>
+                        )}
+                        {cells[columnId]}
+                    </TableCell>
+                ))}
+            </TableRow>
+            {error && (
+                <TableRow className="bg-accent hover:bg-accent">
+                    <TableCell colSpan={visibleColumnIds.length} className="pt-0">
+                        <p className={`${errorCls} font-mono text-ui-xs`}>{error}</p>
+                    </TableCell>
+                </TableRow>
+            )}
+        </Fragment>
     );
 }

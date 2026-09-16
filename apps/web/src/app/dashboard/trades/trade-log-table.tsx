@@ -33,6 +33,7 @@ import {
     type VisibilityState,
 } from '@tanstack/react-table';
 import {
+    Check,
     ChevronDown,
     ChevronLeft,
     ChevronRight,
@@ -102,6 +103,19 @@ const COLUMN_LABELS: Record<string, string> = {
     lots: 'Lots',
     pnlv: 'P&L',
     rv: 'R:R',
+};
+
+const COLUMN_WIDTHS: Record<string, string> = {
+    drag: 'w-10',
+    select: 'w-10',
+    date: 'w-24',
+    side: 'w-28',
+    entry: 'w-40',
+    exit: 'w-40',
+    lots: 'w-24',
+    pnlv: 'w-36',
+    rv: 'w-20',
+    actions: 'w-16',
 };
 
 function DragHandle({ id }: { id: string }) {
@@ -189,32 +203,33 @@ function TradeDetails({ tradeId, onAddNote }: { tradeId: string; onAddNote: () =
 
 function EditorRow({
     trade,
-    colSpan,
+    visibleColumnIds,
     onSave,
     onCancel,
 }: {
     trade: TradeLogRow | null;
-    colSpan: number;
+    visibleColumnIds: string[];
     onSave: (payload: TradePayload, id?: string) => Promise<void>;
     onCancel: () => void;
 }) {
     return (
-        <TableRow className="hover:bg-transparent">
-            <TableCell colSpan={colSpan} className="p-0">
-                <div className="min-w-[820px]">
-                    <TradeRowForm t={trade} onSave={onSave} onCancel={onCancel} />
-                </div>
-            </TableCell>
-        </TableRow>
+        <TradeRowForm
+            t={trade}
+            visibleColumnIds={visibleColumnIds}
+            onSave={onSave}
+            onCancel={onCancel}
+        />
     );
 }
 
 function DraggableRow({
     row,
+    selected,
     log,
     onAddNote,
 }: {
     row: Row<TradeLogRow>;
+    selected: boolean;
     log: Log;
     onAddNote: (tradeId: string) => void;
 }) {
@@ -225,7 +240,7 @@ function DraggableRow({
         return (
             <EditorRow
                 trade={row.original}
-                colSpan={row.getVisibleCells().length}
+                visibleColumnIds={row.getVisibleCells().map((cell) => cell.column.id)}
                 onSave={log.saveTrade}
                 onCancel={log.cancelEdit}
             />
@@ -239,14 +254,41 @@ function DraggableRow({
                 data-dragging={isDragging}
                 aria-expanded={isOpen}
                 ref={setNodeRef}
-                className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+                className="relative z-0 data-[state=selected]:bg-primary/[0.06] data-[state=selected]:shadow-[inset_3px_0_0_var(--primary)] data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
                 style={{ transform: CSS.Transform.toString(transform), transition }}
             >
-                {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                    if (cell.column.id === 'select') {
+                        return (
+                            <TableCell key={cell.id}>
+                                <div className="relative flex items-center justify-center">
+                                    <Checkbox
+                                        checked={selected}
+                                        onCheckedChange={(checked) => row.toggleSelected(checked)}
+                                        aria-label={`Select ${row.original.sym} trade`}
+                                        className="[&_[data-slot=checkbox-indicator]]:hidden"
+                                        style={{
+                                            backgroundColor: selected
+                                                ? 'var(--primary)'
+                                                : 'transparent',
+                                            borderColor: selected
+                                                ? 'var(--primary)'
+                                                : 'var(--input)',
+                                        }}
+                                    />
+                                    {selected && (
+                                        <Check className="pointer-events-none absolute size-3.5 text-primary-foreground" />
+                                    )}
+                                </div>
+                            </TableCell>
+                        );
+                    }
+                    return (
+                        <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                    );
+                })}
             </TableRow>
             {isOpen && (
                 <TableRow className="bg-muted/35 hover:bg-muted/35">
@@ -365,15 +407,7 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                         />
                     </div>
                 ),
-                cell: ({ row }) => (
-                    <div className="flex items-center justify-center">
-                        <Checkbox
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(checked) => row.toggleSelected(checked)}
-                            aria-label={`Select ${row.original.sym} trade`}
-                        />
-                    </div>
-                ),
+                cell: () => null,
                 enableSorting: false,
                 enableHiding: false,
             },
@@ -417,29 +451,25 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
             },
             {
                 accessorKey: 'entry',
-                header: () => <div className="w-full text-right">Entry</div>,
+                header: 'Entry',
                 cell: ({ row }) => (
-                    <div className="font-mono text-right text-muted-foreground">
-                        {row.original.entry}
-                    </div>
+                    <div className="font-mono text-muted-foreground">{row.original.entry}</div>
                 ),
             },
             {
                 accessorKey: 'exit',
-                header: () => <div className="w-full text-right">Exit</div>,
+                header: 'Exit',
                 cell: ({ row }) => (
-                    <div className="font-mono text-right text-muted-foreground">
+                    <div className="font-mono text-muted-foreground">
                         {row.original.exit ?? '—'}
                     </div>
                 ),
             },
             {
                 accessorKey: 'lots',
-                header: () => <div className="w-full text-right">Lots</div>,
+                header: 'Lots',
                 cell: ({ row }) => (
-                    <div className="font-mono text-right text-muted-foreground">
-                        {row.original.lots}
-                    </div>
+                    <div className="font-mono text-muted-foreground">{row.original.lots}</div>
                 ),
             },
             {
@@ -555,6 +585,7 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                   ? 'short'
                   : 'all';
     const visibleColumnCount = table.getVisibleLeafColumns().length;
+    const visibleColumnIds = table.getVisibleLeafColumns().map((column) => column.id);
     const pageCount = Math.max(1, table.getPageCount());
 
     function changeView(value: string | null) {
@@ -664,12 +695,16 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                         sensors={sensors}
                         id={sortableId}
                     >
-                        <Table>
+                        <Table className="min-w-[1100px] table-fixed">
                             <TableHeader className="sticky top-0 z-10 bg-muted">
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <TableRow key={headerGroup.id}>
                                         {headerGroup.headers.map((header) => (
-                                            <TableHead key={header.id} colSpan={header.colSpan}>
+                                            <TableHead
+                                                key={header.id}
+                                                colSpan={header.colSpan}
+                                                className={COLUMN_WIDTHS[header.column.id]}
+                                            >
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
@@ -682,6 +717,14 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                                 ))}
                             </TableHeader>
                             <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                                {log.editingId === 'new' && (
+                                    <EditorRow
+                                        trade={null}
+                                        visibleColumnIds={visibleColumnIds}
+                                        onSave={log.saveTrade}
+                                        onCancel={log.cancelEdit}
+                                    />
+                                )}
                                 {table.getRowModel().rows.length ? (
                                     <SortableContext
                                         items={dataIds}
@@ -691,6 +734,7 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                                             <DraggableRow
                                                 key={row.id}
                                                 row={row}
+                                                selected={rowSelection[row.id] === true}
                                                 log={log}
                                                 onAddNote={setAddNoteFor}
                                             />
@@ -707,14 +751,6 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
                                                 : log.error || 'No trades found.'}
                                         </TableCell>
                                     </TableRow>
-                                )}
-                                {log.editingId === 'new' && (
-                                    <EditorRow
-                                        trade={null}
-                                        colSpan={visibleColumnCount}
-                                        onSave={log.saveTrade}
-                                        onCancel={log.cancelEdit}
-                                    />
                                 )}
                             </TableBody>
                         </Table>

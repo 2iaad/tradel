@@ -34,20 +34,20 @@ export const canvasColors = {
     border: '#2b2b28',
     borderFaint: '#171716',
     faint: '#6b6b66',
-    card: '#101010',
+    card: '#0a0a0a',
 } as const;
 export const G = canvasColors.profit;
 export const R = canvasColors.loss;
 export const monoFontStack =
     "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
-export const cardCls = 'bg-card border border-border-subtle rounded-[10px]';
+export const cardCls = 'bg-sidebar border border-border-subtle rounded-[10px]';
 export const cardTitleCls =
     'm-0 font-heading text-ui-lg font-semibold leading-snug tracking-normal normal-case text-card-foreground';
 export const cardDescriptionCls = 'mt-1 text-ui-sm font-medium text-content-faint';
 export const cardMetaLabelCls =
     'font-mono text-ui-xs font-medium uppercase tracking-[0.14em] text-content-faint';
 export const cardMetaValueCls = 'text-ui-sm font-semibold text-content';
-export const cardFooterCls = 'border-t border-border-subtle bg-muted/35 px-[22px] py-3';
+export const cardFooterCls = 'border-t border-border-faint bg-muted/35 px-[22px] py-3';
 export const h2Cls = cardTitleCls;
 export const ctaCls =
     'border-none bg-primary text-black cursor-pointer transition-[background,transform] hover:bg-primary-hover active:scale-[0.97]';

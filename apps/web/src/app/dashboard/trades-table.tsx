@@ -70,8 +70,8 @@ function TableHead() {
             <span>EXIT</span>
             <span>LOTS</span>
             <span>R:R</span>
-            <span className="text-right">P&L</span>
-            <span className="text-right">DATE</span>
+            <span>DATE</span>
+            <span>P&L</span>
         </div>
     );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { apiMessage } from '@/lib/api';
 import { cardCls } from '@/lib/ui';
 import { useNotesStore } from '@/stores/notes';
 import type { ApiNote } from '@/stores/notes';
@@ -93,11 +94,21 @@ function NoteCard({
 }
 
 // Confirmation card shown before a note is deleted.
-function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+function ConfirmDelete({
+    onCancel,
+    onConfirm,
+    pending,
+    error,
+}: {
+    onCancel: () => void;
+    onConfirm: () => Promise<void>;
+    pending: boolean;
+    error: string | null;
+}) {
     const btn = 'flex-1 font-mono font-semibold tracking-[0.1em] cursor-pointer transition-colors';
     return (
         <div
-            onClick={onCancel}
+            onClick={() => !pending && onCancel()}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[6px] animate-[tradelFadeIn_0.25s_ease]"
         >
             <div
@@ -109,9 +120,15 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
                     Delete this note?
                 </h2>
                 <p className="m-0 text-ui-sm text-content-dim">This can&apos;t be undone.</p>
+                {error && (
+                    <p role="alert" className="m-0 text-ui-sm text-loss">
+                        {error}
+                    </p>
+                )}
                 <div className="flex gap-2.5 mt-1">
                     <Button
                         type="button"
+                        disabled={pending}
                         onClick={onCancel}
                         variant="outline"
                         className={`${btn} border-border bg-transparent text-muted-foreground hover:bg-transparent hover:text-secondary-foreground hover:border-border-hover`}
@@ -120,6 +137,7 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
                     </Button>
                     <Button
                         type="button"
+                        disabled={pending}
                         onClick={onConfirm}
                         variant="destructive"
                         className={`${btn} bg-loss text-loss-foreground hover:bg-loss-hover`}
@@ -136,9 +154,10 @@ function ConfirmDelete({ onCancel, onConfirm }: { onCancel: () => void; onConfir
 export default function JournalPage() {
     const notes = useNotesStore((s) => s.notes);
     const loading = useNotesStore((s) => s.loading);
-    const error = useNotesStore((s) => s.error);
+    const error = useNotesStore((s) => s.loadError);
     const loadNotes = useNotesStore((s) => s.load);
     const removeNote = useNotesStore((s) => s.remove);
+    const mutating = useNotesStore((s) => s.pendingMutation !== null);
     const trades = useTradesStore((s) => s.trades);
     const loadTrades = useTradesStore((s) => s.load);
 
@@ -158,6 +177,25 @@ export default function JournalPage() {
     // Note being edited (null = closed). Notes are created from a trade row.
     const [editing, setEditing] = useState<ApiNote | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+
+    const askDelete = (id: string) => {
+        setDeleteError(null);
+        setDeletingId(id);
+    };
+    const cancelDelete = () => {
+        setDeleteError(null);
+        setDeletingId(null);
+    };
+    const confirmDelete = async () => {
+        if (!deletingId) return;
+        try {
+            await removeNote(deletingId);
+            setDeletingId(null);
+        } catch (deleteFailure) {
+            setDeleteError(apiMessage(deleteFailure));
+        }
+    };
 
     const allTags = useMemo(() => {
         const set = new Set<string>();
@@ -232,7 +270,7 @@ export default function JournalPage() {
                             note={n}
                             symbol={symbolOf(n.trade_id)}
                             onEdit={() => setEditing(n)}
-                            onDelete={() => setDeletingId(n.id)}
+                            onDelete={() => askDelete(n.id)}
                         />
                     ))}
                 </div>
@@ -247,11 +285,10 @@ export default function JournalPage() {
             )}
             {deletingId && (
                 <ConfirmDelete
-                    onCancel={() => setDeletingId(null)}
-                    onConfirm={() => {
-                        removeNote(deletingId);
-                        setDeletingId(null);
-                    }}
+                    onCancel={cancelDelete}
+                    onConfirm={confirmDelete}
+                    pending={mutating}
+                    error={deleteError}
                 />
             )}
         </div>

@@ -219,7 +219,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                 fontWeight: 600,
             },
             itemStyle: {
-                color: canvasColors.surface,
+                color: canvasColors.card,
                 borderWidth: 0,
             },
             splitLine: {
@@ -312,7 +312,7 @@ function buildOption(month: string, data: CalendarDatum[]): ChartOption {
                 coordinateSystem: 'calendar',
                 data,
                 itemStyle: {
-                    borderColor: canvasColors.surface,
+                    borderColor: canvasColors.card,
                     borderRadius: 12,
                     borderWidth: 8,
                 },

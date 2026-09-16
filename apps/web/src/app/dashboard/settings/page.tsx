@@ -15,11 +15,13 @@ import { Card } from '@/components/ui/card';
 function AccountRow({
     account,
     active,
+    disabled,
     onEdit,
     onDelete,
 }: {
     account: Account;
     active: boolean;
+    disabled: boolean;
     onEdit: () => void;
     onDelete: () => void;
 }) {
@@ -48,6 +50,7 @@ function AccountRow({
             <span className="flex items-center gap-3">
                 <Button
                     type="button"
+                    disabled={disabled}
                     onClick={onEdit}
                     title="Edit account"
                     variant="ghost"
@@ -58,6 +61,7 @@ function AccountRow({
                 </Button>
                 <Button
                     type="button"
+                    disabled={disabled}
                     onClick={onDelete}
                     title="Delete account"
                     variant="ghost"
@@ -76,6 +80,7 @@ export default function SettingsPage() {
     const accounts = useAccountStore((s) => s.accounts);
     const activeId = useAccountStore((s) => s.activeId);
     const loading = useAccountStore((s) => s.loading);
+    const mutating = useAccountStore((s) => s.pendingMutation !== null);
 
     // null = closed; 'new' = create; Account = edit that account.
     const [editing, setEditing] = useState<Account | 'new' | null>(null);
@@ -86,6 +91,7 @@ export default function SettingsPage() {
             <PageHeader kicker="SETTINGS" title="Accounts">
                 <Button
                     type="button"
+                    disabled={loading || mutating}
                     onClick={() => setEditing('new')}
                     className={`${ctaCls} whitespace-nowrap`}
                 >
@@ -105,7 +111,12 @@ export default function SettingsPage() {
                     <p className="m-0 text-ui-sm text-content-dim text-center max-w-[360px]">
                         Create your first trading account to start logging trades and notes.
                     </p>
-                    <Button type="button" onClick={() => setEditing('new')} className={ctaCls}>
+                    <Button
+                        type="button"
+                        disabled={mutating}
+                        onClick={() => setEditing('new')}
+                        className={ctaCls}
+                    >
                         Create your first account
                     </Button>
                 </Card>
@@ -116,6 +127,7 @@ export default function SettingsPage() {
                             key={a.id}
                             account={a}
                             active={a.id === activeId}
+                            disabled={mutating}
                             onEdit={() => setEditing(a)}
                             onDelete={() => setDeleting(a)}
                         />

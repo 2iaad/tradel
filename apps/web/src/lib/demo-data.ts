@@ -399,8 +399,9 @@ export function buildDemoNotes(trades: ApiTrade[]): ApiNote[] {
 function breakdown(trades: ApiTrade[], key: 'symbol' | 'side'): BreakdownEntry[] {
     const groups = new Map<string, { net: number; wins: number; count: number }>();
     for (const trade of trades) {
+        if (trade.pnl === null) continue;
         const label = trade[key];
-        const pnl = trade.pnl === null ? 0 : Number(trade.pnl);
+        const pnl = Number(trade.pnl);
         const group = groups.get(label) ?? { net: 0, wins: 0, count: 0 };
         group.net += pnl;
         group.wins += pnl > 0 ? 1 : 0;
@@ -412,9 +413,9 @@ function breakdown(trades: ApiTrade[], key: 'symbol' | 'side'): BreakdownEntry[]
         .map(([label, group]) => ({
             label,
             ...group,
-            winRate: group.count ? (group.wins / group.count) * 100 : null,
+            winRate: group.count ? group.wins / group.count : null,
         }))
-        .sort((a, b) => b.count - a.count || b.net - a.net);
+        .sort((a, b) => b.net - a.net);
 }
 
 export function buildDemoAnalytics(trades: ApiTrade[]): {
@@ -441,7 +442,7 @@ export function buildDemoAnalytics(trades: ApiTrade[]): {
             wins: wins.length,
             losses: losses.length,
             net,
-            winRate: closed.length ? (wins.length / closed.length) * 100 : null,
+            winRate: closed.length ? wins.length / closed.length : null,
             profitFactor: grossLoss ? grossProfit / grossLoss : null,
             expectancy: closed.length ? net / closed.length : null,
             avgR: rValues.length

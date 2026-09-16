@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useAccountStore } from '@/stores/accounts';
 import { hasDashboardSession, useSessionStore } from '@/stores/session';
+import { apiMessage } from '@/lib/api';
 
 const NAV_MAIN = [
     { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboardIcon },
@@ -131,6 +132,8 @@ function AccountPicker() {
     const accounts = useAccountStore((state) => state.accounts);
     const activeId = useAccountStore((state) => state.activeId);
     const setActive = useAccountStore((state) => state.setActive);
+    const loading = useAccountStore((state) => state.loading);
+    const mutating = useAccountStore((state) => state.pendingMutation !== null);
     const [open, setOpen] = useState(false);
     const [creating, setCreating] = useState(false);
     const active = accounts.find((account) => account.id === activeId) ?? null;
@@ -139,6 +142,7 @@ function AccountPicker() {
         <div className="relative group-data-[collapsible=icon]:hidden">
             <Button
                 type="button"
+                disabled={loading || mutating}
                 onClick={() => setOpen((value) => !value)}
                 aria-expanded={open}
                 variant="outline"
@@ -185,12 +189,19 @@ function AccountPicker() {
 function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
     const router = useRouter();
     const signOutStore = useSessionStore((state) => state.signOut);
+    const signingOut = useSessionStore((state) => state.pendingAction === 'logout');
+    const [signOutError, setSignOutError] = useState<string | null>(null);
     const name = demo ? 'Demo Trader' : email.split('@')[0];
     const initials = email.slice(0, 2).toUpperCase();
 
     const signOut = async () => {
-        await signOutStore();
-        router.push(demo ? '/' : '/login');
+        setSignOutError(null);
+        try {
+            await signOutStore();
+            router.push(demo ? '/' : '/login');
+        } catch (error) {
+            setSignOutError(apiMessage(error));
+        }
     };
 
     return (
@@ -207,12 +218,18 @@ function UserNavigation({ email, demo }: { email: string; demo: boolean }) {
                 <span className="truncate font-medium text-sidebar-foreground">{name}</span>
                 <span className="truncate text-xs text-sidebar-foreground/50">{email}</span>
             </div>
+            {signOutError && (
+                <span role="alert" className="text-xs text-destructive">
+                    {signOutError}
+                </span>
+            )}
             <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
                 title={demo ? 'Exit demo' : 'Sign out'}
                 className="text-sidebar-foreground/45 hover:bg-sidebar-accent hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden"
+                disabled={signingOut}
                 onClick={signOut}
             >
                 <LogOutIcon />

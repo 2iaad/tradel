@@ -28,6 +28,7 @@ export class TradesService {
             exit: dto.exit,
             lots: dto.lots,
             pnl: this.computePnl(dto.side, dto.entry, dto.exit ?? null, dto.lots),
+            created_at: dto.createdAt ? new Date(dto.createdAt) : undefined,
         });
     }
 
@@ -61,7 +62,7 @@ export class TradesService {
             ? this.computePnl(
                   dto.side ?? current.side,
                   dto.entry ?? current.entry,
-                  dto.exit ?? current.exit,
+                  dto.exit === undefined ? current.exit : dto.exit,
                   dto.lots ?? current.lots,
               )
             : undefined;
@@ -73,6 +74,7 @@ export class TradesService {
             lots: dto.lots,
             risk_reward: dto.rReward,
             pnl,
+            created_at: dto.createdAt ? new Date(dto.createdAt) : undefined,
         });
         if (!trade) {
             throw new NotFoundException('Trade not found');

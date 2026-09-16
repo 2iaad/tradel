@@ -12,6 +12,7 @@ export interface CreateTradeFields {
     lots: number;
     risk_reward?: number | null;
     pnl?: Prisma.Decimal | null;
+    created_at?: Date;
 }
 
 export interface UpdateTradeFields {
@@ -22,6 +23,7 @@ export interface UpdateTradeFields {
     lots?: number;
     risk_reward?: number | null;
     pnl?: Prisma.Decimal | null;
+    created_at?: Date;
 }
 
 @Injectable()
@@ -39,6 +41,7 @@ export class TradesRepository {
                 lots: fields.lots,
                 risk_reward: fields.risk_reward ?? null,
                 pnl: fields.pnl ?? null,
+                created_at: fields.created_at,
             },
         });
     }

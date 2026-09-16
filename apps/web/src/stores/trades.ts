@@ -7,7 +7,6 @@ import { buildDemoTrades } from '@/lib/demo-data';
 import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 
-// Trade row as returned by the trades API (NUMERIC columns arrive as strings).
 export interface ApiTrade {
     id: string;
     account_id: string;
@@ -21,32 +20,78 @@ export interface ApiTrade {
     created_at: string;
 }
 
-// Body for POST/PATCH trades; mirrors CreateTradeDto/UpdateTradeDto.
-export interface TradePayload {
-    symbol?: string;
-    side?: 'LONG' | 'SHORT';
-    entry?: number;
-    exit?: number;
-    lots?: number;
-    rReward?: number;
+export interface CreateTradePayload {
+    symbol: string;
+    side: 'LONG' | 'SHORT';
+    entry: number;
+    exit?: number | null;
+    lots: number;
+    createdAt?: string;
+}
+
+export interface UpdateTradePayload extends Partial<Omit<CreateTradePayload, 'exit'>> {
+    exit?: number | null;
+    rReward?: number | null;
+}
+
+export type TradePayload = Omit<CreateTradePayload, 'exit'> & {
+    exit?: number | null;
+    rReward?: number | null;
+};
+
+type TradeMutation =
+    { type: 'create' } | { type: 'update'; id: string } | { type: 'delete'; id: string };
+
+interface TradeContext {
+    accountId: string;
+    key: string;
+    demo: boolean;
 }
 
 interface TradesStore {
     trades: ApiTrade[];
     loading: boolean;
-    error: string | null;
+    loadError: string | null;
     loadedFor: string | null;
+    pendingMutation: TradeMutation | null;
     load: () => Promise<void>;
-    fetchTrade: (id: string) => Promise<ApiTrade>;
-    saveTrade: (payload: TradePayload, id?: string) => Promise<void>;
-    removeTrade: (id: string) => Promise<void>;
+    create: (payload: CreateTradePayload) => Promise<ApiTrade>;
+    update: (id: string, payload: UpdateTradePayload) => Promise<ApiTrade>;
+    remove: (id: string) => Promise<void>;
 }
 
-// Active account id lives in the accounts store; every request is scoped to it.
-const activeId = () => useAccountStore.getState().activeId;
+let requestVersion = 0;
+let demoTradeSequence = 0;
+let loadRequest: { key: string; promise: Promise<void> } | null = null;
+let mutationRequest: Promise<unknown> | null = null;
 
-function demoPnl(payload: TradePayload): string | null {
-    if (payload.entry === undefined || payload.exit === undefined || payload.lots === undefined) {
+function currentContext(): TradeContext | null {
+    const session = useSessionStore.getState().session;
+    const accountId = useAccountStore.getState().activeId;
+    if (!accountId || (session.status !== 'user' && session.status !== 'demo')) return null;
+    const owner = session.status === 'user' ? session.id : 'demo';
+    return { accountId, key: `${owner}:${accountId}`, demo: session.status === 'demo' };
+}
+
+function requireContext(): TradeContext {
+    const context = currentContext();
+    if (!context) throw new Error('Create or select an account before managing trades');
+    return context;
+}
+
+function demoPnl(payload: {
+    symbol?: string;
+    side?: 'LONG' | 'SHORT';
+    entry?: number;
+    exit?: number | null;
+    lots?: number;
+}): string | null {
+    if (
+        payload.entry === undefined ||
+        payload.exit === undefined ||
+        payload.exit === null ||
+        payload.lots === undefined
+    ) {
         return null;
     }
     const direction = payload.side === 'SHORT' ? -1 : 1;
@@ -64,127 +109,231 @@ function demoPnl(payload: TradePayload): string | null {
     );
 }
 
-export const useTradesStore = create<TradesStore>((set, get) => ({
-    trades: [],
-    loading: true,
-    error: null,
-    loadedFor: null,
+function createDemoTrade(accountId: string, payload: CreateTradePayload): ApiTrade {
+    return {
+        id: `demo-trade-${Date.now()}-${++demoTradeSequence}`,
+        account_id: accountId,
+        symbol: payload.symbol,
+        side: payload.side,
+        entry: String(payload.entry),
+        exit: payload.exit == null ? null : String(payload.exit),
+        lots: String(payload.lots),
+        risk_reward: null,
+        pnl: demoPnl(payload),
+        created_at: payload.createdAt ?? new Date().toISOString(),
+    };
+}
 
-    // GET /accounts/:activeId/trades. No active account → empty log.
-    load: async () => {
-        const status = useSessionStore.getState().session.status;
-        const accId = activeId();
-        if (!accId || (status !== 'user' && status !== 'demo')) {
-            set({ trades: [], loadedFor: null, loading: false, error: null });
-            return;
+function updateDemoTrade(trade: ApiTrade, payload: UpdateTradePayload): ApiTrade {
+    const next = {
+        symbol: payload.symbol ?? trade.symbol,
+        side: payload.side ?? trade.side,
+        entry: payload.entry ?? Number(trade.entry),
+        exit:
+            payload.exit === undefined
+                ? trade.exit === null
+                    ? null
+                    : Number(trade.exit)
+                : payload.exit,
+        lots: payload.lots ?? Number(trade.lots),
+    };
+    return {
+        ...trade,
+        symbol: next.symbol,
+        side: next.side,
+        entry: String(next.entry),
+        exit: next.exit === null ? null : String(next.exit),
+        lots: String(next.lots),
+        risk_reward:
+            payload.rReward === undefined
+                ? trade.risk_reward
+                : payload.rReward === null
+                  ? null
+                  : String(payload.rReward),
+        pnl: demoPnl(next),
+        created_at: payload.createdAt ?? trade.created_at,
+    };
+}
+
+export const useTradesStore = create<TradesStore>()((set, get) => {
+    function startMutation(mutation: TradeMutation, context: TradeContext) {
+        if (mutationRequest) throw new Error('Please wait for the current trade action');
+        if (get().loading || get().loadedFor !== context.key) {
+            throw new Error('Wait for the trades to finish loading');
         }
-        if (status === 'demo') {
-            if (get().loadedFor === accId) {
-                set({ loading: false });
-                return;
+        const version = ++requestVersion;
+        loadRequest = null;
+        set({ pendingMutation: mutation });
+        return version;
+    }
+
+    function finishMutation(request: Promise<unknown>) {
+        if (mutationRequest !== request) return;
+        mutationRequest = null;
+        set({ pendingMutation: null });
+    }
+
+    function contextStillMatches(context: TradeContext, version: number) {
+        return version === requestVersion && currentContext()?.key === context.key;
+    }
+
+    return {
+        trades: [],
+        loading: true,
+        loadError: null,
+        loadedFor: null,
+        pendingMutation: null,
+
+        load: () => {
+            const context = currentContext();
+            if (!context) {
+                ++requestVersion;
+                loadRequest = null;
+                set({
+                    trades: [],
+                    loading: false,
+                    loadError: null,
+                    loadedFor: null,
+                });
+                return Promise.resolve();
             }
-            set({
-                trades: accId ? buildDemoTrades(accId) : [],
-                loadedFor: accId,
-                loading: false,
-                error: null,
-            });
-            return;
-        }
-        set({ loading: true, error: null });
-        try {
-            const { data } = await api.get<ApiTrade[]>(`/accounts/${accId}/trades`);
-            set({ trades: data, loadedFor: accId });
-        } catch (err) {
-            set({ error: apiMessage(err) });
-        } finally {
-            set({ loading: false });
-        }
-    },
+            if (get().loadedFor === context.key && !get().loadError) return Promise.resolve();
+            if (loadRequest?.key === context.key) return loadRequest.promise;
+            if (mutationRequest) return Promise.resolve();
 
-    // GET /accounts/:activeId/trades/:id — one trade by id.
-    fetchTrade: async (id) => {
-        if (useSessionStore.getState().session.status === 'demo') {
-            const trade = get().trades.find((item) => item.id === id);
-            if (!trade) throw new Error('Trade not found');
-            return trade;
-        }
-        const accId = activeId();
-        if (!accId) throw new Error('No account selected');
-        return (await api.get<ApiTrade>(`/accounts/${accId}/trades/${id}`)).data;
-    },
+            if (context.demo) {
+                set({
+                    trades: buildDemoTrades(context.accountId),
+                    loadedFor: context.key,
+                    loading: false,
+                    loadError: null,
+                });
+                return Promise.resolve();
+            }
 
-    // POST a new trade (or PATCH when id is given), then re-sync the log.
-    // Errors propagate to the caller (the form renders them).
-    saveTrade: async (payload, id) => {
-        const accId = activeId();
-        if (!accId) throw new Error('Create or select an account before saving a trade');
-        if (useSessionStore.getState().session.status === 'demo') {
-            if (id) {
+            const version = ++requestVersion;
+            set((state) => ({
+                trades: state.loadedFor === context.key ? state.trades : [],
+                loadedFor: state.loadedFor === context.key ? state.loadedFor : null,
+                loading: true,
+                loadError: null,
+            }));
+            const request = (async () => {
+                try {
+                    const { data } = await api.get<ApiTrade[]>(
+                        `/accounts/${context.accountId}/trades`,
+                    );
+                    if (!contextStillMatches(context, version)) return;
+                    set({ trades: data, loadedFor: context.key });
+                } catch (error) {
+                    if (contextStillMatches(context, version)) {
+                        set({ loadError: apiMessage(error) });
+                    }
+                } finally {
+                    if (contextStillMatches(context, version)) {
+                        loadRequest = null;
+                        set({ loading: false });
+                    }
+                }
+            })();
+            loadRequest = { key: context.key, promise: request };
+            return request;
+        },
+
+        create: (payload) => {
+            const context = requireContext();
+            let version: number;
+            try {
+                version = startMutation({ type: 'create' }, context);
+            } catch (error) {
+                return Promise.reject(error);
+            }
+
+            const request = (async () => {
+                const trade = context.demo
+                    ? createDemoTrade(context.accountId, payload)
+                    : (await api.post<ApiTrade>(`/accounts/${context.accountId}/trades`, payload))
+                          .data;
+                if (!contextStillMatches(context, version)) {
+                    throw new Error('Trade account changed. Please try again.');
+                }
+                set((state) => ({ trades: [trade, ...state.trades], loadError: null }));
+                return trade;
+            })();
+            mutationRequest = request;
+            return request.finally(() => finishMutation(request));
+        },
+
+        update: (id, payload) => {
+            const context = requireContext();
+            let version: number;
+            try {
+                version = startMutation({ type: 'update', id }, context);
+            } catch (error) {
+                return Promise.reject(error);
+            }
+
+            const request = (async () => {
+                const current = get().trades.find((trade) => trade.id === id);
+                if (!current) throw new Error('Trade not found');
+                const trade = context.demo
+                    ? updateDemoTrade(current, payload)
+                    : (
+                          await api.patch<ApiTrade>(
+                              `/accounts/${context.accountId}/trades/${id}`,
+                              payload,
+                          )
+                      ).data;
+                if (!contextStillMatches(context, version)) {
+                    throw new Error('Trade account changed. Please try again.');
+                }
                 set((state) => ({
-                    trades: state.trades.map((trade) => {
-                        if (trade.id !== id) return trade;
-                        const nextPayload = {
-                            symbol: payload.symbol ?? trade.symbol,
-                            side: payload.side ?? trade.side,
-                            entry: payload.entry ?? Number(trade.entry),
-                            exit:
-                                payload.exit ??
-                                (trade.exit === null ? undefined : Number(trade.exit)),
-                            lots: payload.lots ?? Number(trade.lots),
-                        };
-                        return {
-                            ...trade,
-                            symbol: nextPayload.symbol,
-                            side: nextPayload.side,
-                            entry: String(nextPayload.entry),
-                            exit: nextPayload.exit === undefined ? null : String(nextPayload.exit),
-                            lots: String(nextPayload.lots),
-                            risk_reward:
-                                payload.rReward === undefined
-                                    ? trade.risk_reward
-                                    : String(payload.rReward),
-                            pnl: demoPnl(nextPayload),
-                        };
-                    }),
+                    trades: state.trades.map((item) => (item.id === id ? trade : item)),
                 }));
-            } else {
-                const trade: ApiTrade = {
-                    id: `demo-trade-${Date.now()}`,
-                    account_id: accId,
-                    symbol: payload.symbol ?? 'TRADE',
-                    side: payload.side ?? 'LONG',
-                    entry: String(payload.entry ?? 0),
-                    exit: payload.exit === undefined ? null : String(payload.exit),
-                    lots: String(payload.lots ?? 0),
-                    risk_reward: payload.rReward === undefined ? null : String(payload.rReward),
-                    pnl: demoPnl(payload),
-                    created_at: new Date().toISOString(),
-                };
-                set((state) => ({ trades: [trade, ...state.trades] }));
+                return trade;
+            })();
+            mutationRequest = request;
+            return request.finally(() => finishMutation(request));
+        },
+
+        remove: (id) => {
+            const context = requireContext();
+            let version: number;
+            try {
+                version = startMutation({ type: 'delete', id }, context);
+            } catch (error) {
+                return Promise.reject(error);
             }
-            return;
-        }
-        if (id) await api.patch(`/accounts/${accId}/trades/${id}`, payload);
-        else await api.post(`/accounts/${accId}/trades`, payload);
-        const { data } = await api.get<ApiTrade[]>(`/accounts/${accId}/trades`);
-        set({ trades: data });
-    },
 
-    // DELETE a trade and drop it from the log.
-    removeTrade: async (id) => {
-        const accId = activeId();
-        if (!accId) return;
-        if (useSessionStore.getState().session.status === 'demo') {
-            set({ trades: get().trades.filter((trade) => trade.id !== id) });
-            return;
-        }
-        await api.delete(`/accounts/${accId}/trades/${id}`);
-        set({ trades: get().trades.filter((t) => t.id !== id) });
-    },
-}));
+            const request = (async () => {
+                if (!get().trades.some((trade) => trade.id === id)) {
+                    throw new Error('Trade not found');
+                }
+                if (!context.demo) {
+                    await api.delete(`/accounts/${context.accountId}/trades/${id}`);
+                }
+                if (!contextStillMatches(context, version)) {
+                    throw new Error('Trade account changed. Please try again.');
+                }
+                set((state) => ({ trades: state.trades.filter((trade) => trade.id !== id) }));
+            })();
+            mutationRequest = request;
+            return request.finally(() => finishMutation(request));
+        },
+    };
+});
 
-// Re-sync the trade log whenever the active account changes.
-useAccountStore.subscribe((state, prev) => {
-    if (state.activeId !== prev.activeId) useTradesStore.getState().load();
+useAccountStore.subscribe((state, previousState) => {
+    if (state.activeId === previousState.activeId) return;
+    ++requestVersion;
+    loadRequest = null;
+    mutationRequest = null;
+    useTradesStore.setState({
+        trades: [],
+        loading: state.activeId !== null,
+        loadError: null,
+        loadedFor: null,
+        pendingMutation: null,
+    });
+    if (state.activeId) void useTradesStore.getState().load();
 });

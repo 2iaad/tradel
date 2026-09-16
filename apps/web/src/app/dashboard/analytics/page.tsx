@@ -14,6 +14,8 @@ export default function AnalyticsPage() {
     const summary = useAnalyticsStore((s) => s.summary);
     const bySymbol = useAnalyticsStore((s) => s.bySymbol);
     const loading = useAnalyticsStore((s) => s.loading);
+    const loadError = useAnalyticsStore((s) => s.loadError);
+    const stale = useAnalyticsStore((s) => s.stale);
     const load = useAnalyticsStore((s) => s.load);
     const loadTrades = useTradesStore((s) => s.load);
     const accounts = useAccountStore((s) => s.accounts);
@@ -22,9 +24,12 @@ export default function AnalyticsPage() {
     const currency = accounts.find((account) => account.id === activeId)?.currency ?? 'USD';
 
     useEffect(() => {
-        load();
-        loadTrades(); // headline cards compute from the trade log
-    }, [load, loadTrades]);
+        void loadTrades();
+    }, [loadTrades]);
+
+    useEffect(() => {
+        void load();
+    }, [activeId, load, stale]);
 
     return (
         <div className="flex flex-1 flex-col">
@@ -33,6 +38,11 @@ export default function AnalyticsPage() {
                     <div className="px-4 lg:px-6">
                         <PageHeader kicker="" title="Performance" />
                     </div>
+                    {loadError && (
+                        <p role="alert" className="px-4 font-mono text-ui-sm text-loss lg:px-6">
+                            {loadError}
+                        </p>
+                    )}
                     {loading && !summary ? (
                         <p className="px-4 py-10 text-center font-mono text-ui-sm tracking-[0.22em] text-content-soft lg:px-6">
                             {'/// LOADING'}

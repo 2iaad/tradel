@@ -8,8 +8,6 @@ import { useAccountStore } from '@/stores/accounts';
 import { useSessionStore } from '@/stores/session';
 import { useTradesStore } from '@/stores/trades';
 
-// Mirrors AnalyticsSummary from the backend. Ratio fields are null when
-// undefined (no closed trades / no losses) → render "—", never NaN.
 export interface Summary {
     closed: number;
     open: number;
@@ -30,57 +28,141 @@ export interface BreakdownEntry {
     winRate: number | null;
 }
 
+interface AnalyticsContext {
+    accountId: string;
+    key: string;
+    demo: boolean;
+}
+
 interface AnalyticsStore {
     summary: Summary | null;
     bySymbol: BreakdownEntry[];
     bySide: BreakdownEntry[];
     loading: boolean;
-    error: string | null;
+    loadError: string | null;
+    loadedFor: string | null;
+    stale: boolean;
     load: () => Promise<void>;
 }
 
-const activeId = () => useAccountStore.getState().activeId;
+let requestVersion = 0;
+let loadRequest: { key: string; promise: Promise<void> } | null = null;
 
-export const useAnalyticsStore = create<AnalyticsStore>((set) => ({
+function currentContext(): AnalyticsContext | null {
+    const session = useSessionStore.getState().session;
+    const accountId = useAccountStore.getState().activeId;
+    if (!accountId || (session.status !== 'user' && session.status !== 'demo')) return null;
+    const owner = session.status === 'user' ? session.id : 'demo';
+    return { accountId, key: `${owner}:${accountId}`, demo: session.status === 'demo' };
+}
+
+export const useAnalyticsStore = create<AnalyticsStore>()((set, get) => ({
     summary: null,
     bySymbol: [],
     bySide: [],
     loading: true,
-    error: null,
+    loadError: null,
+    loadedFor: null,
+    stale: true,
 
-    // Fetch summary + both breakdowns for the active account in parallel.
-    load: async () => {
-        const status = useSessionStore.getState().session.status;
-        const accId = activeId();
-        if (!accId || (status !== 'user' && status !== 'demo')) {
-            set({ summary: null, bySymbol: [], bySide: [], loading: false, error: null });
-            return;
+    load: () => {
+        const context = currentContext();
+        if (!context) {
+            ++requestVersion;
+            loadRequest = null;
+            set({
+                summary: null,
+                bySymbol: [],
+                bySide: [],
+                loading: false,
+                loadError: null,
+                loadedFor: null,
+                stale: true,
+            });
+            return Promise.resolve();
         }
-        if (status === 'demo') {
+        if (loadRequest?.key === context.key) return loadRequest.promise;
+        if (get().loadedFor === context.key && !get().stale && !get().loadError) {
+            return Promise.resolve();
+        }
+
+        if (context.demo) {
             const trades = useTradesStore
                 .getState()
-                .trades.filter((trade) => trade.account_id === accId);
-            set({ ...buildDemoAnalytics(trades), loading: false, error: null });
-            return;
+                .trades.filter((trade) => trade.account_id === context.accountId);
+            set({
+                ...buildDemoAnalytics(trades),
+                loading: false,
+                loadError: null,
+                loadedFor: context.key,
+                stale: false,
+            });
+            return Promise.resolve();
         }
-        set({ loading: true, error: null });
-        try {
-            const base = `/accounts/${accId}/analytics`;
-            const [summary, bySymbol, bySide] = await Promise.all([
-                api.get<Summary>(`${base}/summary`),
-                api.get<BreakdownEntry[]>(`${base}/breakdown?by=symbol`),
-                api.get<BreakdownEntry[]>(`${base}/breakdown?by=side`),
-            ]);
-            set({ summary: summary.data, bySymbol: bySymbol.data, bySide: bySide.data });
-        } catch (err) {
-            set({ error: apiMessage(err) });
-        } finally {
-            set({ loading: false });
-        }
+
+        const version = ++requestVersion;
+        const keepCurrentData = get().loadedFor === context.key;
+        set({
+            ...(keepCurrentData ? {} : { summary: null, bySymbol: [], bySide: [] }),
+            loading: true,
+            loadError: null,
+        });
+        const request = (async () => {
+            try {
+                const base = `/accounts/${context.accountId}/analytics`;
+                const [summary, bySymbol, bySide] = await Promise.all([
+                    api.get<Summary>(`${base}/summary`),
+                    api.get<BreakdownEntry[]>(`${base}/breakdown?by=symbol`),
+                    api.get<BreakdownEntry[]>(`${base}/breakdown?by=side`),
+                ]);
+                if (version !== requestVersion || currentContext()?.key !== context.key) return;
+                set({
+                    summary: summary.data,
+                    bySymbol: bySymbol.data,
+                    bySide: bySide.data,
+                    loadedFor: context.key,
+                    stale: false,
+                });
+            } catch (error) {
+                if (version === requestVersion && currentContext()?.key === context.key) {
+                    set({ loadError: apiMessage(error) });
+                }
+            } finally {
+                if (version === requestVersion && currentContext()?.key === context.key) {
+                    loadRequest = null;
+                    set({ loading: false });
+                }
+            }
+        })();
+        loadRequest = { key: context.key, promise: request };
+        return request;
     },
 }));
 
-// Re-sync analytics whenever the active account changes.
-useAccountStore.subscribe((state, prev) => {
-    if (state.activeId !== prev.activeId) useAnalyticsStore.getState().load();
+useAccountStore.subscribe((state, previousState) => {
+    if (state.activeId === previousState.activeId) return;
+    ++requestVersion;
+    loadRequest = null;
+    useAnalyticsStore.setState({
+        summary: null,
+        bySymbol: [],
+        bySide: [],
+        loading: state.activeId !== null,
+        loadError: null,
+        loadedFor: null,
+        stale: true,
+    });
+});
+
+useTradesStore.subscribe((state, previousState) => {
+    if (state.trades === previousState.trades) return;
+    const context = currentContext();
+    if (!context || state.loadedFor !== context.key || previousState.loadedFor !== context.key) {
+        return;
+    }
+    const analytics = useAnalyticsStore.getState();
+    if (analytics.loadedFor !== context.key && loadRequest?.key !== context.key) return;
+    ++requestVersion;
+    loadRequest = null;
+    useAnalyticsStore.setState({ loading: false, loadError: null, stale: true });
 });

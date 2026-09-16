@@ -132,6 +132,8 @@ function AccountPicker() {
     const accounts = useAccountStore((state) => state.accounts);
     const activeId = useAccountStore((state) => state.activeId);
     const setActive = useAccountStore((state) => state.setActive);
+    const loading = useAccountStore((state) => state.loading);
+    const mutating = useAccountStore((state) => state.pendingMutation !== null);
     const [open, setOpen] = useState(false);
     const [creating, setCreating] = useState(false);
     const active = accounts.find((account) => account.id === activeId) ?? null;
@@ -140,6 +142,7 @@ function AccountPicker() {
         <div className="relative group-data-[collapsible=icon]:hidden">
             <Button
                 type="button"
+                disabled={loading || mutating}
                 onClick={() => setOpen((value) => !value)}
                 aria-expanded={open}
                 variant="outline"

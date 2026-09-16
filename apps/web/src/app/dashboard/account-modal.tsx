@@ -48,13 +48,14 @@ export function AccountModal({
     onSaved?: () => void;
 }) {
     const create = useAccountStore((s) => s.create);
-    const rename = useAccountStore((s) => s.rename);
+    const update = useAccountStore((s) => s.update);
+    const storePending = useAccountStore((s) => s.pendingMutation !== null);
     const editing = account !== null;
 
     const { pending, error, onSubmit } = useAuthSubmit(
         async (f) => {
             try {
-                if (editing) await rename(account.id, toPayload(f));
+                if (editing) await update(account.id, toPayload(f));
                 else await create(toPayload(f));
             } catch (err) {
                 throw new Error(apiMessage(err));
@@ -131,7 +132,7 @@ export function AccountModal({
                     <DialogFooter className="mx-0 mt-2 mb-0 rounded-none border-0 bg-transparent p-0">
                         <Button
                             type="submit"
-                            disabled={pending}
+                            disabled={pending || storePending}
                             className="w-full bg-primary text-black hover:bg-primary-hover"
                         >
                             {editing ? 'Save changes' : 'Create account'}
@@ -152,6 +153,7 @@ export function DeleteAccountModal({
     onClose: () => void;
 }) {
     const remove = useAccountStore((s) => s.remove);
+    const storePending = useAccountStore((s) => s.pendingMutation !== null);
     const { pending, error, onSubmit } = useAuthSubmit(async () => {
         try {
             await remove(account.id);
@@ -184,7 +186,7 @@ export function DeleteAccountModal({
                     </Button>
                     <Button
                         type="submit"
-                        disabled={pending}
+                        disabled={pending || storePending}
                         variant="destructive"
                         className="flex-1 bg-loss text-loss-foreground hover:bg-loss-hover"
                     >

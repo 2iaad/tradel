@@ -61,25 +61,25 @@ export class AuthController {
     @Post('login')
     @HttpCode(200)
     @ApiOperation({ summary: 'Log in and set both auth cookies' })
-    @ApiOkResponse({ description: 'Logged in; access and refresh cookies were set' })
+    @ApiOkResponse({ description: 'Returns the user ID and email + set Access & Refresh cookies' })
     @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
-        const { accessToken, refreshToken } = await this.authService.login(body);
+        const { tokens, user } = await this.authService.login(body);
 
-        this.setAccessCookie(res, accessToken);
-        this.setRefreshCookie(res, refreshToken);
-        // return { accessToken };
+        this.setAccessCookie(res, tokens.accessToken);
+        this.setRefreshCookie(res, tokens.refreshToken);
+        return user;
     }
 
     @Post('register')
     @ApiOperation({ summary: 'Create an account and set both auth cookies' })
-    @ApiCreatedResponse({ description: 'Account created; auth cookies were set' })
+    @ApiCreatedResponse({ description: 'Returns the user ID and email; sets both auth cookies' })
     async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
-        const { accessToken, refreshToken } = await this.authService.register(body);
+        const { tokens, user } = await this.authService.register(body);
 
-        this.setAccessCookie(res, accessToken);
-        this.setRefreshCookie(res, refreshToken);
-        // return { accessToken };
+        this.setAccessCookie(res, tokens.accessToken);
+        this.setRefreshCookie(res, tokens.refreshToken);
+        return user;
     }
 
     @Post('refresh')

@@ -8,6 +8,7 @@
         "start": "next start -p 5173",
         "lint": "eslint",
         "test:accounts": "node --experimental-strip-types --import ./tests/register.mjs tests/accounts.test.mjs",
+        "test:trades": "node --experimental-strip-types --import ./tests/register.mjs tests/trades.test.mjs",
         "test:session": "node --experimental-strip-types --import ./tests/register.mjs tests/session.test.mjs",
         "format": "prettier --write ."
     },

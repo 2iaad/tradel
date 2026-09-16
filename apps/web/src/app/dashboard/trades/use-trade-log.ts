@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { apiMessage } from '@/lib/api';
 import { useAccountStore } from '@/stores/accounts';
 import { useNotesStore } from '@/stores/notes';
 import { computeTradeStats } from '../trade-stats';
 import { useTradesStore } from '@/stores/trades';
-import type { ApiTrade } from '@/stores/trades';
+import type { ApiTrade, TradePayload } from '@/stores/trades';
 
 // Shared column template for the trade-log header + rows (must match exactly).
 // DATE · SYMBOL · SIDE · ENTRY · EXIT · LOTS · P&L · R:R · chevron · icons.
@@ -74,10 +75,12 @@ const SORT_KEY: Record<SortCol, 'ts' | 'pnlv' | 'rv'> = { date: 'ts', pnl: 'pnlv
 export function useTradeLog() {
     const apiTrades = useTradesStore((s) => s.trades);
     const loading = useTradesStore((s) => s.loading);
-    const error = useTradesStore((s) => s.error);
+    const error = useTradesStore((s) => s.loadError);
     const load = useTradesStore((s) => s.load);
-    const saveTrade = useTradesStore((s) => s.saveTrade);
-    const removeTrade = useTradesStore((s) => s.removeTrade);
+    const createTrade = useTradesStore((s) => s.create);
+    const updateTrade = useTradesStore((s) => s.update);
+    const removeTrade = useTradesStore((s) => s.remove);
+    const mutating = useTradesStore((s) => s.pendingMutation !== null);
     const notes = useNotesStore((s) => s.notes);
     const loadNotes = useNotesStore((s) => s.load);
     const accounts = useAccountStore((s) => s.accounts);
@@ -99,19 +102,30 @@ export function useTradeLog() {
     const [editingId, setEditingId] = useState<string | 'new' | null>(null);
     // Trade awaiting delete confirmation.
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+
+    const saveTrade = async (payload: TradePayload, id?: string) => {
+        if (id) await updateTrade(id, payload);
+        else await createTrade(payload);
+    };
 
     const startEdit = (id: string | 'new') => setEditingId(id);
     const cancelEdit = () => setEditingId(null);
-    const askDelete = (id: string) => setDeletingId(id);
-    const cancelDelete = () => setDeletingId(null);
+    const askDelete = (id: string) => {
+        setDeleteError(null);
+        setDeletingId(id);
+    };
+    const cancelDelete = () => {
+        setDeleteError(null);
+        setDeletingId(null);
+    };
     const confirmDelete = async () => {
         if (!deletingId) return;
         try {
             await removeTrade(deletingId);
-        } catch (err) {
-            console.error(err);
-        } finally {
             setDeletingId(null);
+        } catch (err) {
+            setDeleteError(apiMessage(err));
         }
     };
 
@@ -216,5 +230,7 @@ export function useTradeLog() {
         askDelete,
         cancelDelete,
         confirmDelete,
+        deleteError,
+        mutating,
     };
 }

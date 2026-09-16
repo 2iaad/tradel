@@ -61,7 +61,7 @@ export class TradesService {
             ? this.computePnl(
                   dto.side ?? current.side,
                   dto.entry ?? current.entry,
-                  dto.exit ?? current.exit,
+                  dto.exit === undefined ? current.exit : dto.exit,
                   dto.lots ?? current.lots,
               )
             : undefined;

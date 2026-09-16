@@ -6,6 +6,7 @@ import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { signedMoney } from '@/lib/format';
 import { errorCls } from '@/lib/ui';
+import { useTradesStore } from '@/stores/trades';
 import type { TradePayload } from '@/stores/trades';
 import { LOG_GRID } from './use-trade-log';
 import type { TradeLogRow } from './use-trade-log';
@@ -31,14 +32,15 @@ function toPayload(f: FormData, prev: TradeLogRow | null): TradePayload {
         return typeof v === 'string' && v.trim() !== '' ? v.trim() : undefined;
     };
     const num = (k: string) => (opt(k) === undefined ? undefined : Number(opt(k)));
+    const exit = num('exit');
+    const rReward = num('rReward');
     return {
-        symbol: f.get('symbol') as string,
+        symbol: String(f.get('symbol')).trim(),
         side: f.get('side') as 'LONG' | 'SHORT',
-        entry: num('entry'),
-        exit: num('exit'),
-        lots: num('lots'),
-        // R:R has no column on create (CreateTradeDto) — edit only.
-        rReward: prev ? num('rReward') : undefined,
+        entry: Number(f.get('entry')),
+        exit: prev && exit === undefined ? null : exit,
+        lots: Number(f.get('lots')),
+        rReward: prev ? (rReward ?? null) : undefined,
     };
 }
 
@@ -165,6 +167,7 @@ export function TradeRowForm({
     onSave: (payload: TradePayload, id?: string) => Promise<void>;
     onCancel: () => void;
 }) {
+    const storePending = useTradesStore((state) => state.pendingMutation !== null);
     const { pending, error, onSubmit } = useAuthSubmit(async (f) => {
         try {
             await onSave(toPayload(f, t), t?.id);
@@ -177,7 +180,7 @@ export function TradeRowForm({
             <div className={`${LOG_GRID} items-center px-[22px] py-[7px]`}>
                 <FormCells key={t?.id ?? 'new'} t={t} />
                 <span />
-                <FormIcons pending={pending} onCancel={onCancel} />
+                <FormIcons pending={pending || storePending} onCancel={onCancel} />
             </div>
             {error && <p className={`${errorCls} px-[22px] pb-2 font-mono text-ui-xs`}>{error}</p>}
         </form>

@@ -20,7 +20,7 @@ export class CreateTradeDto {
 
     @IsOptional()
     @IsNumber()
-    exit?: number;
+    exit?: number | null;
 
     @IsNumber()
     lots!: number;

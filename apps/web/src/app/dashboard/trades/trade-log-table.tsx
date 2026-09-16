@@ -265,9 +265,13 @@ function DraggableRow({
 function ConfirmDeleteModal({
     onCancel,
     onConfirm,
+    pending,
+    error,
 }: {
     onCancel: () => void;
-    onConfirm: () => void;
+    onConfirm: () => Promise<void>;
+    pending: boolean;
+    error: string | null;
 }) {
     return (
         <div
@@ -282,12 +286,24 @@ function ConfirmDeleteModal({
                 <p className="text-ui-sm text-muted-foreground">
                     The trade is removed from your journal. This can&apos;t be undone.
                 </p>
+                {error && (
+                    <p role="alert" className="text-ui-sm text-destructive">
+                        {error}
+                    </p>
+                )}
                 <div className="mt-1 flex gap-2.5">
-                    <Button type="button" onClick={onCancel} variant="outline" className="flex-1">
+                    <Button
+                        type="button"
+                        disabled={pending}
+                        onClick={onCancel}
+                        variant="outline"
+                        className="flex-1"
+                    >
                         Cancel
                     </Button>
                     <Button
                         type="button"
+                        disabled={pending}
                         onClick={onConfirm}
                         variant="destructive"
                         className="flex-1"
@@ -781,7 +797,12 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
             </TabsContent>
 
             {log.deletingId && (
-                <ConfirmDeleteModal onCancel={log.cancelDelete} onConfirm={log.confirmDelete} />
+                <ConfirmDeleteModal
+                    onCancel={log.cancelDelete}
+                    onConfirm={log.confirmDelete}
+                    pending={log.mutating}
+                    error={log.deleteError}
+                />
             )}
             {addNoteFor && (
                 <NoteModal note={null} tradeId={addNoteFor} onClose={() => setAddNoteFor(null)} />

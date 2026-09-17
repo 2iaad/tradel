@@ -4,8 +4,8 @@ import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
 import { DEMO_ACCOUNT } from '@/lib/demo-data';
-import type { Session } from '@/stores/session';
-import { useSessionStore } from '@/stores/session';
+import type { Session } from './session';
+import { useSessionStore } from './session';
 
 export interface Account {
     id: string;

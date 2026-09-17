@@ -7,7 +7,7 @@ import { cardCls } from '@/lib/ui';
 import { useNotesStore } from '@/stores/notes';
 import type { ApiNote } from '@/stores/notes';
 import { useTradesStore } from '@/stores/trades';
-import { PageHeader } from '../page-header';
+import { PageHeader } from '@/app/dashboard/page-header';
 import { NoteModal } from './note-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

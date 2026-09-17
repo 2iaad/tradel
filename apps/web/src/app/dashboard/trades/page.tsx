@@ -1,8 +1,8 @@
 'use client';
 
 import { G, R } from '@/lib/ui';
-import { PageHeader } from '../page-header';
-import { StatCards, useTradeStats } from '../trade-stats';
+import { PageHeader } from '@/app/dashboard/page-header';
+import { StatCards, useTradeStats } from '@/app/dashboard/trade-stats';
 import { TradeLogTable } from './trade-log-table';
 import { useTradeLog } from './use-trade-log';
 import { Input } from '@/components/ui/input';

@@ -4,8 +4,8 @@ import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
 import { buildDemoTrades } from '@/lib/demo-data';
-import { useAccountStore } from '@/stores/accounts';
-import { useSessionStore } from '@/stores/session';
+import { useAccountStore } from './accounts';
+import { useSessionStore } from './session';
 
 export interface ApiTrade {
     id: string;

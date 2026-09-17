@@ -9,7 +9,7 @@ import { EmailField, PasswordField, UsernameField } from '@/components/auth/fiel
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FluxButton } from '@/components/ui/flux-button';
-import { TradelLogo } from '@/components/ui/tradel-logo';
+import { TradelLogo } from '@/components/brand/tradel-logo';
 import { Tape, TOP_TICKS, BOTTOM_TICKS } from '@/components/tape';
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';

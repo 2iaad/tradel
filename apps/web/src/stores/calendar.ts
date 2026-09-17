@@ -4,9 +4,9 @@ import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
 import { buildDemoCalendar } from '@/lib/demo-data';
-import { useAccountStore } from '@/stores/accounts';
-import { useSessionStore } from '@/stores/session';
-import { useTradesStore } from '@/stores/trades';
+import { useAccountStore } from './accounts';
+import { useSessionStore } from './session';
+import { useTradesStore } from './trades';
 
 export interface CalendarTrade {
     symbol: string;

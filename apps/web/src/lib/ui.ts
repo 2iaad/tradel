@@ -13,7 +13,7 @@ export const errorCls = 'm-0 text-ui-sm text-loss';
 
 // Dashboard building blocks.
 // Canvas APIs cannot resolve CSS custom properties, so these values mirror
-// the canonical tokens in globals.css. Positive data uses green and negative
+// the canonical tokens in styles/tokens.css. Positive data uses green and negative
 // data uses red; categorical series continue to use the brand palette.
 export const canvasColors = {
     black: '#050505',

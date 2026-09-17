@@ -1,8 +1,8 @@
-import type { Account } from '@/stores/accounts';
-import type { BreakdownEntry, Summary } from '@/stores/analytics';
-import type { CalendarDay } from '@/stores/calendar';
-import type { ApiNote } from '@/stores/notes';
-import type { ApiTrade } from '@/stores/trades';
+import type { Account } from '@/features/accounts/types';
+import type { BreakdownEntry, Summary } from '@/features/analytics/types';
+import type { CalendarDay } from '@/features/calendar/types';
+import type { ApiNote } from '@/features/journal/types';
+import type { ApiTrade } from '@/features/trades/types';
 
 export const DEMO_ACCOUNT_ID = 'demo-account-main';
 

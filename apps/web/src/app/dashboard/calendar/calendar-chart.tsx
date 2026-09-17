@@ -21,7 +21,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 import { signedMoney } from '@/lib/format';
 import { canvasColors, monoFontStack } from '@/lib/ui';
-import type { CalendarDay, CalendarTrade } from '@/stores/calendar';
+import type { CalendarDay, CalendarTrade } from '@/features/calendar/types';
 
 echarts.use([
     CalendarComponent,

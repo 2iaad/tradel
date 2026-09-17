@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 
-import { useAnalyticsStore } from '@/stores/analytics';
-import { useAccountStore } from '@/stores/accounts';
-import { useTradesStore } from '@/stores/trades';
+import { useAnalyticsStore } from '@/features/analytics/store';
+import { useAccountStore } from '@/features/accounts/store';
+import { useTradesStore } from '@/features/trades/store';
 import { EquityCard } from '@/app/dashboard/equity-card';
 import { PageHeader } from '@/app/dashboard/page-header';
 import { SymbolAnalyticsGrid } from '@/app/dashboard/symbol-analytics';

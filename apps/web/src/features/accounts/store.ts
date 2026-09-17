@@ -2,25 +2,12 @@
 
 import { create } from 'zustand';
 
+import { useSessionStore } from '@/features/auth/store';
+import type { Session } from '@/features/auth/types';
+import { DEMO_ACCOUNT } from '@/features/demo/demo-data';
 import { api, apiMessage } from '@/lib/api';
-import { DEMO_ACCOUNT } from '@/lib/demo-data';
-import type { Session } from './session';
-import { useSessionStore } from './session';
 
-export interface Account {
-    id: string;
-    name: string;
-    broker: string | null;
-    currency: string;
-    starting_balance: string;
-}
-
-export interface AccountPayload {
-    name: string;
-    broker?: string;
-    currency?: string;
-    startingBalance: number;
-}
+import type { Account, AccountPayload } from './types';
 
 type AccountMutation =
     { type: 'create' } | { type: 'update'; id: string } | { type: 'delete'; id: string };

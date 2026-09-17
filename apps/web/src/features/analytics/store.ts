@@ -2,31 +2,13 @@
 
 import { create } from 'zustand';
 
+import { useAccountStore } from '@/features/accounts/store';
+import { useSessionStore } from '@/features/auth/store';
+import { buildDemoAnalytics } from '@/features/demo/demo-data';
+import { useTradesStore } from '@/features/trades/store';
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoAnalytics } from '@/lib/demo-data';
-import { useAccountStore } from './accounts';
-import { useSessionStore } from './session';
-import { useTradesStore } from './trades';
 
-export interface Summary {
-    closed: number;
-    open: number;
-    wins: number;
-    losses: number;
-    net: number;
-    winRate: number | null;
-    profitFactor: number | null;
-    expectancy: number | null;
-    avgR: number | null;
-}
-
-export interface BreakdownEntry {
-    label: string;
-    net: number;
-    wins: number;
-    count: number;
-    winRate: number | null;
-}
+import type { BreakdownEntry, Summary } from './types';
 
 interface AnalyticsContext {
     accountId: string;

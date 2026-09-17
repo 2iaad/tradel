@@ -8,8 +8,8 @@ import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { signedMoney } from '@/lib/format';
 import { errorCls } from '@/lib/ui';
-import { useTradesStore } from '@/stores/trades';
-import type { TradePayload } from '@/stores/trades';
+import { useTradesStore } from '@/features/trades/store';
+import type { TradePayload } from '@/features/trades/types';
 import {
     Select,
     SelectContent,

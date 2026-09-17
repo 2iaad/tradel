@@ -2,29 +2,13 @@
 
 import { create } from 'zustand';
 
+import { useAccountStore } from '@/features/accounts/store';
+import { useSessionStore } from '@/features/auth/store';
+import { buildDemoNotes } from '@/features/demo/demo-data';
+import { useTradesStore } from '@/features/trades/store';
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoNotes } from '@/lib/demo-data';
-import { useAccountStore } from './accounts';
-import { useSessionStore } from './session';
-import { useTradesStore } from './trades';
 
-export interface ApiNote {
-    id: string;
-    account_id: string;
-    trade_id: string;
-    title: string;
-    body: string;
-    tags: string[];
-    created_at: string;
-}
-
-export interface NotePayload {
-    title: string;
-    body: string;
-    tags?: string[];
-}
-
-export type UpdateNotePayload = Partial<NotePayload>;
+import type { ApiNote, NotePayload, UpdateNotePayload } from './types';
 
 type NoteMutation =
     | { type: 'create'; tradeId: string }

@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { apiMessage } from '@/lib/api';
-import { useAccountStore } from '@/stores/accounts';
-import { useNotesStore } from '@/stores/notes';
+import { useAccountStore } from '@/features/accounts/store';
+import { useNotesStore } from '@/features/journal/store';
 import { computeTradeStats } from '@/app/dashboard/trade-stats';
-import { useTradesStore } from '@/stores/trades';
-import type { ApiTrade, TradePayload } from '@/stores/trades';
+import { useTradesStore } from '@/features/trades/store';
+import type { ApiTrade, TradePayload } from '@/features/trades/types';
 
 // Shared column template for the trade-log header + rows (must match exactly).
 // DATE · SYMBOL · SIDE · ENTRY · EXIT · LOTS · P&L · R:R · chevron · icons.

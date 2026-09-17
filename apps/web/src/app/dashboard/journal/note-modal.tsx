@@ -3,8 +3,8 @@
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { errorCls, inputCls, labelCls } from '@/lib/ui';
-import { useNotesStore } from '@/stores/notes';
-import type { ApiNote, NotePayload } from '@/stores/notes';
+import { useNotesStore } from '@/features/journal/store';
+import type { ApiNote, NotePayload } from '@/features/journal/types';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,

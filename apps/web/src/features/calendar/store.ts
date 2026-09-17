@@ -2,23 +2,13 @@
 
 import { create } from 'zustand';
 
+import { useAccountStore } from '@/features/accounts/store';
+import { useSessionStore } from '@/features/auth/store';
+import { buildDemoCalendar } from '@/features/demo/demo-data';
+import { useTradesStore } from '@/features/trades/store';
 import { api, apiMessage } from '@/lib/api';
-import { buildDemoCalendar } from '@/lib/demo-data';
-import { useAccountStore } from './accounts';
-import { useSessionStore } from './session';
-import { useTradesStore } from './trades';
 
-export interface CalendarTrade {
-    symbol: string;
-    pnl: number | null;
-}
-
-export interface CalendarDay {
-    date: string;
-    pnl: number;
-    trades: number;
-    items: CalendarTrade[];
-}
+import type { CalendarDay } from './types';
 
 interface CalendarContext {
     accountId: string;

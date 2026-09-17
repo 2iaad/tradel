@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { signedMoney } from '@/lib/format';
 import { cardCls, G, R } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import { useCalendarStore } from '@/stores/calendar';
+import { useAccountStore } from '@/features/accounts/store';
+import { useCalendarStore } from '@/features/calendar/store';
 import { PageHeader } from '@/app/dashboard/page-header';
 import { CalendarChart } from './calendar-chart';
 

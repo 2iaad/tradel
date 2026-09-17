@@ -3,8 +3,8 @@
 import { useState } from 'react';
 
 import { cardCls, ctaCls } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import type { Account } from '@/stores/accounts';
+import { useAccountStore } from '@/features/accounts/store';
+import type { Account } from '@/features/accounts/types';
 import { PageHeader } from '@/app/dashboard/page-header';
 import { AccountModal, DeleteAccountModal } from '@/app/dashboard/account-modal';
 import { Badge } from '@/components/ui/badge';

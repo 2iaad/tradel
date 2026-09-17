@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 
-import { SOCIAL_CHANNELS, type SocialChannel } from './home.data';
+import { SOCIAL_CHANNELS, type SocialChannel } from '@/features/landing/home.data';
 import { SliderArrows } from './slider-arrows';
 
 function SocialSlide({ item }: { item: SocialChannel }) {

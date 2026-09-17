@@ -1,11 +1,11 @@
-import { Fragment } from 'react';
 import Link from 'next/link';
+import { Fragment } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { BlurReveal } from '@/components/ui/blur-reveal';
+import { Button } from '@/components/ui/button';
 import { Safari } from '@/components/ui/safari';
 
-import dashboardMockup from '../../../public/images/landing/dashboard-mockup-0.png';
+import dashboardMockup from '../../../../public/images/landing/dashboard-mockup-0.png';
 
 export function Hero() {
     return (

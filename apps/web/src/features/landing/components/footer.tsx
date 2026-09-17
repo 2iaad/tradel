@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 
 import { TradelLogo } from '@/components/brand/tradel-logo';
-import { FOOTER_LINK_COLUMNS, type FooterLink } from './home.data';
+import { FOOTER_LINK_COLUMNS, type FooterLink } from '@/features/landing/home.data';
 
 function FooterColumn({ links }: { links: FooterLink[] }) {
     return (

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {
     BookOpenCheck,
     CalendarDays,
@@ -9,7 +8,10 @@ import {
     PlayCircle,
     UserPlus,
 } from 'lucide-react';
+import Link from 'next/link';
 
+import { TradelLogo } from '@/components/brand/tradel-logo';
+import { Button } from '@/components/ui/button';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -18,8 +20,6 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
-import { Button } from '@/components/ui/button';
-import { TradelLogo } from '@/components/brand/tradel-logo';
 
 const GETTING_STARTED = [
     {

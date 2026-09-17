@@ -1,5 +1,5 @@
-import { FaqPro, type FaqProItem } from '@/components/ui/faq-pro';
 import { BlurReveal } from '@/components/ui/blur-reveal';
+import { FaqPro, type FaqProItem } from '@/components/ui/faq-pro';
 
 import { LandingSection, LandingSectionHeading } from './landing-section';
 

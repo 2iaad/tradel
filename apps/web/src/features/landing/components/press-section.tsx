@@ -1,4 +1,4 @@
-import { PRESS_QUOTES, type PressQuote } from './home.data';
+import { PRESS_QUOTES, type PressQuote } from '@/features/landing/home.data';
 import { SliderArrows } from './slider-arrows';
 
 function PressSlide({ item }: { item: PressQuote }) {

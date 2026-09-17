@@ -1,5 +1,5 @@
-import { Marquee } from '@/components/ui/marquee';
 import { Card, CardContent } from '@/components/ui/card';
+import { Marquee } from '@/components/ui/marquee';
 
 const reviews = [
     {

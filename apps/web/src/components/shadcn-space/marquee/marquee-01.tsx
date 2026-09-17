@@ -1,4 +1,4 @@
-import { Marquee } from '@/components/shadcn-space/animations/marquee';
+import { Marquee } from '@/components/ui/marquee';
 import { Card, CardContent } from '@/components/ui/card';
 
 const reviews = [

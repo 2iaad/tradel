@@ -18,7 +18,7 @@ import {
 import { AccountModal } from './account-modal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { TradelLogo } from '@/components/ui/tradel-logo';
+import { TradelLogo } from '@/components/brand/tradel-logo';
 import {
     Sidebar as ShadcnSidebar,
     SidebarContent,

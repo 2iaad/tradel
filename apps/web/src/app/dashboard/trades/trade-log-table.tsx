@@ -79,8 +79,8 @@ import { G, R } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useNotesStore } from '@/stores/notes';
 import type { TradePayload } from '@/stores/trades';
-import { AccountModal } from '../account-modal';
-import { NoteModal } from '../journal/note-modal';
+import { AccountModal } from '@/app/dashboard/account-modal';
+import { NoteModal } from '@/app/dashboard/journal/note-modal';
 import { TradeRowForm } from './trade-row-form';
 import type { TradeLogRow, useTradeLog } from './use-trade-log';
 

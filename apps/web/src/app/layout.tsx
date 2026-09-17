@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Sora } from 'next/font/google';
-import { ReactScan } from '@/components/react-scan';
+import { ReactScan } from '@/components/dev/react-scan';
 import './globals.css';
 
 const sora = Sora({

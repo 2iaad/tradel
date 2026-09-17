@@ -7,7 +7,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Heart } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button } from './button';
 import tradelLockup from '../../../public/brand/tradel-lockup-4k.png';
 
 if (typeof window !== 'undefined') {

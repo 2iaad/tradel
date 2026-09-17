@@ -8,7 +8,7 @@ import { signedMoney } from '@/lib/format';
 import { cardCls, G, R } from '@/lib/ui';
 import { useAccountStore } from '@/stores/accounts';
 import { useCalendarStore } from '@/stores/calendar';
-import { PageHeader } from '../page-header';
+import { PageHeader } from '@/app/dashboard/page-header';
 import { CalendarChart } from './calendar-chart';
 
 // Shift a 'YYYY-MM' by n months.

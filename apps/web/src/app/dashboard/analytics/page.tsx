@@ -5,10 +5,10 @@ import { useEffect } from 'react';
 import { useAnalyticsStore } from '@/stores/analytics';
 import { useAccountStore } from '@/stores/accounts';
 import { useTradesStore } from '@/stores/trades';
-import { EquityCard } from '../equity-card';
-import { PageHeader } from '../page-header';
-import { SymbolAnalyticsGrid } from '../symbol-analytics';
-import { StatCards, useTradeStats } from '../trade-stats';
+import { EquityCard } from '@/app/dashboard/equity-card';
+import { PageHeader } from '@/app/dashboard/page-header';
+import { SymbolAnalyticsGrid } from '@/app/dashboard/symbol-analytics';
+import { StatCards, useTradeStats } from '@/app/dashboard/trade-stats';
 
 export default function AnalyticsPage() {
     const summary = useAnalyticsStore((s) => s.summary);

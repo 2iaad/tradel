@@ -19,7 +19,7 @@ import {
     NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
-import { TradelLogo } from '@/components/ui/tradel-logo';
+import { TradelLogo } from '@/components/brand/tradel-logo';
 
 const GETTING_STARTED = [
     {

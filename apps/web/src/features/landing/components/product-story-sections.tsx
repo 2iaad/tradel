@@ -10,7 +10,7 @@ import {
 
 import { BlurReveal } from '@/components/ui/blur-reveal';
 
-import { landingSectionBodyClass, LandingSection, LandingSectionHeading } from './landing-section';
+import { LandingSection, landingSectionBodyClass, LandingSectionHeading } from './landing-section';
 
 const panelClass = 'border border-border-subtle bg-card shadow-[0_32px_90px_rgba(0,0,0,0.58)]';
 

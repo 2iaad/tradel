@@ -1,0 +1,24 @@
+.dark {
+    color-scheme: dark;
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    html {
+        @apply bg-background font-sans;
+    }
+}
+
+/* `tailwind-merge` can mistake the custom `text-ui-*` font-size utilities for
+   color utilities and drop a neighboring `text-black` class. Keep the
+   foreground of every yellow primary button explicit at the cascade level. */
+@layer utilities {
+    [data-slot='button'].bg-primary {
+        color: var(--palette-black);
+    }
+}

@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
 import { PieChart, type PieSeriesOption } from 'echarts/charts';
 import {
     LegendComponent,
@@ -8,9 +7,10 @@ import {
     TooltipComponent,
     type TooltipComponentOption,
 } from 'echarts/components';
-import * as echarts from 'echarts/core';
 import type { ComposeOption, EChartsType } from 'echarts/core';
+import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { canvasColors, G, monoFontStack, R } from '@/lib/ui';
 

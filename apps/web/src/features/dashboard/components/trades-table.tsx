@@ -1,11 +1,11 @@
 import Link from 'next/link';
 
-import { signedMoney } from '@/lib/format';
-import { cardCls, G, ghostBtnCls, h2Cls, R } from '@/lib/ui';
-import type { TradeLogRow } from '@/features/trades/hooks/use-trade-log';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import type { TradeLogRow } from '@/features/trades/lib/trade-log-row';
+import { signedMoney } from '@/lib/format';
+import { cardCls, G, ghostBtnCls, h2Cls, R } from '@/lib/ui';
 
 const tableGrid = 'grid grid-cols-[78px_74px_1fr_1fr_56px_64px_104px_66px] gap-2';
 

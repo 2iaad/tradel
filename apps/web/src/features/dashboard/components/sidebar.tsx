@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import {
     BarChart3Icon,
     BookOpenIcon,
@@ -14,11 +11,13 @@ import {
     Settings2Icon,
     type LucideIcon,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
-import { AccountModal } from '@/features/accounts/components/account-modal';
+import { TradelLogo } from '@/components/brand/tradel-logo';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { TradelLogo } from '@/components/brand/tradel-logo';
 import {
     Sidebar as ShadcnSidebar,
     SidebarContent,
@@ -31,6 +30,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { AccountModal } from '@/features/accounts/components/account-modal';
 import { useAccountStore } from '@/features/accounts/store';
 import { hasDashboardSession, useSessionStore } from '@/features/auth/store';
 import { apiMessage } from '@/lib/api';

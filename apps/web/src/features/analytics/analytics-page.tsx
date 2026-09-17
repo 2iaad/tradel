@@ -2,13 +2,14 @@
 
 import { useEffect } from 'react';
 
-import { useAnalyticsStore } from './store';
 import { useAccountStore } from '@/features/accounts/store';
-import { useTradesStore } from '@/features/trades/store';
+import { SymbolAnalyticsGrid } from '@/features/analytics/components/symbol-analytics';
 import { EquityCard } from '@/features/dashboard/components/equity-card';
 import { PageHeader } from '@/features/dashboard/components/page-header';
-import { SymbolAnalyticsGrid } from '@/features/analytics/components/symbol-analytics';
-import { StatCards, useTradeStats } from '@/features/dashboard/components/trade-stats';
+import { StatCards } from '@/features/dashboard/components/trade-stats';
+import { useTradeStats } from '@/features/trades/hooks/use-trade-stats';
+import { useTradesStore } from '@/features/trades/store';
+import { useAnalyticsStore } from './store';
 
 export default function AnalyticsPage() {
     const summary = useAnalyticsStore((s) => s.summary);

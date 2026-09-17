@@ -2,13 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { apiMessage } from '@/lib/api';
-import { cardCls } from '@/lib/ui';
-import { useNotesStore } from './store';
-import type { ApiNote } from './types';
-import { useTradesStore } from '@/features/trades/store';
-import { PageHeader } from '@/features/dashboard/components/page-header';
-import { NoteModal } from '@/features/journal/components/note-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -20,6 +13,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { PageHeader } from '@/features/dashboard/components/page-header';
+import { NoteModal } from '@/features/journal/components/note-modal';
+import { useTradesStore } from '@/features/trades/store';
+import { apiMessage } from '@/lib/api';
+import { cardCls } from '@/lib/ui';
+import type { ApiNote } from './types';
+import { useNotesStore } from './store';
 
 const tagChip =
     'inline-flex px-2 py-0.5 rounded font-mono text-ui-xs font-medium tracking-[0.06em] text-muted-foreground border border-border';

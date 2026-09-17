@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import {
     closestCenter,
     DndContext,
@@ -13,13 +12,7 @@ import {
     type UniqueIdentifier,
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-    arrayMove,
-    SortableContext,
-    useSortable,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
     flexRender,
     getCoreRowModel,
@@ -27,34 +20,27 @@ import {
     getSortedRowModel,
     useReactTable,
     type ColumnDef,
-    type Row,
     type RowSelectionState,
     type SortingState,
     type VisibilityState,
 } from '@tanstack/react-table';
 import {
-    Check,
     ChevronDown,
     ChevronLeft,
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
     Columns3,
-    FileText,
-    GripVertical,
-    MoreVertical,
     Plus,
 } from 'lucide-react';
+import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
@@ -74,15 +60,16 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { signedMoney } from '@/lib/format';
-import { G, R } from '@/lib/ui';
-import { useAccountStore } from '@/features/accounts/store';
-import { useNotesStore } from '@/features/journal/store';
-import type { TradePayload } from '@/features/trades/types';
 import { AccountModal } from '@/features/accounts/components/account-modal';
+import { useAccountStore } from '@/features/accounts/store';
 import { NoteModal } from '@/features/journal/components/note-modal';
-import { TradeRowForm } from './trade-row-form';
-import type { TradeLogRow, useTradeLog } from '@/features/trades/hooks/use-trade-log';
+import { useNotesStore } from '@/features/journal/store';
+import type { useTradeLog } from '@/features/trades/hooks/use-trade-log';
+import type { TradeLogRow } from '@/features/trades/lib/trade-log-row';
+
+import { ConfirmDeleteModal } from './confirm-delete-modal';
+import { buildTradeColumns } from './trade-table-columns';
+import { DraggableRow, EditorRow } from './trade-table-rows';
 
 type Log = ReturnType<typeof useTradeLog>;
 
@@ -118,246 +105,6 @@ const COLUMN_WIDTHS: Record<string, string> = {
     actions: 'w-16',
 };
 
-function DragHandle({ id }: { id: string }) {
-    const { attributes, listeners } = useSortable({ id });
-
-    return (
-        <Button
-            {...attributes}
-            {...listeners}
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="size-7 text-muted-foreground hover:bg-transparent"
-        >
-            <GripVertical className="size-3 text-muted-foreground" />
-            <span className="sr-only">Drag to reorder</span>
-        </Button>
-    );
-}
-
-function SideBadge({ side }: { side: TradeLogRow['side'] }) {
-    const long = side === 'LONG';
-    return (
-        <Badge
-            variant="outline"
-            className="h-auto px-1.5 font-mono text-ui-xs font-semibold tracking-[0.06em]"
-            style={{
-                color: long ? G : R,
-                background: long
-                    ? 'color-mix(in srgb, var(--profit) 10%, transparent)'
-                    : 'color-mix(in srgb, var(--loss) 10%, transparent)',
-                borderColor: long
-                    ? 'color-mix(in srgb, var(--profit) 28%, transparent)'
-                    : 'color-mix(in srgb, var(--loss) 28%, transparent)',
-            }}
-        >
-            {side}
-        </Badge>
-    );
-}
-
-function TradeDetails({ tradeId, onAddNote }: { tradeId: string; onAddNote: () => void }) {
-    const notes = useNotesStore((state) => state.notes);
-    const tradeNotes = notes.filter((note) => note.trade_id === tradeId);
-
-    return (
-        <div className="flex min-h-16 flex-col justify-center gap-3 px-3 py-2">
-            {tradeNotes.length ? (
-                tradeNotes.map((note) => (
-                    <div key={note.id} className="flex flex-col gap-1.5 whitespace-normal">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-medium text-foreground">{note.title}</span>
-                            {note.tags.map((tag) => (
-                                <Badge
-                                    key={tag}
-                                    variant="outline"
-                                    className="px-1.5 text-muted-foreground"
-                                >
-                                    {tag}
-                                </Badge>
-                            ))}
-                        </div>
-                        <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-                            {note.body}
-                        </p>
-                    </div>
-                ))
-            ) : (
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <span>No note attached to this trade.</span>
-                    <Button
-                        type="button"
-                        variant="link"
-                        size="sm"
-                        className="h-auto p-0"
-                        onClick={onAddNote}
-                    >
-                        Add note
-                    </Button>
-                </div>
-            )}
-        </div>
-    );
-}
-
-function EditorRow({
-    trade,
-    visibleColumnIds,
-    onSave,
-    onCancel,
-}: {
-    trade: TradeLogRow | null;
-    visibleColumnIds: string[];
-    onSave: (payload: TradePayload, id?: string) => Promise<void>;
-    onCancel: () => void;
-}) {
-    return (
-        <TradeRowForm
-            t={trade}
-            visibleColumnIds={visibleColumnIds}
-            onSave={onSave}
-            onCancel={onCancel}
-        />
-    );
-}
-
-function DraggableRow({
-    row,
-    selected,
-    log,
-    onAddNote,
-}: {
-    row: Row<TradeLogRow>;
-    selected: boolean;
-    log: Log;
-    onAddNote: (tradeId: string) => void;
-}) {
-    const { transform, transition, setNodeRef, isDragging } = useSortable({ id: row.original.id });
-    const isOpen = log.openId === row.original.id;
-
-    if (log.editingId === row.original.id) {
-        return (
-            <EditorRow
-                trade={row.original}
-                visibleColumnIds={row.getVisibleCells().map((cell) => cell.column.id)}
-                onSave={log.saveTrade}
-                onCancel={log.cancelEdit}
-            />
-        );
-    }
-
-    return (
-        <React.Fragment>
-            <TableRow
-                data-state={row.getIsSelected() ? 'selected' : undefined}
-                data-dragging={isDragging}
-                aria-expanded={isOpen}
-                ref={setNodeRef}
-                className="relative z-0 data-[state=selected]:bg-primary/[0.06] data-[state=selected]:shadow-[inset_3px_0_0_var(--primary)] data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
-                style={{ transform: CSS.Transform.toString(transform), transition }}
-            >
-                {row.getVisibleCells().map((cell) => {
-                    if (cell.column.id === 'select') {
-                        return (
-                            <TableCell key={cell.id}>
-                                <div className="relative flex items-center justify-center">
-                                    <Checkbox
-                                        checked={selected}
-                                        onCheckedChange={(checked) => row.toggleSelected(checked)}
-                                        aria-label={`Select ${row.original.sym} trade`}
-                                        className="[&_[data-slot=checkbox-indicator]]:hidden"
-                                        style={{
-                                            backgroundColor: selected
-                                                ? 'var(--primary)'
-                                                : 'transparent',
-                                            borderColor: selected
-                                                ? 'var(--primary)'
-                                                : 'var(--input)',
-                                        }}
-                                    />
-                                    {selected && (
-                                        <Check className="pointer-events-none absolute size-3.5 text-primary-foreground" />
-                                    )}
-                                </div>
-                            </TableCell>
-                        );
-                    }
-                    return (
-                        <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                    );
-                })}
-            </TableRow>
-            {isOpen && (
-                <TableRow className="bg-muted/35 hover:bg-muted/35">
-                    <TableCell colSpan={row.getVisibleCells().length} className="p-0">
-                        <TradeDetails
-                            tradeId={row.original.id}
-                            onAddNote={() => onAddNote(row.original.id)}
-                        />
-                    </TableCell>
-                </TableRow>
-            )}
-        </React.Fragment>
-    );
-}
-
-function ConfirmDeleteModal({
-    onCancel,
-    onConfirm,
-    pending,
-    error,
-}: {
-    onCancel: () => void;
-    onConfirm: () => Promise<void>;
-    pending: boolean;
-    error: string | null;
-}) {
-    return (
-        <div
-            onClick={onCancel}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[6px]"
-        >
-            <div
-                onClick={(event) => event.stopPropagation()}
-                className="flex w-[360px] max-w-[calc(100vw-48px)] flex-col gap-4 rounded-lg border bg-card px-[30px] py-7"
-            >
-                <h2 className="text-xl font-semibold text-card-foreground">Delete this trade?</h2>
-                <p className="text-ui-sm text-muted-foreground">
-                    The trade is removed from your journal. This can&apos;t be undone.
-                </p>
-                {error && (
-                    <p role="alert" className="text-ui-sm text-destructive">
-                        {error}
-                    </p>
-                )}
-                <div className="mt-1 flex gap-2.5">
-                    <Button
-                        type="button"
-                        disabled={pending}
-                        onClick={onCancel}
-                        variant="outline"
-                        className="flex-1"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        disabled={pending}
-                        onClick={onConfirm}
-                        variant="destructive"
-                        className="flex-1"
-                    >
-                        Delete
-                    </Button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
     'use no memo';
 
@@ -387,160 +134,7 @@ export function TradeLogTable({ log }: { log: Log; dense: boolean }) {
     }, [log.rows]);
 
     const columns = React.useMemo<ColumnDef<TradeLogRow>[]>(
-        () => [
-            {
-                id: 'drag',
-                header: () => null,
-                cell: ({ row }) => <DragHandle id={row.original.id} />,
-                enableSorting: false,
-                enableHiding: false,
-            },
-            {
-                id: 'select',
-                header: ({ table }) => (
-                    <div className="flex items-center justify-center">
-                        <Checkbox
-                            checked={table.getIsAllPageRowsSelected()}
-                            indeterminate={table.getIsSomePageRowsSelected()}
-                            onCheckedChange={(checked) => table.toggleAllPageRowsSelected(checked)}
-                            aria-label="Select all trades"
-                        />
-                    </div>
-                ),
-                cell: () => null,
-                enableSorting: false,
-                enableHiding: false,
-            },
-            {
-                accessorKey: 'date',
-                header: 'Date',
-                cell: ({ row }) => (
-                    <div className="flex flex-col">
-                        <span className="font-mono text-secondary-foreground">
-                            {row.original.date}
-                        </span>
-                        <span className="font-mono text-ui-xs text-muted-foreground">
-                            {row.original.clock}
-                        </span>
-                    </div>
-                ),
-                sortingFn: (a, b) => a.original.ts - b.original.ts,
-            },
-            {
-                accessorKey: 'sym',
-                header: 'Symbol',
-                enableHiding: false,
-                cell: ({ row }) => (
-                    <Button
-                        type="button"
-                        variant="link"
-                        className="h-auto gap-2 p-0 font-mono font-semibold text-foreground no-underline"
-                        onClick={() => log.toggleOpen(row.original.id)}
-                    >
-                        {tradesWithNotes.has(row.original.id) && (
-                            <FileText className="size-3 text-primary" />
-                        )}
-                        {row.original.sym}
-                    </Button>
-                ),
-            },
-            {
-                accessorKey: 'side',
-                header: 'Side',
-                cell: ({ row }) => <SideBadge side={row.original.side} />,
-            },
-            {
-                accessorKey: 'entry',
-                header: 'Entry',
-                cell: ({ row }) => (
-                    <div className="font-mono text-muted-foreground">{row.original.entry}</div>
-                ),
-            },
-            {
-                accessorKey: 'exit',
-                header: 'Exit',
-                cell: ({ row }) => (
-                    <div className="font-mono text-muted-foreground">
-                        {row.original.exit ?? '—'}
-                    </div>
-                ),
-            },
-            {
-                accessorKey: 'lots',
-                header: 'Lots',
-                cell: ({ row }) => (
-                    <div className="font-mono text-muted-foreground">{row.original.lots}</div>
-                ),
-            },
-            {
-                accessorKey: 'pnlv',
-                header: () => <div className="w-full text-right">P&amp;L</div>,
-                cell: ({ row }) => {
-                    const value = row.original.pnlv;
-                    return (
-                        <div
-                            className="font-mono text-right font-semibold"
-                            style={{ color: (value ?? 0) >= 0 ? G : R }}
-                        >
-                            {value === null ? '—' : signedMoney(value)}
-                        </div>
-                    );
-                },
-            },
-            {
-                accessorKey: 'rv',
-                header: () => <div className="w-full text-right">R:R</div>,
-                cell: ({ row }) => {
-                    const value = row.original.rv;
-                    return (
-                        <div
-                            className="font-mono text-right font-medium"
-                            style={{ color: (value ?? 0) >= 0 ? G : R }}
-                        >
-                            {value === null ? '—' : `${value > 0 ? '+' : ''}${value.toFixed(1)}R`}
-                        </div>
-                    );
-                },
-            },
-            {
-                id: 'actions',
-                enableHiding: false,
-                cell: ({ row }) => (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger
-                            render={
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-                                />
-                            }
-                        >
-                            <MoreVertical />
-                            <span className="sr-only">Open trade menu</span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-36">
-                            <DropdownMenuItem onClick={() => log.toggleOpen(row.original.id)}>
-                                View notes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setAddNoteFor(row.original.id)}>
-                                Add note
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => log.startEdit(row.original.id)}>
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => log.askDelete(row.original.id)}
-                            >
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                ),
-            },
-        ],
+        () => buildTradeColumns(log, tradesWithNotes, setAddNoteFor),
         [log, tradesWithNotes],
     );
 

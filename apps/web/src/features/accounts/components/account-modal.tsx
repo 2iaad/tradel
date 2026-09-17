@@ -1,10 +1,5 @@
 'use client';
 
-import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
-import { apiMessage } from '@/lib/api';
-import { errorCls, inputCls, labelCls } from '@/lib/ui';
-import { useAccountStore } from '@/features/accounts/store';
-import type { Account, AccountPayload } from '@/features/accounts/types';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -23,6 +18,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useAccountStore } from '@/features/accounts/store';
+import type { Account, AccountPayload } from '@/features/accounts/types';
+import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
+import { apiMessage } from '@/lib/api';
+import { errorCls, inputCls, labelCls } from '@/lib/ui';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP'] as const;
 

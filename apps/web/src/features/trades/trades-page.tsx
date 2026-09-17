@@ -1,13 +1,14 @@
 'use client';
 
-import { G, R } from '@/lib/ui';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/features/dashboard/components/page-header';
-import { StatCards, useTradeStats } from '@/features/dashboard/components/trade-stats';
+import { StatCards } from '@/features/dashboard/components/trade-stats';
 import { TradeLogTable } from '@/features/trades/components/trade-log-table';
 import { useTradeLog } from '@/features/trades/hooks/use-trade-log';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useTradeStats } from '@/features/trades/hooks/use-trade-stats';
+import { G, R } from '@/lib/ui';
 import { BarChart3, CalendarDays, Flame, Scale, TrendingDown, TrendingUp } from 'lucide-react';
 import type { ReactNode } from 'react';
 

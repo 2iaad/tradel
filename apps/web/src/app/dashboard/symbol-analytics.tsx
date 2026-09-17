@@ -35,7 +35,7 @@ import {
     cardTitleCls,
     monoFontStack,
 } from '@/lib/ui';
-import type { BreakdownEntry } from '@/stores/analytics';
+import type { BreakdownEntry } from '@/features/analytics/types';
 
 echarts.use([
     BarChart,

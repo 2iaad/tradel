@@ -5,12 +5,7 @@ import { create } from 'zustand';
 
 import { api, apiMessage } from '@/lib/api';
 
-export type Session =
-    | { status: 'checking'; email: null }
-    | { status: 'anon'; email: null }
-    | { status: 'error'; email: null; message: string }
-    | { status: 'user'; id: string; email: string }
-    | { status: 'demo'; email: string };
+import type { Session } from './types';
 
 interface SessionUser {
     id: string;

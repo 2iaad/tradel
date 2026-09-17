@@ -14,8 +14,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 
 import { signedMoney } from '@/lib/format';
 import { canvasColors, cardCls, cardMetaLabelCls, G, monoFontStack, R } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import { useTradesStore } from '@/stores/trades';
+import { useAccountStore } from '@/features/accounts/store';
+import { useTradesStore } from '@/features/trades/store';
 import { toTradeLogRow } from '@/app/dashboard/trades/use-trade-log';
 import type { TradeLogRow } from '@/app/dashboard/trades/use-trade-log';
 import { WinRateDonut } from './win-rate-donut';

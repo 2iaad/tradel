@@ -1,4 +1,4 @@
-import type { ApiTrade } from '@/stores/trades';
+import type { ApiTrade } from '@/features/trades/types';
 
 export interface EquityPoint {
     cumulative: number;

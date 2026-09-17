@@ -3,8 +3,8 @@
 import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { errorCls, inputCls, labelCls } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import type { Account, AccountPayload } from '@/stores/accounts';
+import { useAccountStore } from '@/features/accounts/store';
+import type { Account, AccountPayload } from '@/features/accounts/types';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,

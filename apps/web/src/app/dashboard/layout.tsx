@@ -7,8 +7,8 @@ import type { CSSProperties } from 'react';
 import { Button } from '@/components/ui/button';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { errorCls } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import { hasDashboardSession, useSessionStore } from '@/stores/session';
+import { useAccountStore } from '@/features/accounts/store';
+import { hasDashboardSession, useSessionStore } from '@/features/auth/store';
 import { Sidebar } from './sidebar';
 
 // Dashboard shell: sidebar + tape, gated on the restored session.

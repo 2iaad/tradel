@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { useAccountStore } from '@/stores/accounts';
-import { useSessionStore } from '@/stores/session';
+import { useAccountStore } from '@/features/accounts/store';
+import { useSessionStore } from '@/features/auth/store';
 
 export default function DemoPage() {
     const router = useRouter();

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 
-import { useTradesStore } from '@/stores/trades';
+import { useTradesStore } from '@/features/trades/store';
 import { toTradeLogRow } from '@/app/dashboard/trades/use-trade-log';
 
 // Loads the trade log and derives the signed-in dashboard's recent rows.

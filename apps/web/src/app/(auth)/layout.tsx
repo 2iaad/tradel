@@ -15,7 +15,7 @@ import { useAuthSubmit } from '@/hooks/use-auth-submit';
 import { useCandles } from '@/hooks/use-candles';
 import { apiMessage } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
-import { useSessionStore } from '@/stores/session';
+import { useSessionStore } from '@/features/auth/store';
 
 // Shared bits for the three sliding auth forms.
 type Mode = 'login' | 'register' | 'reset';

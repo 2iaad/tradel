@@ -1,7 +1,7 @@
 import { G, R } from '@/lib/ui';
 import { signedMoney } from '@/lib/format';
-import { useNotesStore } from '@/stores/notes';
-import type { ApiNote } from '@/stores/notes';
+import { useNotesStore } from '@/features/journal/store';
+import type { ApiNote } from '@/features/journal/types';
 import { LOG_GRID } from './use-trade-log';
 import type { TradeLogRow } from './use-trade-log';
 import { Badge } from '@/components/ui/badge';

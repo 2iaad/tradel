@@ -31,8 +31,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { useAccountStore } from '@/stores/accounts';
-import { hasDashboardSession, useSessionStore } from '@/stores/session';
+import { useAccountStore } from '@/features/accounts/store';
+import { hasDashboardSession, useSessionStore } from '@/features/auth/store';
 import { apiMessage } from '@/lib/api';
 
 const NAV_MAIN = [

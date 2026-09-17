@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { apiMessage } from '@/lib/api';
 import { cardCls } from '@/lib/ui';
-import { useNotesStore } from '@/stores/notes';
-import type { ApiNote } from '@/stores/notes';
-import { useTradesStore } from '@/stores/trades';
+import { useNotesStore } from '@/features/journal/store';
+import type { ApiNote } from '@/features/journal/types';
+import { useTradesStore } from '@/features/trades/store';
 import { PageHeader } from '@/app/dashboard/page-header';
 import { NoteModal } from './note-modal';
 import { Badge } from '@/components/ui/badge';

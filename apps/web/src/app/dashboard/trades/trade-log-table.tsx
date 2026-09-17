@@ -76,9 +76,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { signedMoney } from '@/lib/format';
 import { G, R } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import { useNotesStore } from '@/stores/notes';
-import type { TradePayload } from '@/stores/trades';
+import { useAccountStore } from '@/features/accounts/store';
+import { useNotesStore } from '@/features/journal/store';
+import type { TradePayload } from '@/features/trades/types';
 import { AccountModal } from '@/app/dashboard/account-modal';
 import { NoteModal } from '@/app/dashboard/journal/note-modal';
 import { TradeRowForm } from './trade-row-form';

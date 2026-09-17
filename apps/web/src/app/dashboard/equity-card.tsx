@@ -36,8 +36,8 @@ import {
     cardTitleCls,
     monoFontStack,
 } from '@/lib/ui';
-import { useAccountStore } from '@/stores/accounts';
-import { useTradesStore } from '@/stores/trades';
+import { useAccountStore } from '@/features/accounts/store';
+import { useTradesStore } from '@/features/trades/store';
 import { buildEquityChartData, type DailyPnlPoint, type EquityPoint } from './equity-chart.lib';
 
 type ChartMode = 'equity' | 'pnl';

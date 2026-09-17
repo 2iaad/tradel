@@ -2,8 +2,8 @@ import { G, R } from '@/lib/ui';
 import { signedMoney } from '@/lib/format';
 import { useNotesStore } from '@/features/journal/store';
 import type { ApiNote } from '@/features/journal/types';
-import { LOG_GRID } from './use-trade-log';
-import type { TradeLogRow } from './use-trade-log';
+import { LOG_GRID } from '@/features/trades/hooks/use-trade-log';
+import type { TradeLogRow } from '@/features/trades/hooks/use-trade-log';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 

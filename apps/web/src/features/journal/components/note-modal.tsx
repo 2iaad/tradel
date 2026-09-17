@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthSubmit } from '@/hooks/use-auth-submit';
+import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { errorCls, inputCls, labelCls } from '@/lib/ui';
 import { useNotesStore } from '@/features/journal/store';

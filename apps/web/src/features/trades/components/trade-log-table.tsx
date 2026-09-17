@@ -79,10 +79,10 @@ import { G, R } from '@/lib/ui';
 import { useAccountStore } from '@/features/accounts/store';
 import { useNotesStore } from '@/features/journal/store';
 import type { TradePayload } from '@/features/trades/types';
-import { AccountModal } from '@/app/dashboard/account-modal';
-import { NoteModal } from '@/app/dashboard/journal/note-modal';
+import { AccountModal } from '@/features/accounts/components/account-modal';
+import { NoteModal } from '@/features/journal/components/note-modal';
 import { TradeRowForm } from './trade-row-form';
-import type { TradeLogRow, useTradeLog } from './use-trade-log';
+import type { TradeLogRow, useTradeLog } from '@/features/trades/hooks/use-trade-log';
 
 type Log = ReturnType<typeof useTradeLog>;
 

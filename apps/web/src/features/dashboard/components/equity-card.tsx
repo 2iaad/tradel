@@ -38,7 +38,7 @@ import {
 } from '@/lib/ui';
 import { useAccountStore } from '@/features/accounts/store';
 import { useTradesStore } from '@/features/trades/store';
-import { buildEquityChartData, type DailyPnlPoint, type EquityPoint } from './equity-chart.lib';
+import { buildEquityChartData, type DailyPnlPoint, type EquityPoint } from '@/features/dashboard/lib/equity-chart';
 
 type ChartMode = 'equity' | 'pnl';
 

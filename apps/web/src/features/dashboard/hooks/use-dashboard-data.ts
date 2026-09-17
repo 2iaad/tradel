@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from 'react';
 
 import { useTradesStore } from '@/features/trades/store';
-import { toTradeLogRow } from '@/app/dashboard/trades/use-trade-log';
+import { toTradeLogRow } from '@/features/trades/hooks/use-trade-log';
 
 // Loads the trade log and derives the signed-in dashboard's recent rows.
 // Headline stats come from useTradeStats (shared with trades + analytics).

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { apiMessage } from '@/lib/api';
 import { useAccountStore } from '@/features/accounts/store';
 import { useNotesStore } from '@/features/journal/store';
-import { computeTradeStats } from '@/app/dashboard/trade-stats';
+import { computeTradeStats } from '@/features/dashboard/components/trade-stats';
 import { useTradesStore } from '@/features/trades/store';
 import type { ApiTrade, TradePayload } from '@/features/trades/types';
 

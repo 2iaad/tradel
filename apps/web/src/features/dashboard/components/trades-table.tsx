@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { signedMoney } from '@/lib/format';
 import { cardCls, G, ghostBtnCls, h2Cls, R } from '@/lib/ui';
-import type { TradeLogRow } from '@/app/dashboard/trades/use-trade-log';
+import type { TradeLogRow } from '@/features/trades/hooks/use-trade-log';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';

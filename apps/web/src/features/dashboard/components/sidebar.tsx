@@ -15,7 +15,7 @@ import {
     type LucideIcon,
 } from 'lucide-react';
 
-import { AccountModal } from './account-modal';
+import { AccountModal } from '@/features/accounts/components/account-modal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { TradelLogo } from '@/components/brand/tradel-logo';

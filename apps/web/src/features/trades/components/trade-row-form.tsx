@@ -4,7 +4,7 @@ import { Fragment, useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuthSubmit } from '@/hooks/use-auth-submit';
+import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
 import { apiMessage } from '@/lib/api';
 import { signedMoney } from '@/lib/format';
 import { errorCls } from '@/lib/ui';
@@ -18,7 +18,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
-import type { TradeLogRow } from './use-trade-log';
+import type { TradeLogRow } from '@/features/trades/hooks/use-trade-log';
 
 const inCls =
     'w-full box-border bg-muted border border-border rounded px-2 py-1.5 font-mono text-ui-sm text-content outline-none focus:border-primary/40 [color-scheme:dark]';

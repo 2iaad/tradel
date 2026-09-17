@@ -1,5 +1,5 @@
-import type { HTMLAttributes } from 'react';
 import Image, { type StaticImageData } from 'next/image';
+import type { HTMLAttributes } from 'react';
 
 const SAFARI_WIDTH = 1203;
 const SAFARI_HEIGHT = 741;

@@ -93,6 +93,8 @@ npm run dev:api
 npm run dev:web
 ```
 
+For frontend structure, coding conventions, and checks, read the [frontend guide](apps/web/README.md).
+
 ## Database and Prisma
 
 The API uses Prisma Client for the main application repositories: users, refresh tokens, accounts, trades, and notes. These repositories use Prisma queries instead of handwritten CRUD SQL. The Prisma schema is stored in `apps/api/prisma/schema.prisma`.

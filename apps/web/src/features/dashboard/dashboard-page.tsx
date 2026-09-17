@@ -1,9 +1,10 @@
 'use client';
 
 import { EquityCard } from '@/features/dashboard/components/equity-card';
-import { StatCards, useTradeStats } from '@/features/dashboard/components/trade-stats';
+import { StatCards } from '@/features/dashboard/components/trade-stats';
 import { TradesTable } from '@/features/dashboard/components/trades-table';
 import { useDashboardData } from '@/features/dashboard/hooks/use-dashboard-data';
+import { useTradeStats } from '@/features/trades/hooks/use-trade-stats';
 
 export default function DashboardPage() {
     const { recent, loading } = useDashboardData();

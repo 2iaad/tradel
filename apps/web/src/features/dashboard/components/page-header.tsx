@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { kickerCls } from '@/lib/ui';
 import { dateStamp } from '@/lib/format';
+import { kickerCls } from '@/lib/ui';
 
 // Dashboard page header: kicker + title left, date stamp + action right.
 export function PageHeader({

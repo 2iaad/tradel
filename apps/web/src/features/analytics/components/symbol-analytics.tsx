@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     BarChart,
     PieChart,
@@ -19,12 +18,14 @@ import {
     type RadarComponentOption,
     type TooltipComponentOption,
 } from 'echarts/components';
-import * as echarts from 'echarts/core';
 import type { ComposeOption, EChartsType } from 'echarts/core';
+import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import type { BreakdownEntry } from '@/features/analytics/types';
 import {
     canvasColors,
     cardCls,
@@ -35,7 +36,6 @@ import {
     cardTitleCls,
     monoFontStack,
 } from '@/lib/ui';
-import type { BreakdownEntry } from '@/features/analytics/types';
 
 echarts.use([
     BarChart,

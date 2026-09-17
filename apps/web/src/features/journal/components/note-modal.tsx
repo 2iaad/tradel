@@ -1,10 +1,5 @@
 'use client';
 
-import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
-import { apiMessage } from '@/lib/api';
-import { errorCls, inputCls, labelCls } from '@/lib/ui';
-import { useNotesStore } from '@/features/journal/store';
-import type { ApiNote, NotePayload } from '@/features/journal/types';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -17,6 +12,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
+import { useNotesStore } from '@/features/journal/store';
+import type { ApiNote, NotePayload } from '@/features/journal/types';
+import { apiMessage } from '@/lib/api';
+import { errorCls, inputCls, labelCls } from '@/lib/ui';
 
 // Space-separated tag string → trimmed, non-empty, max 5 tags.
 function toTags(raw: string): string[] {

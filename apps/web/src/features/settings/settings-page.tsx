@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 
-import { cardCls, ctaCls } from '@/lib/ui';
-import { useAccountStore } from '@/features/accounts/store';
-import type { Account } from '@/features/accounts/types';
-import { PageHeader } from '@/features/dashboard/components/page-header';
-import { AccountModal, DeleteAccountModal } from '@/features/accounts/components/account-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { AccountModal, DeleteAccountModal } from '@/features/accounts/components/account-modal';
+import { useAccountStore } from '@/features/accounts/store';
+import type { Account } from '@/features/accounts/types';
+import { PageHeader } from '@/features/dashboard/components/page-header';
+import { cardCls, ctaCls } from '@/lib/ui';
 
 // One account row: name/broker/currency + edit / delete actions.
 function AccountRow({

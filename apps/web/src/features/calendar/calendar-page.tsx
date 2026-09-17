@@ -4,12 +4,12 @@ import { useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAccountStore } from '@/features/accounts/store';
+import { CalendarChart } from '@/features/calendar/components/calendar-chart';
+import { PageHeader } from '@/features/dashboard/components/page-header';
 import { signedMoney } from '@/lib/format';
 import { cardCls, G, R } from '@/lib/ui';
-import { useAccountStore } from '@/features/accounts/store';
 import { useCalendarStore } from './store';
-import { PageHeader } from '@/features/dashboard/components/page-header';
-import { CalendarChart } from '@/features/calendar/components/calendar-chart';
 
 // Shift a 'YYYY-MM' by n months.
 function shiftMonth(month: string, n: number): string {

@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
 import {
     HeatmapChart,
     type HeatmapSeriesOption,
@@ -12,16 +11,17 @@ import {
     type CalendarComponentOption,
     TooltipComponent,
     type TooltipComponentOption,
-    VisualMapContinuousComponent,
     type VisualMapComponentOption,
+    VisualMapContinuousComponent,
 } from 'echarts/components';
-import * as echarts from 'echarts/core';
 import type { ComposeOption, EChartsType } from 'echarts/core';
+import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
+import { useEffect, useMemo, useRef } from 'react';
 
+import type { CalendarDay, CalendarTrade } from '@/features/calendar/types';
 import { signedMoney } from '@/lib/format';
 import { canvasColors, monoFontStack } from '@/lib/ui';
-import type { CalendarDay, CalendarTrade } from '@/features/calendar/types';
 
 echarts.use([
     CalendarComponent,

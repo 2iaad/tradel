@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { ChartColumn, ChartNoAxesCombined } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import {
     Area,
     AreaChart,
@@ -28,6 +28,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { IconBar, IconBarItem } from '@/components/ui/icon-bar';
+import { useAccountStore } from '@/features/accounts/store';
+import {
+    buildEquityChartData,
+    type DailyPnlPoint,
+    type EquityPoint,
+} from '@/features/dashboard/lib/equity-chart';
+import { useTradesStore } from '@/features/trades/store';
 import {
     cardCls,
     cardDescriptionCls,
@@ -36,9 +43,6 @@ import {
     cardTitleCls,
     monoFontStack,
 } from '@/lib/ui';
-import { useAccountStore } from '@/features/accounts/store';
-import { useTradesStore } from '@/features/trades/store';
-import { buildEquityChartData, type DailyPnlPoint, type EquityPoint } from '@/features/dashboard/lib/equity-chart';
 
 type ChartMode = 'equity' | 'pnl';
 

@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import type { CSSProperties } from 'react';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { errorCls } from '@/lib/ui';
 import { useAccountStore } from '@/features/accounts/store';
 import { hasDashboardSession, useSessionStore } from '@/features/auth/store';
+import { errorCls } from '@/lib/ui';
 import { Sidebar } from './sidebar';
 
 // Dashboard shell: sidebar + tape, gated on the restored session.

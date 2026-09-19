@@ -1,0 +1,210 @@
+import {
+    BookOpenCheck,
+    CalendarDays,
+    ChartNoAxesCombined,
+    LayoutDashboard,
+    ListOrdered,
+    NotebookPen,
+    PlayCircle,
+    UserPlus,
+} from 'lucide-react';
+import Link from 'next/link';
+
+import { TradelLogo } from '@/components/brand/tradel-logo';
+import { Button } from '@/components/ui/button';
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+
+const GETTING_STARTED = [
+    {
+        title: 'View live demo',
+        description: 'Explore a populated trading journal without creating an account.',
+        href: '/demo',
+        icon: PlayCircle,
+    },
+    {
+        title: 'Why journal trades',
+        description: 'See how structured review turns trading history into useful feedback.',
+        href: '#ai',
+        icon: BookOpenCheck,
+    },
+    {
+        title: 'Create your workspace',
+        description: 'Start tracking your own trades, notes, and performance.',
+        href: '/register',
+        icon: UserPlus,
+    },
+] as const;
+
+const PLATFORM = [
+    {
+        title: 'Dashboard',
+        description: 'Account performance at a glance.',
+        href: '/dashboard',
+        icon: LayoutDashboard,
+    },
+    {
+        title: 'Trade log',
+        description: 'Filter and review every execution.',
+        href: '/dashboard/trades',
+        icon: ListOrdered,
+    },
+    {
+        title: 'Analytics',
+        description: 'Find patterns across symbols and setups.',
+        href: '/dashboard/analytics',
+        icon: ChartNoAxesCombined,
+    },
+    {
+        title: 'Calendar',
+        description: 'Inspect daily and monthly P&L.',
+        href: '/dashboard/calendar',
+        icon: CalendarDays,
+    },
+    {
+        title: 'Journal',
+        description: 'Keep the context behind every trade.',
+        href: '/dashboard/journal',
+        icon: NotebookPen,
+    },
+] as const;
+
+const menuLinkClass =
+    'grid w-full grid-cols-[20px_1fr] items-start gap-x-3 gap-y-1 rounded-md p-3.5 text-white hover:bg-white/10 focus:bg-white/10';
+
+const menuTitleClass = 'font-sans text-[0.875em] font-normal leading-none text-white';
+
+const menuDescriptionClass =
+    'col-start-2 font-sans text-[0.875em] font-normal leading-[1.35] text-white/60';
+
+const navigationLabelClass =
+    'nav-link m-0 h-[38px] px-5 font-sans text-ui-sm font-medium leading-none hover:bg-transparent focus:bg-transparent';
+
+export function HomeNav() {
+    return (
+        <nav className="nav-w" theme="light" aria-label="Primary">
+            <div className="nav-inner flex items-center px-3 py-3 sm:px-6">
+                <div className="flex flex-1 items-center justify-start">
+                    <Link
+                        aria-current="page"
+                        aria-label="homepage"
+                        className="nav-logo w--current flex h-[38px] w-[110px] items-center sm:w-[135px]"
+                        href="/"
+                    >
+                        <TradelLogo className="h-7 w-[110px] sm:h-8 sm:w-[135px]" priority />
+                    </Link>
+                </div>
+
+                <NavigationMenu
+                    render={<div />}
+                    className="pointer-events-auto h-[38px] flex-none text-white max-[900px]:hidden"
+                    popupClassName="border border-white/10 bg-black/65 font-sans text-white shadow-[0_14px_36px_rgba(0,0,0,0.3)] ring-0 backdrop-blur-md"
+                >
+                    <NavigationMenuList className="h-[38px] gap-1.5">
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger
+                                className={navigationLabelClass}
+                                data-nav-item=""
+                            >
+                                Getting Started
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent className="w-[430px] p-2">
+                                <ul className="m-0 grid list-none gap-1 p-0">
+                                    {GETTING_STARTED.map((item) => (
+                                        <li key={item.title}>
+                                            <NavigationMenuLink
+                                                render={<Link href={item.href} />}
+                                                className={menuLinkClass}
+                                                closeOnClick
+                                            >
+                                                <item.icon
+                                                    className="mt-0.5 size-4 text-primary"
+                                                    aria-hidden="true"
+                                                />
+                                                <span className={menuTitleClass}>{item.title}</span>
+                                                <span className={menuDescriptionClass}>
+                                                    {item.description}
+                                                </span>
+                                            </NavigationMenuLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger
+                                className={navigationLabelClass}
+                                data-nav-item=""
+                            >
+                                Platform
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent className="w-[540px] p-2">
+                                <ul className="m-0 grid list-none grid-cols-2 gap-1 p-0">
+                                    {PLATFORM.map((item) => (
+                                        <li key={item.title}>
+                                            <NavigationMenuLink
+                                                render={<Link href={item.href} />}
+                                                className={menuLinkClass}
+                                                closeOnClick
+                                            >
+                                                <item.icon
+                                                    className="mt-0.5 size-4 text-primary"
+                                                    aria-hidden="true"
+                                                />
+                                                <span className={menuTitleClass}>{item.title}</span>
+                                                <span className={menuDescriptionClass}>
+                                                    {item.description}
+                                                </span>
+                                            </NavigationMenuLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+
+                        <NavigationMenuItem>
+                            <NavigationMenuLink
+                                render={<Link href="#agent" />}
+                                className={`text-white hover:bg-muted focus:bg-muted ${navigationLabelClass}`}
+                                data-nav-item=""
+                                closeOnClick
+                            >
+                                Why Tradel
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
+
+                <div className="nav-content flex h-[38px] flex-1 items-center justify-end">
+                    <div className="nav-buttons h-[38px]">
+                        <Button
+                            nativeButton={false}
+                            render={<Link href="/login" />}
+                            variant="ghost"
+                            className="nav-link m-0 text-white hover:bg-transparent hover:text-white max-[480px]:hidden"
+                            data-nav-item=""
+                        >
+                            Log in
+                        </Button>
+                        <Button
+                            nativeButton={false}
+                            render={<Link href="/register" />}
+                            variant="outline"
+                            className="bg-white/5 px-3 text-xs text-white backdrop-blur-md hover:bg-white/5 hover:text-white sm:px-4 sm:text-sm dark: dark:bg-white/5 dark:hover:bg-white/5"
+                            data-nav-item=""
+                        >
+                            Create account
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    );
+}

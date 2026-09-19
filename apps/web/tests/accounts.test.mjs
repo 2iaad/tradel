@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 
 import { api } from '../src/lib/api.ts';
-import { useAccountStore } from '../src/stores/accounts.ts';
-import { useSessionStore } from '../src/stores/session.ts';
+import { useAccountStore } from '../src/features/accounts/store.ts';
+import { useSessionStore } from '../src/features/auth/store.ts';
 
 const accountOne = {
     id: 'account-one',

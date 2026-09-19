@@ -1,0 +1,182 @@
+'use client';
+
+import { useAccountStore } from '@/features/accounts/store';
+import { useNotesStore } from '@/features/journal/store';
+import { computeTradeStats } from '@/features/trades/lib/trade-stats';
+import { useTradesStore } from '@/features/trades/store';
+import type { TradePayload } from '@/features/trades/types';
+import { apiMessage } from '@/lib/api';
+import { useEffect, useMemo, useState } from 'react';
+
+import { toTradeLogRow, type TradeLogRow } from '../lib/trade-log-row';
+
+export type SortCol = 'date' | 'pnl' | 'r';
+type SideFilter = 'ALL' | 'LONG' | 'SHORT';
+type OutcomeFilter = 'ALL' | 'WINS' | 'LOSSES';
+
+const SORT_KEY: Record<SortCol, 'ts' | 'pnlv' | 'rv'> = { date: 'ts', pnl: 'pnlv', r: 'rv' };
+
+// Filters, sorts, and summarizes the trade log; owns all table interaction state.
+// Server state (fetch + mutations) lives in the trades store.
+export function useTradeLog() {
+    const apiTrades = useTradesStore((s) => s.trades);
+    const loading = useTradesStore((s) => s.loading);
+    const error = useTradesStore((s) => s.loadError);
+    const load = useTradesStore((s) => s.load);
+    const createTrade = useTradesStore((s) => s.create);
+    const updateTrade = useTradesStore((s) => s.update);
+    const removeTrade = useTradesStore((s) => s.remove);
+    const mutating = useTradesStore((s) => s.pendingMutation !== null);
+    const notes = useNotesStore((s) => s.notes);
+    const loadNotes = useNotesStore((s) => s.load);
+    const accounts = useAccountStore((s) => s.accounts);
+    const activeId = useAccountStore((s) => s.activeId);
+
+    useEffect(() => {
+        load();
+        loadNotes(); // note badges + expanded note panels join by trade id
+    }, [load, loadNotes]);
+
+    const trades = useMemo(() => apiTrades.map(toTradeLogRow), [apiTrades]);
+    const [q, setQ] = useState('');
+    const [side, setSide] = useState<SideFilter>('ALL');
+    const [outcome, setOutcome] = useState<OutcomeFilter>('ALL');
+    const [sortCol, setSortCol] = useState<SortCol>('date');
+    const [dir, setDir] = useState<'asc' | 'desc'>('desc');
+    const [openId, setOpenId] = useState<string | null>(null);
+    // Inline-edit target: a trade id, "new" for the add row, or null (idle).
+    const [editingId, setEditingId] = useState<string | 'new' | null>(null);
+    // Trade awaiting delete confirmation.
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+
+    const saveTrade = async (payload: TradePayload, id?: string) => {
+        if (id) await updateTrade(id, payload);
+        else await createTrade(payload);
+    };
+
+    const startEdit = (id: string | 'new') => setEditingId(id);
+    const cancelEdit = () => setEditingId(null);
+    const askDelete = (id: string) => {
+        setDeleteError(null);
+        setDeletingId(id);
+    };
+    const cancelDelete = () => {
+        setDeleteError(null);
+        setDeletingId(null);
+    };
+    const confirmDelete = async () => {
+        if (!deletingId) return;
+        try {
+            await removeTrade(deletingId);
+            setDeletingId(null);
+        } catch (err) {
+            setDeleteError(apiMessage(err));
+        }
+    };
+
+    const sortBy = (col: SortCol) => {
+        if (col === sortCol) setDir((d) => (d === 'desc' ? 'asc' : 'desc'));
+        else {
+            setSortCol(col);
+            setDir('desc');
+        }
+    };
+    const clearFilters = () => {
+        setQ('');
+        setSide('ALL');
+        setOutcome('ALL');
+    };
+    const toggleOpen = (id: string) => setOpenId((cur) => (cur === id ? null : id));
+
+    const filteredBySearch = useMemo(() => {
+        const needle = q.trim().toLowerCase();
+        return trades.filter((t) => {
+            if (
+                needle &&
+                !t.sym.toLowerCase().includes(needle) &&
+                !t.setup.toLowerCase().includes(needle)
+            )
+                return false;
+            return true;
+        });
+    }, [trades, q]);
+
+    const viewCounts = useMemo(
+        () => ({
+            all: filteredBySearch.length,
+            winners: filteredBySearch.filter((t) => (t.pnlv ?? 0) > 0).length,
+            losers: filteredBySearch.filter((t) => (t.pnlv ?? 0) < 0).length,
+            long: filteredBySearch.filter((t) => t.side === 'LONG').length,
+            short: filteredBySearch.filter((t) => t.side === 'SHORT').length,
+        }),
+        [filteredBySearch],
+    );
+
+    const filteredBySearchAndSide = useMemo(
+        () => filteredBySearch.filter((t) => side === 'ALL' || t.side === side),
+        [filteredBySearch, side],
+    );
+
+    const rows = useMemo(() => {
+        const filtered = filteredBySearchAndSide.filter((t) => {
+            if (outcome === 'WINS' && (t.pnlv ?? 0) <= 0) return false;
+            if (outcome === 'LOSSES' && (t.pnlv ?? 0) >= 0) return false;
+            return true;
+        });
+        const key = SORT_KEY[sortCol];
+        const val = (t: TradeLogRow) => t[key] ?? -1e15; // null R/P&L sorts last on desc
+        return [...filtered].sort((a, b) => (dir === 'desc' ? val(b) - val(a) : val(a) - val(b)));
+    }, [filteredBySearchAndSide, outcome, sortCol, dir]);
+
+    // Shared stats over the FILTERED rows (drives the chip strip + footer);
+    // the headline cards use useTradeStats (all trades) instead.
+    const summary = useMemo(() => {
+        const sb = parseFloat(accounts.find((a) => a.id === activeId)?.starting_balance ?? '0');
+        const notedIds = new Set(notes.map((n) => n.trade_id));
+        const noted = trades.filter((t) => notedIds.has(t.id)).length;
+        return {
+            ...computeTradeStats(rows, sb),
+            total: trades.length,
+            notedPct: trades.length ? `${Math.round((noted / trades.length) * 100)}%` : '0%',
+        };
+    }, [rows, trades, notes, accounts, activeId]);
+
+    // Oldest — newest stamp for the toolbar, from the unfiltered log.
+    const range = useMemo(() => {
+        if (!trades.length) return '—';
+        const byTs = [...trades].sort((a, b) => a.ts - b.ts);
+        return `${byTs[0].date} — ${byTs[byTs.length - 1].date}`;
+    }, [trades]);
+
+    return {
+        q,
+        setQ,
+        side,
+        setSide,
+        outcome,
+        setOutcome,
+        sortCol,
+        dir,
+        sortBy,
+        clearFilters,
+        openId,
+        toggleOpen,
+        rows,
+        viewCounts,
+        summary,
+        range,
+        loading,
+        error,
+        saveTrade,
+        editingId,
+        startEdit,
+        cancelEdit,
+        deletingId,
+        askDelete,
+        cancelDelete,
+        confirmDelete,
+        deleteError,
+        mutating,
+    };
+}

@@ -1,7 +1,7 @@
 'use client';
 
-import { useId, useState } from 'react';
 import { CheckCircle2, Copy, EyeIcon, EyeOffIcon, RefreshCw, XCircle } from 'lucide-react';
+import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

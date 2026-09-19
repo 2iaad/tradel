@@ -2,14 +2,19 @@
     "name": "tradel",
     "private": true,
     "workspaces": [
+        "packages/shared",
         "apps/api",
         "apps/web"
     ],
     "scripts": {
-        "dev": "concurrently -n api,web -c blue,cyan \"npm run dev:api\" \"npm run dev:web\"",
-        "dev:api": "npm run start:dev --workspace=@tradel/api",
-        "dev:web": "npm run dev --workspace=@tradel/web",
-        "build": "npm run build --workspaces --if-present",
+        "predev": "npm run build:shared",
+        "dev": "concurrently -k -n shared,api,web -c yellow,blue,cyan \"npm run dev --workspace=@tradel/shared\" \"npm run start:dev --workspace=@tradel/api\" \"npm run dev --workspace=@tradel/web\"",
+        "predev:api": "npm run build:shared",
+        "dev:api": "concurrently -k -n shared,api -c yellow,blue \"npm run dev --workspace=@tradel/shared\" \"npm run start:dev --workspace=@tradel/api\"",
+        "predev:web": "npm run build:shared",
+        "dev:web": "concurrently -k -n shared,web -c yellow,cyan \"npm run dev --workspace=@tradel/shared\" \"npm run dev --workspace=@tradel/web\"",
+        "build:shared": "npm run build --workspace=@tradel/shared",
+        "build": "npm run build --workspace=@tradel/api --workspace=@tradel/web",
         "lint": "npm run lint --workspaces --if-present",
         "test": "npm run test --workspaces --if-present",
         "format": "npm run format --workspaces --if-present",

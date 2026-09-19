@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev -p 5173",
+        "prebuild": "npm run build --workspace=@tradel/shared",
         "build": "next build",
         "start": "next start -p 5173",
         "lint": "eslint",
@@ -26,6 +27,7 @@
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
         "@tanstack/react-table": "^8.21.3",
+        "@tradel/shared": "0.0.1",
         "axios": "^1.18.1",
         "chart.js": "^4.5.1",
         "class-variance-authority": "^0.7.1",

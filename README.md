@@ -72,12 +72,14 @@ The current version is free to use and includes the main journal and review expe
 
 ## Repository structure
 
-Tradel is an npm workspace with two applications:
+Tradel is an npm workspace with two applications and a shared package:
 
 ```text
 apps/
 ├── api/    # NestJS API and Prisma schema
 └── web/    # Next.js web application
+packages/
+└── shared/ # Shared API types and constants (@tradel/shared)
 ```
 
 Install all dependencies once from the repository root:
@@ -92,6 +94,13 @@ Start either application from the root:
 npm run dev:api
 npm run dev:web
 ```
+
+Use `npm run dev` to start both apps. These root development commands build
+`@tradel/shared` first and watch it for changes. Both apps can import from
+`@tradel/shared`; its API definitions will be added during the shared types migration.
+
+Run `npm run build` to build both apps for production. Each app's build command
+builds the shared package first. Run `npm run build:shared` to build only the shared package.
 
 For frontend structure, coding conventions, and checks, read the [frontend guide](apps/web/README.md).
 

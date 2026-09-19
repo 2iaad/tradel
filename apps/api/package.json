@@ -9,6 +9,7 @@
         "node": "22.x"
     },
     "scripts": {
+        "prebuild": "npm run build --workspace=@tradel/shared",
         "build": "npm run prisma:generate && nest build",
         "format": "prettier --write . --ignore-path ../../.prettierignore",
         "start": "nest start",
@@ -39,6 +40,7 @@
         "@nestjs/throttler": "^6.5.0",
         "@prisma/adapter-pg": "7.10.0",
         "@prisma/client": "7.10.0",
+        "@tradel/shared": "0.0.1",
         "@types/ms": "^2.1.0",
         "bcrypt": "^6.0.0",
         "class-transformer": "^0.5.1",

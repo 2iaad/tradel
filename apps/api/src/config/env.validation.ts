@@ -21,6 +21,8 @@ const envSchema = z
         jwtRefreshSecret: z.string().min(32),
         jwtAccessTtl: z.string().default('900s'),
         jwtRefreshTtl: z.string().default('7d'),
+
+        googleClientId: z.string().min(1),
     })
     .superRefine((data, ctx) => {
         if (data.nodeEnv === 'development') {
@@ -67,6 +69,7 @@ export function validate(config: { [key: string]: unknown }): Env {
         jwtRefreshSecret: config.JWT_REFRESH_SECRET,
         jwtAccessTtl: config.JWT_ACCESS_TTL,
         jwtRefreshTtl: config.JWT_REFRESH_TTL,
+        googleClientId: config.GOOGLE_CLIENT_ID,
     });
 
     if (!result.success) {

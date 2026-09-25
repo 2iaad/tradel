@@ -13,13 +13,14 @@ import { useSessionStore } from '@/features/auth/store';
 import { apiMessage } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
 import { EmailField, PasswordField, UsernameField } from './fields';
+import { GoogleSignInButton } from './google-auth';
 
 import type { Mode } from '../hooks/use-auth-mode';
 
 // Shared bits for the three sliding auth forms.
 
 const formCls =
-    'flex-[0_0_33.3333%] box-border flex flex-col justify-center gap-[18px] px-6 sm:px-[clamp(40px,7vw,120px)]';
+    'flex-[0_0_33.3333%] box-border flex flex-col items-center justify-center gap-[18px] px-6 sm:px-[clamp(40px,7vw,120px)] [&>*]:w-full [&>*]:max-w-[400px]';
 
 const AUTH_SUCCESS_HOLD_MS = 900;
 const DEFAULT_RETRY_SECONDS = 60;
@@ -78,6 +79,16 @@ function FormHeading({ kicker, title }: { kicker: string; title: string }) {
     );
 }
 
+function AuthDivider() {
+    return (
+        <div className="flex items-center gap-3 text-content-faint" aria-hidden="true">
+            <span className="h-px flex-1 bg-border-subtle" />
+            <span className="font-mono text-ui-xs uppercase tracking-[0.14em]">or</span>
+            <span className="h-px flex-1 bg-border-subtle" />
+        </div>
+    );
+}
+
 // Footer line that switches between the auth forms ("New to Tradel? ...").
 function SwitchLine({
     text,
@@ -127,7 +138,13 @@ function RememberRow({ onReset }: { onReset: () => void }) {
 }
 
 // Sign-in form; owns its own submit/pending/error state.
-export function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
+export function LoginForm({
+    onSwitch,
+    onSubmitStart,
+}: {
+    onSwitch: (m: Mode) => void;
+    onSubmitStart: () => void;
+}) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const [retryIn, setRetryIn] = useState(0);
@@ -170,6 +187,7 @@ export function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
         if (!formRef.current.reportValidity()) {
             return Promise.reject(new Error('Please complete the required fields'));
         }
+        onSubmitStart();
         return submit(new FormData(formRef.current));
     };
 
@@ -191,6 +209,8 @@ export function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
                 onAction={submitLogin}
                 disabled={retryIn > 0 || sessionPending}
             />
+            <AuthDivider />
+            <GoogleSignInButton />
             <SwitchLine
                 text="New to Tradel?"
                 label="Create an account"
@@ -201,7 +221,13 @@ export function LoginForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
 }
 
 // Account-creation form; owns its own submit/pending/error state.
-export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
+export function RegisterForm({
+    onSwitch,
+    onSubmitStart,
+}: {
+    onSwitch: (m: Mode) => void;
+    onSubmitStart: () => void;
+}) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const register = useSessionStore((state) => state.register);
@@ -226,12 +252,14 @@ export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
         if (!formRef.current.reportValidity()) {
             return Promise.reject(new Error('Please complete the required fields'));
         }
+        onSubmitStart();
         return submit(new FormData(formRef.current));
     };
 
     return (
         <form ref={formRef} className={formCls}>
             <FormHeading kicker="" title="Start your journal" />
+
             <UsernameField />
             <EmailField />
             <PasswordField strong />
@@ -243,6 +271,8 @@ export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
                 disabled={sessionPending}
                 onAction={submitRegistration}
             />
+            <AuthDivider />
+            <GoogleSignInButton />
             <SwitchLine
                 text="Already have an account?"
                 label="Sign in"

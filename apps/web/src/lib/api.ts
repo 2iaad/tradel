@@ -6,7 +6,13 @@ export const api = axios.create({
     withCredentials: true, // send and receive the HttpOnly auth cookies
 });
 
-const NO_REFRESH_ROUTES = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+const NO_REFRESH_ROUTES = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/google',
+    '/auth/refresh',
+    '/auth/logout',
+];
 let refreshRequest: Promise<void> | null = null;
 
 function refreshAccessCookie() {

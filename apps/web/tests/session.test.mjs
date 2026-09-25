@@ -71,6 +71,24 @@ test('a failed restore exposes the error and can be retried', async () => {
     assert.equal(hasDashboardSession(useSessionStore.getState().session), true);
 });
 
+test('Google login sends the credential and records the user', async () => {
+    const post = mock.method(api, 'post', async (url, body) => {
+        assert.equal(url, '/auth/google');
+        assert.deepEqual(body, { credential: 'google-id-token' });
+        return { data: { id: 'google-user', email: 'google@example.com' } };
+    });
+
+    await useSessionStore.getState().googleLogin('google-id-token');
+
+    assert.equal(post.mock.callCount(), 1);
+    assert.deepEqual(useSessionStore.getState().session, {
+        status: 'user',
+        id: 'google-user',
+        email: 'google@example.com',
+    });
+    assert.equal(useSessionStore.getState().pendingAction, null);
+});
+
 test('demo sign out clears local access without calling the API', async () => {
     const post = mock.method(api, 'post', async () => {
         throw new Error('Unexpected request');

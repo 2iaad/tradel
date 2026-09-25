@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
@@ -9,10 +9,12 @@ import * as bcrypt from 'bcrypt';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { createHash, randomBytes } from 'crypto';
 import ms, { StringValue } from 'ms';
+import { OAuth2Client, type TokenPayload } from 'google-auth-library';
 
 @Injectable()
 export class AuthService {
     private readonly logger = new Logger(AuthService.name); // checked only at compile-time
+    private readonly google = new OAuth2Client();
 
     constructor(
         private readonly users: UsersRepository,
@@ -31,8 +33,48 @@ export class AuthService {
 
     async login(body: LoginDto) {
         const user = await this.users.findByEmail(body.email);
-        if (!user || !(await bcrypt.compare(body.password, user.password_hash))) {
-            throw new UnauthorizedException('Invalide credentials');
+
+        if (
+            !user ||
+            !user?.password_hash ||
+            !(await bcrypt.compare(body.password, user.password_hash))
+        ) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        const tokens = await this.issueTokens(user.id, user.email);
+        return { tokens, user: { id: user.id, email: user.email } };
+    }
+
+    async loginWithGoogle(credential: string) {
+        let payload: TokenPayload | undefined;
+
+        try {
+            const ticket = await this.google.verifyIdToken({
+                idToken: credential,
+                audience: this.config.get('googleClientId', { infer: true }),
+            });
+            payload = ticket.getPayload();
+        } catch {
+            throw new UnauthorizedException('Invalid Google credential');
+        }
+
+        if (!payload?.sub || !payload.email || payload.email_verified !== true) {
+            throw new UnauthorizedException('Google account could not be verified');
+        }
+
+        const email = payload.email.toLowerCase();
+        let user = await this.users.findByGoogleId(payload.sub);
+
+        if (!user) {
+            const sameEmail = await this.users.findByEmail(email);
+            if (sameEmail) {
+                throw new ConflictException(
+                    'This email already has a password account. Sign in with your password.',
+                );
+            }
+
+            user = await this.users.createGoogleUser(email, payload.sub);
         }
 
         const tokens = await this.issueTokens(user.id, user.email);

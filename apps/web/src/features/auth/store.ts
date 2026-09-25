@@ -17,13 +17,17 @@ interface Credentials {
     password: string;
 }
 
+type AuthAction = 'login' | 'register' | 'google';
+type AuthBody = Credentials | (Credentials & { username: string }) | { credential: string };
+
 interface SessionStore {
     session: Session;
     restoring: boolean;
-    pendingAction: 'login' | 'register' | 'logout' | null;
+    pendingAction: AuthAction | 'logout' | null;
     restore: () => Promise<void>;
     login: (credentials: Credentials) => Promise<void>;
     register: (credentials: Credentials & { username: string }) => Promise<void>;
+    googleLogin: (credential: string) => Promise<void>;
     startDemo: () => void;
     signOut: () => Promise<void>;
 }
@@ -63,7 +67,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
         set({ restoring: false });
     }
 
-    function authenticate(action: 'login' | 'register', credentials: Credentials) {
+    function authenticate(action: AuthAction, body: AuthBody) {
         if (actionRequest)
             return Promise.reject(new Error('Please wait for the current session action'));
         invalidateRestore();
@@ -71,7 +75,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
         set({ pendingAction: action });
 
         const request = (async () => {
-            const { data } = await api.post<SessionUser>(`/auth/${action}`, credentials);
+            const { data } = await api.post<SessionUser>(`/auth/${action}`, body);
             if (currentVersion !== version) throw new Error('Session changed. Please try again.');
             saveDemo(false);
             set({ session: { status: 'user', id: data.id, email: data.email } });
@@ -125,6 +129,7 @@ export const useSessionStore = create<SessionStore>((set, get) => {
 
         login: (credentials) => authenticate('login', credentials),
         register: (credentials) => authenticate('register', credentials),
+        googleLogin: (credential) => authenticate('google', { credential }),
 
         startDemo: () => {
             invalidateRestore();

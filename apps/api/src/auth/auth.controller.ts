@@ -12,7 +12,7 @@ import {
 import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { GoogleLoginDto, LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
@@ -20,6 +20,7 @@ import ms, { StringValue } from 'ms';
 import { JwtGuard } from './guards/jwt.guard';
 import {
     ApiCookieAuth,
+    ApiConflictResponse,
     ApiCreatedResponse,
     ApiNoContentResponse,
     ApiOkResponse,
@@ -65,6 +66,20 @@ export class AuthController {
     @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
         const { tokens, user } = await this.authService.login(body);
+
+        this.setAccessCookie(res, tokens.accessToken);
+        this.setRefreshCookie(res, tokens.refreshToken);
+        return user;
+    }
+
+    @Post('google')
+    @HttpCode(200)
+    @ApiOperation({ summary: 'Sign in or register with Google and set both auth cookies' })
+    @ApiOkResponse({ description: 'Returns the user ID and email + set both auth cookies' })
+    @ApiUnauthorizedResponse({ description: 'Invalid or unverified Google credential' })
+    @ApiConflictResponse({ description: 'Email already belongs to a password account' })
+    async googleLogin(@Body() body: GoogleLoginDto, @Res({ passthrough: true }) res: Response) {
+        const { tokens, user } = await this.authService.loginWithGoogle(body.credential);
 
         this.setAccessCookie(res, tokens.accessToken);
         this.setRefreshCookie(res, tokens.refreshToken);

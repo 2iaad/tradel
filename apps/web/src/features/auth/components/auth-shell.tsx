@@ -1,15 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { TradelLogo } from '@/components/brand/tradel-logo';
 import { BOTTOM_TICKS, Tape, TOP_TICKS } from '@/components/tape';
+import { Button } from '@/components/ui/button';
 import { useCandles } from '@/features/auth/hooks/use-candles';
 import { useSessionStore } from '@/features/auth/store';
+import { errorCls } from '@/lib/ui';
 
 import { useAuthMode, type Mode } from '../hooks/use-auth-mode';
 import { LoginForm, RegisterForm, ResetForm } from './auth-forms';
+import { GoogleAuthProvider } from './google-auth';
 
 function HeroCopy() {
     return (
@@ -76,49 +79,79 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
     );
 }
 
-// Auth landing shell: /login, /register, /reset share this layout so only the
-// URL changes on switch — the tapes/panels persist and keep sliding.
 export default function AuthLayout() {
     const [mode, setMode] = useAuthMode();
     const router = useRouter();
     const restore = useSessionStore((state) => state.restore);
-    const sessionStatus = useSessionStore((state) => state.session.status);
-    const checkingSession = sessionStatus === 'checking';
+    const session = useSessionStore((state) => state.session);
+    const restoring = useSessionStore((state) => state.restoring);
+    const sessionStatus = session.status;
+    const [signingInHere, setSigningInHere] = useState(false);
+    const redirecting = sessionStatus === 'demo' || (sessionStatus === 'user' && !signingInHere);
 
     useEffect(() => {
-        if (sessionStatus === 'user' || sessionStatus === 'demo') {
+        if (redirecting) {
             router.replace('/dashboard');
         } else if (sessionStatus === 'checking') {
             restore().catch(() => {
                 // The session store records the error; consume the rejection here.
             });
         }
-    }, [restore, router, sessionStatus]);
+    }, [redirecting, restore, router, sessionStatus]);
 
-    if (checkingSession) return null;
+    if (sessionStatus === 'checking' || redirecting) return null;
+    if (session.status === 'error') {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background p-6">
+                <div className="flex max-w-md flex-col items-center gap-4 text-center">
+                    <h1 className="m-0 text-lg font-semibold text-card-foreground">
+                        We couldn&apos;t verify your session
+                    </h1>
+                    <p className={errorCls} role="alert">
+                        {session.message}
+                    </p>
+                    <Button
+                        type="button"
+                        onClick={() => restore().catch(() => undefined)}
+                        disabled={restoring}
+                    >
+                        {restoring ? 'Trying again…' : 'Try again'}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="relative h-screen min-h-[640px] w-full overflow-hidden bg-background">
-            <Tape
-                items={TOP_TICKS}
-                duration="46s"
-                className="absolute top-0 left-0 right-0 h-11 border-b border-border-subtle"
-            />
-            {/* middle band holds the two sliding panels, between the tapes */}
-            <div className="absolute top-[45px] bottom-[45px] left-0 right-0 overflow-hidden">
-                <HeroPanel shifted={mode !== 'login'} />
-                <FormStrip mode={mode}>
-                    <LoginForm onSwitch={setMode} />
-                    <RegisterForm onSwitch={setMode} />
-                    <ResetForm onSwitch={setMode} />
-                </FormStrip>
+        <GoogleAuthProvider onAuthStart={() => setSigningInHere(true)}>
+            <div className="relative h-screen min-h-[640px] w-full overflow-hidden bg-background">
+                <Tape
+                    items={TOP_TICKS}
+                    duration="46s"
+                    className="absolute top-0 left-0 right-0 h-11 border-b border-border-subtle"
+                />
+                {/* middle band holds the two sliding panels, between the tapes */}
+                <div className="absolute top-[45px] bottom-[45px] left-0 right-0 overflow-hidden">
+                    <HeroPanel shifted={mode !== 'login'} />
+                    <FormStrip mode={mode}>
+                        <LoginForm
+                            onSwitch={setMode}
+                            onSubmitStart={() => setSigningInHere(true)}
+                        />
+                        <RegisterForm
+                            onSwitch={setMode}
+                            onSubmitStart={() => setSigningInHere(true)}
+                        />
+                        <ResetForm onSwitch={setMode} />
+                    </FormStrip>
+                </div>
+                <Tape
+                    items={BOTTOM_TICKS}
+                    duration="58s"
+                    reverse
+                    className="absolute bottom-0 left-0 right-0 h-11 border-t border-border-subtle"
+                />
             </div>
-            <Tape
-                items={BOTTOM_TICKS}
-                duration="58s"
-                reverse
-                className="absolute bottom-0 left-0 right-0 h-11 border-t border-border-subtle"
-            />
-        </div>
+        </GoogleAuthProvider>
     );
 }

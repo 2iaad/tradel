@@ -36,7 +36,7 @@ function HeroCopy() {
     );
 }
 
-const paneEase = 'transition-transform duration-700 ease-[cubic-bezier(0.77,0,0.18,1)]';
+const paneEase = 'transition-transform duration-[400ms] ease-[cubic-bezier(0.77,0,0.18,1)]';
 
 // Visual half of the auth page: candlestick canvas + gradient + copy.
 // Slides right when the register/reset forms are open.
@@ -70,7 +70,7 @@ function FormStrip({ mode, children }: { mode: Mode; children: React.ReactNode }
             className={`absolute inset-y-0 left-0 z-[2] w-full translate-x-0 overflow-hidden border-border-subtle bg-background md:left-1/2 md:w-1/2 md:border-l ${paneEase} ${shifted ? 'md:-translate-x-full' : ''}`}
         >
             <div
-                className="flex w-[300%] h-full transition-transform duration-[650ms] ease-[cubic-bezier(0.77,0,0.18,1)]"
+                className="flex w-[300%] h-full transition-transform duration-[400ms] ease-[cubic-bezier(0.77,0,0.18,1)]"
                 style={{ transform: `translateX(${TRACK_X[mode]})` }}
             >
                 {children}
@@ -99,9 +99,12 @@ export default function AuthLayout() {
         }
     }, [redirecting, restore, router, sessionStatus]);
 
-    if (sessionStatus === 'checking' || redirecting) return null;
-    if (session.status === 'error') {
-        return (
+    let content: React.ReactNode;
+
+    if (sessionStatus === 'checking' || redirecting) {
+        content = null;
+    } else if (session.status === 'error') {
+        content = (
             <div className="flex min-h-screen items-center justify-center bg-background p-6">
                 <div className="flex max-w-md flex-col items-center gap-4 text-center">
                     <h1 className="m-0 text-lg font-semibold text-card-foreground">
@@ -120,10 +123,8 @@ export default function AuthLayout() {
                 </div>
             </div>
         );
-    }
-
-    return (
-        <GoogleAuthProvider onAuthStart={() => setSigningInHere(true)}>
+    } else {
+        content = (
             <div className="relative h-screen min-h-[640px] w-full overflow-hidden bg-background">
                 <Tape
                     items={TOP_TICKS}
@@ -152,6 +153,12 @@ export default function AuthLayout() {
                     className="absolute bottom-0 left-0 right-0 h-11 border-t border-border-subtle"
                 />
             </div>
+        );
+    }
+
+    return (
+        <GoogleAuthProvider onAuthStart={() => setSigningInHere(true)}>
+            {content}
         </GoogleAuthProvider>
     );
 }

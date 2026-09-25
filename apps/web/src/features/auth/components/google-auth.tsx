@@ -174,13 +174,20 @@ export function GoogleSignInButton() {
     return (
         <div className="flex w-full flex-col items-center gap-2">
             <div
-                className={`flex min-h-10 w-full justify-center ${pending ? 'pointer-events-none opacity-60' : ''}`}
-                aria-busy={pending}
+                className={`flex h-11 w-full justify-center ${pending ? 'pointer-events-none opacity-60' : ''}`}
+                aria-busy={!ready || pending}
             >
                 <div
                     ref={buttonRef}
-                    className="min-h-10 w-full max-w-[400px] overflow-hidden rounded-lg"
-                />
+                    className="h-11 w-full max-w-[400px] overflow-hidden rounded-lg bg-white [clip-path:inset(0_round_10px)]"
+                >
+                    {!ready && !error && (
+                        <div
+                            className="h-full w-full animate-pulse rounded-lg border border-border bg-white/90"
+                            aria-hidden="true"
+                        />
+                    )}
+                </div>
             </div>
             {error && (
                 <p className={errorCls} role="alert">

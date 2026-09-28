@@ -1,4 +1,12 @@
-import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    Injectable,
+    Logger,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
@@ -10,6 +18,8 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { createHash, randomBytes } from 'crypto';
 import ms, { StringValue } from 'ms';
 import { OAuth2Client, type TokenPayload } from 'google-auth-library';
+import { EmailVerificationRepository } from './email-verification.repository';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +29,8 @@ export class AuthService {
     constructor(
         private readonly users: UsersRepository,
         private readonly refreshTokens: RefreshTokenRepository,
+        private readonly verification: EmailVerificationRepository,
+        private readonly emailService: EmailService,
         private readonly jwt: JwtService,
         private readonly config: ConfigService<Env>,
     ) {} // <Env> so infer knows the type
@@ -27,8 +39,16 @@ export class AuthService {
         const passwordHash: string = await bcrypt.hash(body.password, 12);
         const user = await this.users.create(body.username, body.email, passwordHash);
 
-        const tokens = await this.issueTokens(user.id, user.email);
-        return { tokens, user: { id: user.id, email: user.email } };
+        try {
+            await this.sendVerification(user.id, user.email);
+        } catch (error) {
+            this.logger.error('Could not send the first verification email', error);
+        }
+
+        return {
+            email: user.email,
+            verificationRequired: true,
+        };
     }
 
     async login(body: LoginDto) {
@@ -40,6 +60,12 @@ export class AuthService {
             !(await bcrypt.compare(body.password, user.password_hash))
         ) {
             throw new UnauthorizedException('Invalid credentials');
+        }
+
+        if (!user.email_verified_at) {
+            throw new ForbiddenException(
+                'Verify your email before signing in. You can request a new link.',
+            );
         }
 
         const tokens = await this.issueTokens(user.id, user.email);
@@ -84,7 +110,12 @@ export class AuthService {
     async refresh(rawRefreshToken: string) {
         // Opaque token: look it up by hash, reject if missing / revoked / expired
         const stored = await this.refreshTokens.findByHash(this.hash(rawRefreshToken));
-        if (!stored || stored.revoked_at || stored.expires_at.getTime() < Date.now()) {
+        if (
+            !stored ||
+            stored.revoked_at ||
+            stored.expires_at.getTime() < Date.now() ||
+            !stored.email_verified_at
+        ) {
             throw new UnauthorizedException('Invalid refresh token');
         }
 
@@ -98,7 +129,47 @@ export class AuthService {
         await this.refreshTokens.revokeByHash(this.hash(rawRefreshToken));
     }
 
+    async verifyEmail(rawToken: string) {
+        const user = await this.verification.verifyTokenAndMarkEmailVerified(this.hash(rawToken));
+
+        if (!user) {
+            throw new BadRequestException('This verification link is invalid or expired.');
+        }
+
+        return { verified: true };
+    }
+
+    async resendVerification(email: string): Promise<void> {
+        const user = await this.users.findByEmail(email);
+
+        if (!user) {
+            throw new NotFoundException('No account was found with this email address.');
+        }
+
+        if (user.email_verified_at) {
+            throw new BadRequestException('This email address is already verified.');
+        }
+
+        if (!user.password_hash) {
+            throw new BadRequestException('This account uses Google sign-in.');
+        }
+
+        try {
+            await this.sendVerification(user.id, user.email);
+        } catch (error) {
+            this.logger.error('Could not resend a verification email', error);
+        }
+    }
+
     // --- helpers ---
+
+    private async sendVerification(userId: string, email: string): Promise<void> {
+        const rawToken = randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+        await this.verification.createOrReplaceToken(userId, this.hash(rawToken), expiresAt);
+        await this.emailService.sendVerificationEmail(email, rawToken);
+    }
 
     /** Mint an access token (JWT) + an opaque refresh token, persisting only the refresh token's hash. */
     private async issueTokens(userId: string, email: string) {

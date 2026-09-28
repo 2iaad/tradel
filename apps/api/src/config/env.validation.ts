@@ -23,6 +23,9 @@ const envSchema = z
         jwtRefreshTtl: z.string().default('7d'),
 
         googleClientId: z.string().min(1),
+
+        resendApiKey: z.string().startsWith('re_'),
+        resendFromEmail: z.string().min(1),
     })
     .superRefine((data, ctx) => {
         if (data.nodeEnv === 'development') {
@@ -57,7 +60,9 @@ export function validate(config: { [key: string]: unknown }): Env {
     const result = envSchema.safeParse({
         nodeEnv: config.NODE_ENV,
         port: config.PORT,
+
         allowedOrigins: config.ALLOWED_ORIGINS,
+
         dbName: config.DB_NAME,
         dbUser: config.DB_USER,
         dbPassword: config.DB_PASSWORD,
@@ -65,11 +70,16 @@ export function validate(config: { [key: string]: unknown }): Env {
         dbHost: config.DB_HOST,
         dbData: config.DB_DATA,
         dbUrl: config.DB_URL ?? config.DATABASE_URL, // Heroku Postgres provides DATABASE_URL
+
         jwtAccessSecret: config.JWT_ACCESS_SECRET,
         jwtRefreshSecret: config.JWT_REFRESH_SECRET,
         jwtAccessTtl: config.JWT_ACCESS_TTL,
         jwtRefreshTtl: config.JWT_REFRESH_TTL,
+
         googleClientId: config.GOOGLE_CLIENT_ID,
+
+        resendApiKey: config.RESEND_API_KEY,
+        resendFromEmail: config.RESEND_FROM_EMAIL,
     });
 
     if (!result.success) {

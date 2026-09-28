@@ -52,7 +52,7 @@ interface GoogleAuthContextValue {
     ready: boolean;
     pending: boolean;
     error: string | null;
-    renderButton: (element: HTMLElement) => void;
+    renderButton: (element: HTMLElement, width: number) => void;
 }
 
 const GoogleAuthContext = createContext<GoogleAuthContextValue | null>(null);
@@ -127,7 +127,7 @@ export function GoogleAuthProvider({
     }, [handleCredential]);
 
     const renderButton = useCallback(
-        (element: HTMLElement) => {
+        (element: HTMLElement, width: number) => {
             const googleIdentity = window.google?.accounts.id;
             if (!ready || !googleIdentity) return;
 
@@ -139,7 +139,7 @@ export function GoogleAuthProvider({
                 text: 'continue_with',
                 shape: 'rectangular',
                 logo_alignment: 'center',
-                width: 400,
+                width,
             });
         },
         [ready],
@@ -168,19 +168,38 @@ export function GoogleSignInButton() {
     const buttonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (buttonRef.current) renderButton(buttonRef.current);
+        const element = buttonRef.current;
+        if (!element || !ready) return;
+
+        const renderAtAvailableWidth = () => {
+            const width = Math.min(400, Math.floor(element.clientWidth));
+            if (width > 0) renderButton(element, width);
+        };
+
+        renderAtAvailableWidth();
+        const observer = new ResizeObserver(renderAtAvailableWidth);
+        observer.observe(element);
+
+        return () => observer.disconnect();
     }, [ready, renderButton]);
 
     return (
         <div className="flex w-full flex-col items-center gap-2">
             <div
-                className={`flex min-h-10 w-full justify-center ${pending ? 'pointer-events-none opacity-60' : ''}`}
-                aria-busy={pending}
+                className={`flex h-11 w-full justify-center ${pending ? 'pointer-events-none opacity-60' : ''}`}
+                aria-busy={!ready || pending}
             >
                 <div
                     ref={buttonRef}
-                    className="min-h-10 w-full max-w-[400px] overflow-hidden rounded-lg"
-                />
+                    className="h-11 w-full max-w-[400px] overflow-hidden rounded-lg bg-white [clip-path:inset(0_round_10px)]"
+                >
+                    {!ready && !error && (
+                        <div
+                            className="h-full w-full animate-pulse rounded-lg border border-border bg-white/90"
+                            aria-hidden="true"
+                        />
+                    )}
+                </div>
             </div>
             {error && (
                 <p className={errorCls} role="alert">

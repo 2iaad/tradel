@@ -20,7 +20,7 @@ import type { Mode } from '../hooks/use-auth-mode';
 // Shared bits for the three sliding auth forms.
 
 const formCls =
-    'flex-[0_0_33.3333%] box-border flex flex-col items-center justify-center gap-[18px] px-6 sm:px-[clamp(40px,7vw,120px)] [&>*]:w-full [&>*]:max-w-[400px]';
+    'min-w-0 flex-[0_0_33.3333%] box-border flex flex-col items-center justify-start gap-[18px] overflow-y-auto px-6 py-8 sm:px-[clamp(40px,7vw,120px)] md:py-6 lg:justify-center [&>*]:w-full [&>*]:max-w-[400px] [&>*]:shrink-0';
 
 const AUTH_SUCCESS_HOLD_MS = 900;
 const DEFAULT_RETRY_SECONDS = 60;

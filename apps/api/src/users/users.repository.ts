@@ -36,6 +36,7 @@ export class UsersRepository {
                     username: null,
                     password_hash: null,
                     google_sub: googleId,
+                    email_verified_at: new Date(),
                 },
             });
         } catch (error: unknown) {

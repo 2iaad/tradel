@@ -87,14 +87,10 @@ export class AuthController {
     }
 
     @Post('register')
-    @ApiOperation({ summary: 'Create an account and set both auth cookies' })
-    @ApiCreatedResponse({ description: 'Returns the user ID and email; sets both auth cookies' })
-    async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
-        const { tokens, user } = await this.authService.register(body);
-
-        this.setAccessCookie(res, tokens.accessToken);
-        this.setRefreshCookie(res, tokens.refreshToken);
-        return user;
+    @ApiOperation({ summary: 'Create an account and send a verification email' })
+    @ApiCreatedResponse({ description: 'Account created; verification email sent' })
+    register(@Body() body: RegisterDto) {
+        return this.authService.register(body);
     }
 
     @Post('refresh')

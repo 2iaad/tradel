@@ -18,13 +18,18 @@ export class RefreshTokenRepository {
         });
     }
 
-    /** Look up by the token's sha256 hash and flatten the owning user's email. */
-    async findByHash(tokenHash: string): Promise<(RefreshToken & { email: string }) | null> {
+    /** Look up by the token's sha256 hash and flatten the owning user's auth fields. */
+    async findByHash(
+        tokenHash: string,
+    ): Promise<(RefreshToken & { email: string; email_verified_at: Date | null }) | null> {
         const token = await this.prisma.refresh_tokens.findFirst({
             where: { token_hash: tokenHash },
             include: {
                 users: {
-                    select: { email: true },
+                    select: {
+                        email: true,
+                        email_verified_at: true,
+                    },
                 },
             },
         });
@@ -32,7 +37,11 @@ export class RefreshTokenRepository {
         if (!token) return null;
 
         const { users, ...refreshToken } = token;
-        return { ...refreshToken, email: users.email };
+        return {
+            ...refreshToken,
+            email: users.email,
+            email_verified_at: users.email_verified_at,
+        };
     }
 
     async revokeByHash(tokenHash: string): Promise<void> {

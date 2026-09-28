@@ -13,6 +13,7 @@ import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 import { GoogleLoginDto, LoginDto } from './dto/login.dto';
+import { ResendVerificationDto, VerifyEmailDto } from './dto/email-verification.dto';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
@@ -91,6 +92,20 @@ export class AuthController {
     @ApiCreatedResponse({ description: 'Account created; verification email sent' })
     register(@Body() body: RegisterDto) {
         return this.authService.register(body);
+    }
+
+    @Post('verify-email')
+    @HttpCode(200)
+    @ApiOperation({ summary: 'Verify a password account email' })
+    verifyEmail(@Body() body: VerifyEmailDto) {
+        return this.authService.verifyEmail(body.token);
+    }
+
+    @Post('resend-verification')
+    @HttpCode(204)
+    @ApiOperation({ summary: 'Request another verification email' })
+    async resendVerification(@Body() body: ResendVerificationDto) {
+        await this.authService.resendVerification(body.email);
     }
 
     @Post('refresh')

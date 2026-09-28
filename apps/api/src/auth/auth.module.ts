@@ -10,6 +10,8 @@ import { AuthController } from './auth.controller'; // controllers
 import { AuthService } from './auth.service'; // providers
 import { UsersRepository } from 'src/users/users.repository'; // providers
 import { RefreshTokenRepository } from './refresh-token.repository';
+import { EmailVerificationRepository } from './email-verification.repository';
+import { EmailService } from './email.service';
 
 @Module({
     imports: [
@@ -36,6 +38,12 @@ import { RefreshTokenRepository } from './refresh-token.repository';
     ],
 
     controllers: [AuthController], // handles GET /users, POST /users, etc.
-    providers: [AuthService, UsersRepository, RefreshTokenRepository], // business logic
+    providers: [
+        AuthService,
+        UsersRepository,
+        RefreshTokenRepository,
+        EmailVerificationRepository,
+        EmailService,
+    ], // business logic
 })
 export class AuthModule {}

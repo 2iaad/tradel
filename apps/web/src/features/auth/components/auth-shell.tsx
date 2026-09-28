@@ -16,13 +16,13 @@ import { GoogleAuthProvider } from './google-auth';
 
 function HeroCopy() {
     return (
-        <div className="absolute inset-0 flex flex-col justify-between box-border px-[52px] py-11">
+        <div className="absolute inset-0 flex flex-col justify-between box-border px-8 py-9 lg:px-[52px] lg:py-11">
             <div className="flex items-center gap-2.5">
                 <span className="w-[9px] h-[9px] rounded-full bg-primary animate-[tradelPulse_2.2s_ease-out_infinite]" />
                 <TradelLogo className="h-6 w-[101px]" />
             </div>
             <div className="flex flex-col gap-3.5">
-                <h1 className="m-0 text-6xl! font-semibold leading-[1.05] tracking-[-0.02em] text-card-foreground">
+                <h1 className="m-0 text-4xl! font-semibold lg:text-6xl! leading-[1.05] tracking-[-0.02em] text-card-foreground">
                     Every trade,
                     <br />
                     on the record.
@@ -125,7 +125,7 @@ export default function AuthLayout() {
         );
     } else {
         content = (
-            <div className="relative h-screen min-h-[640px] w-full overflow-hidden bg-background">
+            <div className="relative h-dvh min-h-[520px] w-full overflow-hidden bg-background">
                 <Tape
                     items={TOP_TICKS}
                     duration="46s"

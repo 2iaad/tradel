@@ -52,7 +52,7 @@ interface GoogleAuthContextValue {
     ready: boolean;
     pending: boolean;
     error: string | null;
-    renderButton: (element: HTMLElement) => void;
+    renderButton: (element: HTMLElement, width: number) => void;
 }
 
 const GoogleAuthContext = createContext<GoogleAuthContextValue | null>(null);
@@ -127,7 +127,7 @@ export function GoogleAuthProvider({
     }, [handleCredential]);
 
     const renderButton = useCallback(
-        (element: HTMLElement) => {
+        (element: HTMLElement, width: number) => {
             const googleIdentity = window.google?.accounts.id;
             if (!ready || !googleIdentity) return;
 
@@ -139,7 +139,7 @@ export function GoogleAuthProvider({
                 text: 'continue_with',
                 shape: 'rectangular',
                 logo_alignment: 'center',
-                width: 400,
+                width,
             });
         },
         [ready],
@@ -168,7 +168,19 @@ export function GoogleSignInButton() {
     const buttonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (buttonRef.current) renderButton(buttonRef.current);
+        const element = buttonRef.current;
+        if (!element || !ready) return;
+
+        const renderAtAvailableWidth = () => {
+            const width = Math.min(400, Math.floor(element.clientWidth));
+            if (width > 0) renderButton(element, width);
+        };
+
+        renderAtAvailableWidth();
+        const observer = new ResizeObserver(renderAtAvailableWidth);
+        observer.observe(element);
+
+        return () => observer.disconnect();
     }, [ready, renderButton]);
 
     return (

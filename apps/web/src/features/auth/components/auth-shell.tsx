@@ -139,10 +139,7 @@ export default function AuthLayout() {
                             onSwitch={setMode}
                             onSubmitStart={() => setSigningInHere(true)}
                         />
-                        <RegisterForm
-                            onSwitch={setMode}
-                            onSubmitStart={() => setSigningInHere(true)}
-                        />
+                        <RegisterForm onSwitch={setMode} />
                         <ResetForm onSwitch={setMode} />
                     </FormStrip>
                 </div>

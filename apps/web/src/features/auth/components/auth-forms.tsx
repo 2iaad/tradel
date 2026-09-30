@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { FluxButton } from '@/components/ui/flux-button';
 import { useAuthSubmit } from '@/features/auth/hooks/use-auth-submit';
 import { useSessionStore } from '@/features/auth/store';
-import { apiMessage } from '@/lib/api';
+import { api, apiMessage } from '@/lib/api';
 import { btnCls, errorCls, kickerCls, linkCls } from '@/lib/ui';
 import { EmailField, PasswordField, UsernameField } from './fields';
 import { GoogleSignInButton } from './google-auth';
@@ -221,40 +221,86 @@ export function LoginForm({
 }
 
 // Account-creation form; owns its own submit/pending/error state.
-export function RegisterForm({
-    onSwitch,
-    onSubmitStart,
-}: {
-    onSwitch: (m: Mode) => void;
-    onSubmitStart: () => void;
-}) {
-    const router = useRouter();
+export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const formRef = useRef<HTMLFormElement>(null);
-    const register = useSessionStore((state) => state.register);
-    const sessionPending = useSessionStore((state) => state.pendingAction !== null);
+    const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+    const [resending, setResending] = useState(false);
+    const [resendMessage, setResendMessage] = useState<string | null>(null);
+    const [resendError, setResendError] = useState<string | null>(null);
+
     const registerAction = async (form: FormData) => {
+        const email = form.get('email') as string;
+
         try {
-            await register({
+            await api.post('/auth/register', {
                 username: form.get('username') as string,
-                email: form.get('email') as string,
+                email,
                 password: form.get('password') as string,
             });
+            setVerificationEmail(email);
         } catch (error) {
             throw new Error(apiMessage(error));
         }
     };
-    const { error, submit } = useAuthSubmit(registerAction, () => {
-        window.setTimeout(() => router.push('/dashboard'), AUTH_SUCCESS_HOLD_MS);
-    });
+    const { error, pending, submit } = useAuthSubmit(registerAction, () => undefined);
 
     const submitRegistration = () => {
         if (!formRef.current) return Promise.reject(new Error('Registration form is unavailable'));
         if (!formRef.current.reportValidity()) {
             return Promise.reject(new Error('Please complete the required fields'));
         }
-        onSubmitStart();
         return submit(new FormData(formRef.current));
     };
+
+    const resendVerification = async () => {
+        if (!verificationEmail || resending) return;
+
+        setResending(true);
+        setResendError(null);
+        setResendMessage(null);
+
+        try {
+            await api.post('/auth/resend-verification', {
+                email: verificationEmail,
+            });
+            setResendMessage('A new verification email was sent.');
+        } catch (error) {
+            setResendError(apiMessage(error));
+        } finally {
+            setResending(false);
+        }
+    };
+
+    if (verificationEmail) {
+        return (
+            <div className={formCls}>
+                <FormHeading kicker="" title="Check your email" />
+                <p className="m-0 text-sm leading-[1.55] text-muted-foreground">
+                    We sent a verification link to <strong>{verificationEmail}</strong>. Verify your
+                    email before signing in.
+                </p>
+                {resendMessage && (
+                    <p className="m-0 text-ui-sm text-profit" role="status">
+                        {resendMessage}
+                    </p>
+                )}
+                {resendError && (
+                    <p className={errorCls} role="alert">
+                        {resendError}
+                    </p>
+                )}
+                <Button
+                    type="button"
+                    className={btnCls}
+                    disabled={resending}
+                    onClick={() => void resendVerification()}
+                >
+                    {resending ? 'Sending…' : 'Resend verification email'}
+                </Button>
+                <SwitchLine label="Go to sign in" onClick={() => onSwitch('login')} />
+            </div>
+        );
+    }
 
     return (
         <form ref={formRef} className={formCls}>
@@ -268,7 +314,7 @@ export function RegisterForm({
                 idleLabel="Create account"
                 loadingLabel="Creating account"
                 successLabel="Account created"
-                disabled={sessionPending}
+                disabled={pending}
                 onAction={submitRegistration}
             />
             <AuthDivider />

@@ -26,6 +26,12 @@ const AUTH_SUCCESS_HOLD_MS = 900;
 const DEFAULT_RETRY_SECONDS = 60;
 const MAX_RETRY_SECONDS = 15 * 60;
 
+interface RegisterResponse {
+    email: string;
+    verificationRequired: boolean;
+    emailSent: boolean;
+}
+
 function getRetryAfterSeconds(value: unknown): number {
     const seconds = Number(value);
 
@@ -148,6 +154,10 @@ export function LoginForm({
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const [retryIn, setRetryIn] = useState(0);
+    const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+    const [resending, setResending] = useState(false);
+    const [resendMessage, setResendMessage] = useState<string | null>(null);
+    const [resendError, setResendError] = useState<string | null>(null);
     const login = useSessionStore((state) => state.login);
     const sessionPending = useSessionStore((state) => state.pendingAction !== null);
 
@@ -165,6 +175,10 @@ export function LoginForm({
         async (f) => {
             const email = f.get('email') as string;
             const password = f.get('password') as string;
+            setUnverifiedEmail(null);
+            setResendMessage(null);
+            setResendError(null);
+
             try {
                 await login({ email, password });
             } catch (err) {
@@ -172,6 +186,10 @@ export function LoginForm({
                     const seconds = getRetryAfterSeconds(err.response.headers['retry-after']);
                     setRetryIn(seconds);
                     throw new Error('Too many sign-in attempts.');
+                }
+
+                if (axios.isAxiosError(err) && err.response?.status === 403) {
+                    setUnverifiedEmail(email);
                 }
 
                 throw new Error(apiMessage(err));
@@ -191,15 +209,53 @@ export function LoginForm({
         return submit(new FormData(formRef.current));
     };
 
+    const resendVerification = async () => {
+        if (!unverifiedEmail || resending) return;
+
+        setResending(true);
+        setResendMessage(null);
+        setResendError(null);
+
+        try {
+            await api.post('/auth/resend-verification', { email: unverifiedEmail });
+            setResendMessage('A new verification email was sent.');
+        } catch (err) {
+            setResendError(apiMessage(err));
+        } finally {
+            setResending(false);
+        }
+    };
+
     return (
         <form ref={formRef} className={formCls}>
             <FormHeading kicker="" title="Welcome back" />
-            <EmailField />
-            <PasswordField />
-            <RememberRow onReset={() => onSwitch('reset')} />
             {error && (
                 <p className={errorCls} role="alert">
                     {error}
+                </p>
+            )}
+            <EmailField />
+            <PasswordField />
+            <RememberRow onReset={() => onSwitch('reset')} />
+            {unverifiedEmail && (
+                <Button
+                    type="button"
+                    variant="link"
+                    className={`${linkCls} h-auto justify-start p-0 text-ui-sm`}
+                    disabled={resending}
+                    onClick={() => void resendVerification()}
+                >
+                    {resending ? 'Sending…' : 'Resend verification email'}
+                </Button>
+            )}
+            {resendMessage && (
+                <p className="m-0 text-ui-sm text-profit" role="status">
+                    {resendMessage}
+                </p>
+            )}
+            {resendError && (
+                <p className={errorCls} role="alert">
+                    {resendError}
                 </p>
             )}
             <FluxSubmit
@@ -224,6 +280,7 @@ export function LoginForm({
 export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
     const formRef = useRef<HTMLFormElement>(null);
     const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+    const [emailSent, setEmailSent] = useState(true);
     const [resending, setResending] = useState(false);
     const [resendMessage, setResendMessage] = useState<string | null>(null);
     const [resendError, setResendError] = useState<string | null>(null);
@@ -232,12 +289,13 @@ export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
         const email = form.get('email') as string;
 
         try {
-            await api.post('/auth/register', {
+            const response = await api.post<RegisterResponse>('/auth/register', {
                 username: form.get('username') as string,
                 email,
                 password: form.get('password') as string,
             });
-            setVerificationEmail(email);
+            setVerificationEmail(response.data.email);
+            setEmailSent(response.data.emailSent);
         } catch (error) {
             throw new Error(apiMessage(error));
         }
@@ -263,6 +321,7 @@ export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             await api.post('/auth/resend-verification', {
                 email: verificationEmail,
             });
+            setEmailSent(true);
             setResendMessage('A new verification email was sent.');
         } catch (error) {
             setResendError(apiMessage(error));
@@ -276,8 +335,17 @@ export function RegisterForm({ onSwitch }: { onSwitch: (m: Mode) => void }) {
             <div className={formCls}>
                 <FormHeading kicker="" title="Check your email" />
                 <p className="m-0 text-sm leading-[1.55] text-muted-foreground">
-                    We sent a verification link to <strong>{verificationEmail}</strong>. Verify your
-                    email before signing in.
+                    {emailSent ? (
+                        <>
+                            We sent a verification link to <strong>{verificationEmail}</strong>.
+                            Verify your email before signing in.
+                        </>
+                    ) : (
+                        <>
+                            Your account was created, but we could not send an email to{' '}
+                            <strong>{verificationEmail}</strong>. Try again below.
+                        </>
+                    )}
                 </p>
                 {resendMessage && (
                     <p className="m-0 text-ui-sm text-profit" role="status">

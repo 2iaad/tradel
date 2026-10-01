@@ -17,8 +17,8 @@ interface Credentials {
     password: string;
 }
 
-type AuthAction = 'login' | 'register' | 'google';
-type AuthBody = Credentials | (Credentials & { username: string }) | { credential: string };
+type AuthAction = 'login' | 'google';
+type AuthBody = Credentials | { credential: string };
 
 interface SessionStore {
     session: Session;
@@ -26,7 +26,6 @@ interface SessionStore {
     pendingAction: AuthAction | 'logout' | null;
     restore: () => Promise<void>;
     login: (credentials: Credentials) => Promise<void>;
-    register: (credentials: Credentials & { username: string }) => Promise<void>;
     googleLogin: (credential: string) => Promise<void>;
     startDemo: () => void;
     signOut: () => Promise<void>;
@@ -128,7 +127,6 @@ export const useSessionStore = create<SessionStore>((set, get) => {
         },
 
         login: (credentials) => authenticate('login', credentials),
-        register: (credentials) => authenticate('register', credentials),
         googleLogin: (credential) => authenticate('google', { credential }),
 
         startDemo: () => {

@@ -5,6 +5,7 @@ import {
     Injectable,
     Logger,
     NotFoundException,
+    ServiceUnavailableException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
@@ -39,15 +40,19 @@ export class AuthService {
         const passwordHash: string = await bcrypt.hash(body.password, 12);
         const user = await this.users.create(body.username, body.email, passwordHash);
 
+        let emailSent = true;
+
         try {
             await this.sendVerification(user.id, user.email);
         } catch (error) {
             this.logger.error('Could not send the first verification email', error);
+            emailSent = false;
         }
 
         return {
             email: user.email,
             verificationRequired: true,
+            emailSent,
         };
     }
 
@@ -158,6 +163,9 @@ export class AuthService {
             await this.sendVerification(user.id, user.email);
         } catch (error) {
             this.logger.error('Could not resend a verification email', error);
+            throw new ServiceUnavailableException(
+                'We could not send the verification email. Please try again later.',
+            );
         }
     }
 

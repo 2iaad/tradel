@@ -9,6 +9,8 @@ export const api = axios.create({
 const NO_REFRESH_ROUTES = [
     '/auth/login',
     '/auth/register',
+    '/auth/verify-email',
+    '/auth/resend-verification',
     '/auth/google',
     '/auth/refresh',
     '/auth/logout',

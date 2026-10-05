@@ -3,11 +3,8 @@
 import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 
-const databaseUrl = process.env.DB_URL ?? process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-    throw new Error('DB_URL or DATABASE_URL is required');
-}
+// Client generation does not connect to PostgreSQL, so builds can run without database credentials.
+const databaseUrl = process.env.DB_URL ?? process.env.DATABASE_URL ?? '';
 
 export default defineConfig({
     schema: 'prisma/schema.prisma',

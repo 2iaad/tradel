@@ -2,9 +2,8 @@
     "name": "tradel",
     "private": true,
     "workspaces": [
-        "packages/shared",
-        "apps/api",
-        "apps/web"
+        "apps/*",
+        "packages/*"
     ],
     "scripts": {
         "predev": "npm run build:shared",

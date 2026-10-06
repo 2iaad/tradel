@@ -9,10 +9,10 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const backendDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const databaseDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const envFile = process.env.DBML_ENV_FILE
     ? resolve(process.cwd(), process.env.DBML_ENV_FILE)
-    : resolve(backendDirectory, '.env');
+    : resolve(databaseDirectory, '.env');
 
 if (existsSync(envFile)) {
     loadEnvFile(envFile);
@@ -32,7 +32,7 @@ if (!databaseUrl.searchParams.has('schemas')) {
 
 const outputFile = resolve(
     process.cwd(),
-    process.argv[2] ?? resolve(backendDirectory, 'database.dbml'),
+    process.argv[2] ?? resolve(databaseDirectory, 'database.dbml'),
 );
 const temporaryOutputFile = resolve(
     dirname(outputFile),
@@ -42,7 +42,7 @@ let cliFile;
 try {
     cliFile = require.resolve('@dbml/cli/bin/db2dbml.js');
 } catch {
-    cliFile = resolve(backendDirectory, 'node_modules/@dbml/cli/bin/db2dbml.js');
+    cliFile = resolve(databaseDirectory, 'node_modules/@dbml/cli/bin/db2dbml.js');
 }
 
 if (!existsSync(cliFile)) {

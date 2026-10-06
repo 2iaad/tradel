@@ -76,10 +76,11 @@ Tradel is an npm workspace with two applications and a shared package:
 
 ```text
 apps/
-├── api/    # NestJS API and Prisma schema
+├── api/    # NestJS API
 └── web/    # Next.js web application
 packages/
-└── shared/ # Shared API types and constants (@tradel/shared)
+├── database/ # Prisma schema, migrations, and database client (@tradel/database)
+└── shared/   # Shared API types and constants (@tradel/shared)
 ```
 
 Install all dependencies once from the repository root:
@@ -95,18 +96,24 @@ npm run dev:api
 npm run dev:web
 ```
 
-Use `npm run dev` to start both apps. These root development commands build
-`@tradel/shared` first and watch it for changes. Both apps can import from
-`@tradel/shared`; its API definitions will be added during the shared types migration.
+Use `npm run dev` to start both apps. It watches `@tradel/database`, `@tradel/shared`,
+the API, and the frontend. `npm run dev:api` watches the database and shared packages
+with the API, while `npm run dev:web` watches only the browser-safe shared package
+with the frontend.
 
 Run `npm run build` to build both apps for production. Each app's build command
-builds the shared package first. Run `npm run build:shared` to build only the shared package.
+builds its internal dependencies first. Run `npm run build:packages` to build both
+internal packages, or use `npm run build:database` and `npm run build:shared`
+separately.
 
 For frontend structure, coding conventions, and checks, read the [frontend guide](apps/web/README.md).
 
 ## Database and Prisma
 
-The API uses Prisma Client for the main application repositories: users, refresh tokens, accounts, trades, and notes. These repositories use Prisma queries instead of handwritten CRUD SQL. The Prisma schema is stored in `apps/api/prisma/schema.prisma`.
+The API uses Prisma Client for the main application repositories: users, refresh tokens,
+accounts, trades, and notes. The reusable client, generated types, schema, and migrations
+belong to `@tradel/database`. The Prisma schema is stored in
+`packages/database/prisma/schema.prisma`.
 
 Generate Prisma Client from the repository root:
 
@@ -124,13 +131,22 @@ The analytics repository still uses PostgreSQL report queries for grouped statis
 
 ### Generate the current database diagram
 
-With PostgreSQL running and `DB_URL` set in `apps/api/.env`, generate DBML from the live database:
+With PostgreSQL running and `DB_URL` available in the shell or in
+`packages/database/.env`, generate DBML from the live database:
 
 ```bash
 npm run diagram:generate
 ```
 
-The generator rewrites `apps/api/database.dbml`. Import that file into [dbdiagram.io](https://dbdiagram.io) to render the database diagram. It reads the live PostgreSQL schema, so the diagram matches the database currently selected by `DB_URL`.
+The generator rewrites `packages/database/database.dbml`. Import that file into
+[dbdiagram.io](https://dbdiagram.io) to render the database diagram. It reads the live
+PostgreSQL schema, so the diagram matches the database currently selected by `DB_URL`.
+
+To reuse the API environment file for this command, run:
+
+```bash
+DBML_ENV_FILE=apps/api/.env npm run diagram:generate
+```
 
 You can select another environment or output file without editing the script:
 

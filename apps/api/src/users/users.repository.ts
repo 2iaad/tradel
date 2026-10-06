@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { Prisma, type users as User } from 'src/generated/prisma/client';
+import { Prisma, type users as User } from '@tradel/database';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

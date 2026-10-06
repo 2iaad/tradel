@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, type trades as Trade } from 'src/generated/prisma/client';
+import { Prisma, type trades as Trade } from '@tradel/database';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 export type { Trade };

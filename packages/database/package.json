@@ -1,0 +1,38 @@
+{
+    "name": "@tradel/database",
+    "version": "0.0.1",
+    "private": true,
+    "type": "commonjs",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "prebuild": "npm run prisma:generate",
+        "build": "tsc -p tsconfig.json",
+        "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+        "prisma:generate": "prisma generate",
+        "prisma:studio": "prisma studio",
+        "prisma:migrate:dev": "prisma migrate dev",
+        "prisma:migrate:deploy": "prisma migrate deploy",
+        "diagram:generate": "node scripts/generate-dbml.mjs"
+    },
+    "dependencies": {
+        "@prisma/adapter-pg": "7.10.0",
+        "@prisma/client": "7.10.0",
+        "pg": "^8.21.0"
+    },
+    "devDependencies": {
+        "@dbml/cli": "^10.1.0",
+        "@types/node": "^24.0.0",
+        "@types/pg": "^8.23.1",
+        "dotenv": "^17.4.2",
+        "prisma": "7.10.0",
+        "typescript": "^5.7.3"
+    }
+}
+

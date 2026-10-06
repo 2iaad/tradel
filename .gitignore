@@ -3,7 +3,7 @@ auth-routes.md
 vul.md
 TODO
 tradel-before-orm.dump
-/apps/api/src/generated/prisma/
+/packages/database/src/generated/prisma/
 
 git.md
 volumes

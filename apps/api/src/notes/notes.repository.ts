@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, type notes as Note } from 'src/generated/prisma/client';
+import { Prisma, type notes as Note } from '@tradel/database';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 export type { Note };

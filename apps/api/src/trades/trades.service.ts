@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@tradel/database';
 import { AccountsRepository } from 'src/accounts/accounts.repository';
-import { Prisma } from 'src/generated/prisma/client';
 import { TradesRepository } from './trades.repository';
 import { CreateTradeDto } from './dto/create-trade.dto';
 import { UpdateTradeDto } from './dto/update-trade.dto';

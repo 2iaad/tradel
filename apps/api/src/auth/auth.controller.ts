@@ -18,7 +18,7 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Env } from 'src/config/env.validation';
 import ms, { StringValue } from 'ms';
-import { JwtGuard } from './guards/jwt.guard';
+import { Public } from './decorators/public.decorator';
 import {
     ApiCookieAuth,
     ApiConflictResponse,
@@ -48,7 +48,6 @@ export class AuthController {
 
     @Get('me')
     @SkipThrottle()
-    @UseGuards(JwtGuard)
     @ApiOperation({ summary: 'Get the current user' })
     @ApiCookieAuth('access_token')
     @ApiOkResponse({ description: 'Returns the current user ID and email' })
@@ -60,6 +59,7 @@ export class AuthController {
         return { id, email };
     }
 
+    @Public()
     @Post('login')
     @HttpCode(200)
     @ApiOperation({ summary: 'Log in and set both auth cookies' })
@@ -73,6 +73,7 @@ export class AuthController {
         return user;
     }
 
+    @Public()
     @Post('google')
     @HttpCode(200)
     @ApiOperation({ summary: 'Sign in or register with Google and set both auth cookies' })
@@ -87,6 +88,7 @@ export class AuthController {
         return user;
     }
 
+    @Public()
     @Post('register')
     @ApiOperation({ summary: 'Create an account and send a verification email' })
     @ApiCreatedResponse({ description: 'Account created; verification email sent' })
@@ -94,6 +96,7 @@ export class AuthController {
         return this.authService.register(body);
     }
 
+    @Public()
     @Post('verify-email')
     @HttpCode(200)
     @ApiOperation({ summary: 'Verify a password account email' })
@@ -101,6 +104,7 @@ export class AuthController {
         return this.authService.verifyEmail(body.token);
     }
 
+    @Public()
     @Post('resend-verification')
     @HttpCode(204)
     @ApiOperation({ summary: 'Request another verification email' })
@@ -108,6 +112,7 @@ export class AuthController {
         await this.authService.resendVerification(body.email);
     }
 
+    @Public()
     @Post('refresh')
     @Throttle({ default: { limit: 30, ttl: 60_000 } })
     @HttpCode(204)
@@ -126,6 +131,7 @@ export class AuthController {
         this.setAccessCookie(res, accessToken);
     }
 
+    @Public()
     @Post('logout')
     @SkipThrottle()
     @HttpCode(204)

@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtGuard } from './guards/jwt.guard';
 
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -39,6 +41,7 @@ import { EmailService } from './email.service';
 
     controllers: [AuthController], // handles GET /users, POST /users, etc.
     providers: [
+        { provide: APP_GUARD, useClass: JwtGuard },
         AuthService,
         UsersRepository,
         RefreshTokenRepository,

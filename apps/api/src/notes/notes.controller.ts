@@ -1,6 +1,5 @@
-import { Controller, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Param, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -9,7 +8,6 @@ import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @ApiTags('notes')
 @ApiCookieAuth('access_token')
 @Controller('accounts/:accountId/trades/:tradeId/notes')
-@UseGuards(JwtGuard)
 export class NotesController {
     constructor(private readonly notesService: NotesService) {}
 

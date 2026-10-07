@@ -6,12 +6,10 @@ import {
     Patch,
     Param,
     Delete,
-    UseGuards,
     Req,
     HttpCode,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { TradesService } from './trades.service';
 import { CreateTradeDto } from './dto/create-trade.dto';
 import { UpdateTradeDto } from './dto/update-trade.dto';
@@ -20,7 +18,6 @@ import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @ApiTags('trades')
 @ApiCookieAuth('access_token')
 @Controller('accounts/:accountId/trades')
-@UseGuards(JwtGuard)
 export class TradesController {
     constructor(private readonly tradesService: TradesService) {}
 

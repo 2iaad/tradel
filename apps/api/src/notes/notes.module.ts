@@ -7,9 +7,6 @@ import { NotesRepository } from './notes.repository';
 
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { TradesModule } from 'src/trades/trades.module';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import type { Env } from 'src/config/env.validation';
 
 /*
 Mistakes i have done:
@@ -22,19 +19,7 @@ Mistakes i have done:
  */
 
 @Module({
-    imports: [
-        AccountsModule,
-        TradesModule,
-        JwtModule.registerAsync({
-            inject: [ConfigService],
-            useFactory: (config: ConfigService<Env>) => ({
-                secret: config.get('jwtAccessSecret', { infer: true }),
-                signOptions: {
-                    expiresIn: config.get('jwtAccessTtl', { infer: true }),
-                },
-            }),
-        }),
-    ],
+    imports: [AccountsModule, TradesModule],
     controllers: [NotesController, AccountNotesController],
     providers: [NotesService, NotesRepository],
 })
@@ -57,7 +42,7 @@ export class NotesModule {}
      + Trade check turns raw FK 500 into clean 404.
 
    Layer 2 — Controllers (2 files, split by scope)
-     + JwtGuard on class; userId from req.user.sub (never trusted body).
+     + Global JwtGuard; userId from req.user.sub (never trusted body).
      + UUID ids kept as strings; DELETE → 204.
      + notes.controller.ts        → POST under trade (create only).
        account-notes.controller.ts → GET/PATCH/DELETE under account.
@@ -66,7 +51,7 @@ export class NotesModule {}
    Layer 3 — Module (this file)
      + Imports AccountsModule/TradesModule for their exported repos —
        no duplicate instances, DI respected.
-     + JwtModule registered so JwtGuard can inject JwtService.
+     + Global JwtGuard is registered in AuthModule.
      + PrismaService is provided globally by PrismaModule.
 
    FOLLOW-UPS (non-blocking):

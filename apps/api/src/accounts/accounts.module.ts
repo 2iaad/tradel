@@ -1,25 +1,10 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import type { Env } from 'src/config/env.validation';
 
 import { AccountsService } from './accounts.service';
 import { AccountsController } from './accounts.controller';
 import { AccountsRepository } from './accounts.repository';
 
 @Module({
-    // JwtModule so JwtGuard can inject JwtService here (same config as AuthModule).
-    imports: [
-        JwtModule.registerAsync({
-            inject: [ConfigService],
-            useFactory: (config: ConfigService<Env>) => ({
-                secret: config.get('jwtAccessSecret', { infer: true }),
-                signOptions: {
-                    expiresIn: config.get('jwtAccessTtl', { infer: true }),
-                },
-            }),
-        }),
-    ],
     controllers: [AccountsController],
     providers: [AccountsService, AccountsRepository],
     exports: [AccountsRepository], // reused by TradesModule to check if account belongs to valide user

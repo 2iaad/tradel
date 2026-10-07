@@ -6,12 +6,10 @@ import {
     Patch,
     Param,
     Delete,
-    UseGuards,
     Req,
     HttpCode,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -20,7 +18,6 @@ import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 @ApiTags('accounts')
 @ApiCookieAuth('access_token')
 @Controller('accounts')
-@UseGuards(JwtGuard)
 export class AccountsController {
     constructor(private readonly accountsService: AccountsService) {}
 

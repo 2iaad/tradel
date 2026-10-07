@@ -1,13 +1,11 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { AnalyticsService } from './analytics.service';
 import { ApiCookieAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('analytics')
 @ApiCookieAuth('access_token')
 @Controller('accounts/:accountId/analytics')
-@UseGuards(JwtGuard)
 export class AnalyticsController {
     constructor(private readonly analytics: AnalyticsService) {}
 

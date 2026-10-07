@@ -1,7 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import type { Env } from 'src/config/env.validation';
 
 import { AccountsModule } from 'src/accounts/accounts.module';
 import { AnalyticsService } from './analytics.service';
@@ -11,15 +8,6 @@ import { AnalyticsRepository } from './analytics.repository';
 @Module({
     imports: [
         AccountsModule, // to inject AccountsRepository
-        JwtModule.registerAsync({
-            inject: [ConfigService],
-            useFactory: (config: ConfigService<Env>) => ({
-                secret: config.get('jwtAccessSecret', { infer: true }),
-                signOptions: {
-                    expiresIn: config.get('jwtAccessTtl', { infer: true }),
-                },
-            }),
-        }),
     ],
     controllers: [AnalyticsController],
     providers: [AnalyticsService, AnalyticsRepository],

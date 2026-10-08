@@ -129,6 +129,16 @@ npm run prisma:studio
 
 The analytics repository still uses PostgreSQL report queries for grouped statistics and calendar data. Moving those reports to Prisma's safe raw-query API is a separate migration step.
 
+### Database architecture
+
+The diagram below shows the database tables and their relationships.
+
+<!-- [![Tradel database tables and relationships](documentation/db.svg)](documentation/db.svg) -->
+
+<p align="center">
+  <img src="documentation/db.svg" alt="Database architecture" width="80%" />
+</p>
+
 ### Generate the current database diagram
 
 With PostgreSQL running and `DB_URL` available in the shell or in

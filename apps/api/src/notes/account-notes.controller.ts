@@ -1,13 +1,4 @@
-import {
-    Controller,
-    Get,
-    Patch,
-    Delete,
-    Body,
-    Param,
-    Req,
-    HttpCode,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Delete, Body, Param, Req, HttpCode } from '@nestjs/common';
 import type { Request } from 'express';
 import { NotesService } from './notes.service';
 import { UpdateNoteDto } from './dto/update-note.dto';

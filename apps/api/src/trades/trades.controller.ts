@@ -1,14 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    Req,
-    HttpCode,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, HttpCode } from '@nestjs/common';
 import type { Request } from 'express';
 import { TradesService } from './trades.service';
 import { CreateTradeDto } from './dto/create-trade.dto';
